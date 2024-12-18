@@ -7,8 +7,56 @@ import {
 } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Shield, Camera, Timer, Users, Clock, Star, CheckCircle, Award } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const ProductSection = () => {
+  const [timeLeft, setTimeLeft] = useState("23:59:59");
+  const [stockCount, setStockCount] = useState(5);
+  const [viewerCount, setViewerCount] = useState(245);
+  const [recentPurchase, setRecentPurchase] = useState({ show: false, name: "", location: "" });
+
+  // Countdown Timer Effect
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const [hours, minutes, seconds] = timeLeft.split(":").map(Number);
+      let newSeconds = seconds - 1;
+      let newMinutes = minutes;
+      let newHours = hours;
+
+      if (newSeconds < 0) {
+        newSeconds = 59;
+        newMinutes -= 1;
+      }
+      if (newMinutes < 0) {
+        newMinutes = 59;
+        newHours -= 1;
+      }
+      if (newHours < 0) {
+        clearInterval(timer);
+        return;
+      }
+
+      setTimeLeft(`${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}:${String(newSeconds).padStart(2, '0')}`);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  // Simulated Recent Purchase Effect
+  useEffect(() => {
+    const purchaseTimer = setInterval(() => {
+      const names = ["Sarah", "John", "Emma", "Michael", "Lisa"];
+      const locations = ["New York", "London", "Paris", "Tokyo", "Sydney"];
+      const randomName = names[Math.floor(Math.random() * names.length)];
+      const randomLocation = locations[Math.floor(Math.random() * locations.length)];
+      
+      setRecentPurchase({ show: true, name: randomName, location: randomLocation });
+      setTimeout(() => setRecentPurchase({ show: false, name: "", location: "" }), 3000);
+    }, 15000);
+
+    return () => clearInterval(purchaseTimer);
+  }, []);
+
   const images = [
     "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
     "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b",
@@ -23,13 +71,17 @@ const ProductSection = () => {
 
   return (
     <section className="py-16 bg-accent relative overflow-hidden">
-      {/* Subliminal Watermark - Feature #51 */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E')", backgroundSize: "48px", backgroundRepeat: "repeat" }} />
+      {/* Subliminal Watermark */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
+           style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E')", 
+                    backgroundSize: "48px", 
+                    backgroundRepeat: "repeat" }} />
       
       <div className="container px-4 mx-auto">
-        {/* Flash Sale Banner - Feature #3 */}
-        <div className="mb-8 bg-yellow-100 text-primary p-3 rounded-lg text-center animate-pulse">
-          <span className="font-semibold">🎉 Flash Sale Alert!</span> Save an extra 20% today only!
+        {/* Flash Sale Banner with Subtle Animation */}
+        <div className="mb-8 bg-yellow-100/80 text-primary p-3 rounded-lg text-center animate-pulse">
+          <span className="font-semibold opacity-90">🎉 Flash Sale Alert!</span>
+          <span className="ml-2 text-sm opacity-80">Ends in {timeLeft}</span>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-12">
@@ -39,12 +91,19 @@ const ProductSection = () => {
               <CarouselContent>
                 {images.map((image, index) => (
                   <CarouselItem key={index}>
-                    <div className="p-1">
+                    <div className="p-1 relative">
                       <img
                         src={image}
                         alt={`Product image ${index + 1}`}
                         className="w-full aspect-video object-cover rounded-lg"
                       />
+                      {/* Low Stock Indicator */}
+                      <div className="absolute bottom-2 left-2 right-2 h-1 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-red-500/30 transition-all duration-1000"
+                          style={{ width: `${(stockCount / 10) * 100}%` }}
+                        />
+                      </div>
                     </div>
                   </CarouselItem>
                 ))}
@@ -57,13 +116,15 @@ const ProductSection = () => {
             <div className="mt-4 space-y-2">
               <div className="flex items-center justify-center text-sm text-primary/80">
                 <Users className="w-4 h-4 mr-2" />
-                <span>245 people are viewing this item now</span>
+                <span>{viewerCount} people are viewing this item now</span>
               </div>
-              {/* Recent Purchase Notification - Feature #23 */}
-              <div className="flex items-center justify-center text-sm text-green-600">
-                <CheckCircle className="w-4 h-4 mr-2" />
-                <span>15 purchased in the last hour</span>
-              </div>
+              {/* Recent Purchase Notification */}
+              {recentPurchase.show && (
+                <div className="flex items-center justify-center text-sm text-green-600 animate-fade-in">
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  <span>{recentPurchase.name} from {recentPurchase.location} just purchased this!</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -72,12 +133,12 @@ const ProductSection = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <h2 className="text-3xl font-bold text-primary">Supreme Crash Cam</h2>
-                <span className="bg-secondary text-primary text-xs font-semibold px-2 py-1 rounded-full">
+                <span className="bg-secondary/80 text-primary text-xs font-semibold px-2 py-1 rounded-full">
                   Limited Edition
                 </span>
               </div>
 
-              {/* Trust Badge - Feature #34 */}
+              {/* Trust Badge */}
               <div className="flex items-center gap-2 text-primary/80">
                 <Award className="w-5 h-5" />
                 <span className="text-sm font-medium">Top-Rated Dash Cam of 2024</span>
@@ -85,12 +146,12 @@ const ProductSection = () => {
 
               <div className="flex items-center gap-2">
                 <p className="text-xl font-semibold text-primary">$299.00</p>
-                <span className="text-red-500 text-sm font-medium animate-pulse">
-                  Only 5 units left in stock!
+                <span className="text-red-500/90 text-sm font-medium animate-pulse">
+                  Only {stockCount} units left in stock!
                 </span>
               </div>
 
-              {/* Rating Section - Feature #66 */}
+              {/* Rating Section */}
               <div className="flex items-center gap-1">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
@@ -106,7 +167,7 @@ const ProductSection = () => {
               {/* Countdown Timer */}
               <div className="flex items-center gap-2 text-sm text-primary/80 bg-secondary/50 p-2 rounded-md">
                 <Clock className="w-4 h-4" />
-                <span>Special offer ends in: 23:59:59</span>
+                <span>Special offer ends in: {timeLeft}</span>
               </div>
             </div>
 
