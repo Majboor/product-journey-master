@@ -6,7 +6,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Shield, Camera, Timer } from "lucide-react";
+import { ShoppingCart, Shield, Camera, Timer, Users, Clock } from "lucide-react";
 
 const ProductSection = () => {
   const images = [
@@ -44,17 +44,39 @@ const ProductSection = () => {
               <CarouselPrevious />
               <CarouselNext />
             </Carousel>
+            {/* Social Proof - Feature #5 */}
+            <div className="mt-4 flex items-center justify-center text-sm text-primary/80">
+              <Users className="w-4 h-4 mr-2" />
+              <span>245 people are viewing this item now</span>
+            </div>
           </div>
 
           {/* Product Details Section */}
           <div className="flex-1 space-y-6">
             <div className="space-y-4">
-              <h2 className="text-3xl font-bold text-primary">Supreme Crash Cam</h2>
-              <p className="text-xl font-semibold text-primary">$299.00</p>
+              <div className="flex items-center gap-2">
+                <h2 className="text-3xl font-bold text-primary">Supreme Crash Cam</h2>
+                {/* Limited Edition Tag - Feature #8 */}
+                <span className="bg-secondary text-primary text-xs font-semibold px-2 py-1 rounded-full">
+                  Limited Edition
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <p className="text-xl font-semibold text-primary">$299.00</p>
+                {/* Stock Status - Feature #2 */}
+                <span className="text-red-500 text-sm font-medium animate-pulse">
+                  Only 5 units left in stock!
+                </span>
+              </div>
               <p className="text-gray-600">
                 Professional-grade dash cam with superior night vision and advanced
                 safety features. Perfect for both personal and commercial use.
               </p>
+              {/* Countdown Timer - Feature #1 */}
+              <div className="flex items-center gap-2 text-sm text-primary/80 bg-secondary/50 p-2 rounded-md">
+                <Clock className="w-4 h-4" />
+                <span>Special offer ends in: 23:59:59</span>
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -70,16 +92,27 @@ const ProductSection = () => {
             </div>
 
             <div className="pt-6">
-              <Button size="lg" className="w-full sm:w-auto">
+              {/* Urgency-driven CTA - Feature #12 */}
+              <Button size="lg" className="w-full sm:w-auto bg-primary hover:bg-primary/90">
                 <ShoppingCart className="mr-2" />
-                Add to Cart - $299
+                Add to Cart Now - Limited Time Offer
               </Button>
+              {/* Trust Building Text - Feature #28 */}
+              <p className="text-center text-sm text-primary/70 mt-2">
+                Trusted by thousands of drivers worldwide
+              </p>
             </div>
 
-            <div className="text-sm text-gray-500">
-              <p>✓ Free shipping</p>
-              <p>✓ 30-day money-back guarantee</p>
-              <p>✓ 2-year warranty</p>
+            <div className="text-sm text-gray-500 space-y-2">
+              <p className="flex items-center gap-2">
+                <span className="text-green-500">✓</span> Free shipping
+              </p>
+              <p className="flex items-center gap-2">
+                <span className="text-green-500">✓</span> 30-day money-back guarantee
+              </p>
+              <p className="flex items-center gap-2">
+                <span className="text-green-500">✓</span> 2-year warranty
+              </p>
             </div>
           </div>
         </div>
