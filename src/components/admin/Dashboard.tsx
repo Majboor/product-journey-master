@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Users, FileText, Globe } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import { Analytics } from "@/types/analytics";
 
 export const Dashboard = () => {
   const { data: pages } = useQuery({
@@ -26,7 +27,7 @@ export const Dashboard = () => {
     }
   });
 
-  const { data: analytics } = useQuery({
+  const { data: analytics } = useQuery<Analytics[]>({
     queryKey: ['analytics'],
     queryFn: async () => {
       const { data, error } = await supabase
