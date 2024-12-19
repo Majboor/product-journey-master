@@ -7,6 +7,7 @@ import Features from "@/components/Features";
 import ProductSection from "@/components/ProductSection";
 import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
+import { PageContent } from "@/types/content";
 
 const DynamicPage = () => {
   const { slug } = useParams();
@@ -21,7 +22,7 @@ const DynamicPage = () => {
         .single();
 
       if (error) throw error;
-      return data?.content;
+      return data?.content as PageContent;
     }
   });
 

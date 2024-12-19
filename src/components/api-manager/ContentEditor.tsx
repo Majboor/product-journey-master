@@ -5,8 +5,9 @@ import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { PageContent } from "@/types/content";
 
-export const defaultBurgerContent = {
+export const defaultBurgerContent: PageContent = {
   brandName: "Burger Haven",
   hero: {
     title: "Gourmet Burgers Made Fresh",
@@ -109,7 +110,7 @@ export const ContentEditor = () => {
     setLoading(true);
 
     try {
-      const contentObj = JSON.parse(content);
+      const contentObj = JSON.parse(content) as PageContent;
       
       const { error } = await supabase
         .from('pages')
