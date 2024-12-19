@@ -42,6 +42,16 @@ export const ApiTabs = ({ testResponse }: ApiTabsProps) => {
           </div>
 
           <div>
+            <h3 className="font-semibold mb-2">Delete Category Example:</h3>
+            <pre className="bg-muted p-4 rounded-lg overflow-auto">
+{`curl -X DELETE 'https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/categories?id=eq.[CATEGORY_ID]' \\
+-H 'apikey: ${SUPABASE_ANON_KEY}' \\
+-H 'Authorization: Bearer ${bearerToken}' \\
+-H 'Content-Type: application/json'`}
+            </pre>
+          </div>
+
+          <div>
             <h3 className="font-semibold mb-2">Create Page Example:</h3>
             <pre className="bg-muted p-4 rounded-lg overflow-auto">
 {`curl -X POST 'https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/pages' \\
@@ -76,6 +86,25 @@ category_data = ${JSON.stringify(sampleCategoryData, null, 2)}
 
 response = requests.post(url, headers=headers, json=category_data)
 print(response.json())`}
+            </pre>
+          </div>
+
+          <div>
+            <h3 className="font-semibold mb-2">Delete Category Example:</h3>
+            <pre className="bg-muted p-4 rounded-lg overflow-auto">
+{`import requests
+
+url = "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/categories"
+category_id = "CATEGORY_ID"  # Replace with actual category ID
+
+headers = {
+    "apikey": "${SUPABASE_ANON_KEY}",
+    "Authorization": "Bearer ${bearerToken}",
+    "Content-Type": "application/json"
+}
+
+response = requests.delete(f"{url}?id=eq.{category_id}", headers=headers)
+print("Category deleted" if response.status_code == 204 else "Error deleting category")`}
             </pre>
           </div>
 

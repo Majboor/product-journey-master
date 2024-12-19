@@ -51,10 +51,19 @@ export const ApiStatus = () => {
 
       if (pageError) throw pageError;
 
-      toast.success("API test successful! Category and page created.");
+      // Now test deleting the category
+      const { error: deleteError } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', categoryData.id);
+
+      if (deleteError) throw deleteError;
+
+      toast.success("API test successful! Category created, page created, and category deleted.");
       setTestResponse(JSON.stringify({
         category: categoryData,
-        page: pageData
+        page: pageData,
+        deleteStatus: "Category successfully deleted"
       }, null, 2));
       
     } catch (error: any) {
