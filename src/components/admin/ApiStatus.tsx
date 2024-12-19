@@ -15,6 +15,26 @@ export const ApiStatus = () => {
 
   const testApi = async () => {
     try {
+      // First check if the slug exists
+      const { data: existingPage } = await supabase
+        .from('pages')
+        .select('id')
+        .eq('slug', 'toyland-express')
+        .single();
+
+      if (existingPage) {
+        toast({
+          title: "Error",
+          description: "A page with slug 'toyland-express' already exists. Please use a different slug.",
+          variant: "destructive",
+        });
+        setTestResponse(JSON.stringify({
+          error: "Duplicate slug",
+          message: "A page with this slug already exists"
+        }, null, 2));
+        return;
+      }
+
       const { data, error } = await supabase
         .from('pages')
         .insert({
