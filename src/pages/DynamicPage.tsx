@@ -8,12 +8,14 @@ import ProductSection from "@/components/ProductSection";
 import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
 import { PageContent, isPageContent } from "@/types/content";
+import { usePageAnalytics } from "@/hooks/usePageAnalytics";
 
 const DynamicPage = () => {
   const { slug } = useParams();
+  usePageAnalytics(slug || '');
 
   const { data: pageData, isLoading, error } = useQuery({
-    queryKey: ['page', slug], // Ensure unique query key per slug
+    queryKey: ['page', slug],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('pages')
@@ -30,8 +32,8 @@ const DynamicPage = () => {
       
       return content;
     },
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
-    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes (renamed from cacheTime)
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
   });
 
   if (isLoading) {

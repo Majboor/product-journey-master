@@ -11,6 +11,8 @@ import DynamicPage from "./pages/DynamicPage";
 import { AdminLayout } from "./components/admin/AdminLayout";
 import { Dashboard } from "./components/admin/Dashboard";
 import { ApiStatus } from "./components/admin/ApiStatus";
+import { Pages } from "./components/admin/Pages";
+import { Users } from "./components/admin/Users";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +31,8 @@ const App = () => (
             {/* Admin routes */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Dashboard />} />
+              <Route path="pages" element={<Pages />} />
+              <Route path="users" element={<Users />} />
               <Route path="api-manager" element={<ApiManager />} />
               <Route path="api-status" element={<ApiStatus />} />
             </Route>

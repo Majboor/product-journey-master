@@ -1,5 +1,5 @@
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { Users, FileText, Database, LayoutDashboard, PlusCircle, MinusCircle, FileEdit, Link } from "lucide-react";
+import { Users, FileText, Database, LayoutDashboard, Link } from "lucide-react";
 import { Link as RouterLink, Outlet } from "react-router-dom";
 
 export const AdminLayout = () => {
