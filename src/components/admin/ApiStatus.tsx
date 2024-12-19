@@ -5,7 +5,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ApiTabs } from "./api-status/ApiTabs";
-import { samplePageData } from "./api-status/sampleData";
+import { samplePageData, sampleCategoryData } from "./api-status/sampleData";
 import { useAuth } from "@/components/auth/AuthProvider";
 
 export const ApiStatus = () => {
@@ -14,10 +14,25 @@ export const ApiStatus = () => {
 
   const testApi = async () => {
     try {
+      // First create the category
+      const { data: categoryData, error: categoryError } = await supabase
+        .from('categories')
+        .insert(sampleCategoryData)
+        .select()
+        .single();
+
+      if (categoryError) throw categoryError;
+
+      // Then create the page with the new category_id
+      const pageDataWithCategory = {
+        ...samplePageData,
+        category_id: categoryData.id
+      };
+
       const { data: existingPage } = await supabase
         .from('pages')
         .select('id')
-        .eq('slug', samplePageData.slug)
+        .eq('slug', pageDataWithCategory.slug)
         .maybeSingle();
 
       if (existingPage) {
@@ -29,15 +44,18 @@ export const ApiStatus = () => {
         return;
       }
 
-      const { data, error } = await supabase
+      const { data: pageData, error: pageError } = await supabase
         .from('pages')
-        .insert(samplePageData)
+        .insert(pageDataWithCategory)
         .select();
 
-      if (error) throw error;
+      if (pageError) throw pageError;
 
-      toast.success("API test successful! Page created.");
-      setTestResponse(JSON.stringify(data, null, 2));
+      toast.success("API test successful! Category and page created.");
+      setTestResponse(JSON.stringify({
+        category: categoryData,
+        page: pageData
+      }, null, 2));
       
     } catch (error: any) {
       toast.error(error.message || "Failed to test API");

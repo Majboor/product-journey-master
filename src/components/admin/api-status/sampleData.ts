@@ -1,18 +1,21 @@
 export const samplePageData = {
-  "slug": "sample-product",
-  "category_id": "sample-category-id", // This will be replaced with actual category ID
+  "slug": "modern-bistro",
+  "category_id": null, // Will be set dynamically
   "content": {
-    "brandName": "Sample Brand",
+    "brandName": "Modern Bistro",
     "colorScheme": {
-      "primary": "#2563eb",
-      "secondary": "#f0f9ff",
-      "accent": "#dbeafe"
+      "primary": "#8B0000",
+      "secondary": "#F5F5F5",
+      "accent": "#FFD700",
+      "primaryText": "#FFFFFF",
+      "secondaryText": "#1A1F2C",
+      "accentText": "#1A1F2C"
     },
     "hero": {
-      "title": "Welcome to Our Sample Page",
-      "description": "This is a complete example of a valid page structure",
+      "title": "Experience Modern Fine Dining",
+      "description": "Where tradition meets innovation",
       "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4",
-      "price": 99.99
+      "price": 150.00
     },
     "product": {
       "images": [
@@ -21,74 +24,74 @@ export const samplePageData = {
         "https://images.unsplash.com/photo-1482049016688-2d3e1b311543"
       ],
       "details": {
-        "description": "This is a detailed description of our sample product that showcases all the required fields",
+        "description": "Immerse yourself in an extraordinary culinary journey where each dish tells a story of passion and creativity",
         "specifications": [
-          "Specification 1",
-          "Specification 2",
-          "Specification 3"
+          "Michelin-Starred Chef",
+          "Seasonal Ingredients",
+          "Wine Pairing Available"
         ],
-        "buyNowLink": "https://example.com/buy-now"
+        "buyNowLink": "https://example.com/reserve"
       },
       "features": [
-        "Feature 1",
-        "Feature 2",
-        "Feature 3"
+        "Farm to Table",
+        "Private Dining",
+        "Sommelier Service"
       ]
     },
     "features": [
       {
+        "icon": "UtensilsCrossed",
+        "title": "Culinary Excellence",
+        "description": "Award-winning chefs crafting unforgettable experiences"
+      },
+      {
+        "icon": "Wine",
+        "title": "Curated Wine Selection",
+        "description": "Expert sommeliers to guide your wine journey"
+      },
+      {
         "icon": "Star",
-        "title": "Feature One",
-        "description": "Description of feature one"
+        "title": "Michelin Starred",
+        "description": "Recognized for exceptional culinary artistry"
       },
       {
-        "icon": "Heart",
-        "title": "Feature Two",
-        "description": "Description of feature two"
-      },
-      {
-        "icon": "Shield",
-        "title": "Feature Three",
-        "description": "Description of feature three"
-      },
-      {
-        "icon": "Zap",
-        "title": "Feature Four",
-        "description": "Description of feature four"
+        "icon": "Users",
+        "title": "Private Events",
+        "description": "Bespoke dining experiences for special occasions"
       }
     ],
     "reviews": [
       {
-        "name": "John Doe",
+        "name": "James Wilson",
         "rating": 5,
-        "comment": "This is a sample review comment",
+        "comment": "An extraordinary culinary journey that exceeded all expectations",
         "image": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
       },
       {
-        "name": "Jane Smith",
+        "name": "Sofia Rodriguez",
         "rating": 5,
-        "comment": "Another sample review comment",
+        "comment": "The wine pairing elevated the entire experience. Simply phenomenal!",
         "image": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80"
       }
     ],
     "footer": {
       "contact": {
-        "email": "contact@example.com",
-        "phone": "1-800-EXAMPLE",
-        "address": "123 Sample Street, Example City, EX 12345"
+        "email": "reservations@modernbistro.com",
+        "phone": "1-888-BISTRO1",
+        "address": "123 Culinary Avenue, Gourmet District, GD 12345"
       },
       "links": [
         {
-          "title": "Home",
-          "url": "#home"
+          "title": "Menu",
+          "url": "#menu"
         },
         {
-          "title": "About",
-          "url": "#about"
+          "title": "Reservations",
+          "url": "#reservations"
         },
         {
-          "title": "Contact",
-          "url": "#contact"
+          "title": "Private Events",
+          "url": "#events"
         }
       ]
     }
@@ -96,9 +99,9 @@ export const samplePageData = {
 };
 
 export const sampleCategoryData = {
-  "name": "Sample Category",
-  "slug": "sample-category",
-  "description": "This is a sample category description"
+  "name": "Restaurants",
+  "slug": "restaurants",
+  "description": "Discover exceptional dining experiences"
 };
 
 export const colorSchemeExamples = {
