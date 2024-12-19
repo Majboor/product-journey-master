@@ -69,3 +69,25 @@ export const isPageContent = (content: unknown): content is PageContent => {
     pageContent?.footer !== undefined
   );
 };
+
+// Add this validation function
+export const validatePageContent = (content: unknown): content is PageContent => {
+  const pageContent = content as PageContent;
+  return (
+    typeof pageContent?.brandName === 'string' &&
+    pageContent?.hero !== undefined &&
+    typeof pageContent.hero.title === 'string' &&
+    typeof pageContent.hero.description === 'string' &&
+    typeof pageContent.hero.image === 'string' &&
+    typeof pageContent.hero.price === 'number' &&
+    pageContent?.product !== undefined &&
+    Array.isArray(pageContent.product.images) &&
+    pageContent.product.details !== undefined &&
+    Array.isArray(pageContent.product.features) &&
+    Array.isArray(pageContent?.features) &&
+    Array.isArray(pageContent?.reviews) &&
+    pageContent?.footer !== undefined &&
+    pageContent.footer.contact !== undefined &&
+    Array.isArray(pageContent.footer.links)
+  );
+};

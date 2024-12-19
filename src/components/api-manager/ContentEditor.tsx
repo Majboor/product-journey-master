@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { PageContent } from "@/types/content";
+import { PageContent, validatePageContent } from "@/types/content";
 import { Json } from "@/integrations/supabase/types";
 
 export const defaultBurgerContent: PageContent = {
@@ -112,9 +112,14 @@ export const ContentEditor = () => {
     setLoading(true);
 
     try {
-      const contentObj = JSON.parse(content) as unknown as Json;
+      const parsedContent = JSON.parse(content);
       
-      // First check if the page already exists, using maybeSingle() instead of single()
+      // Validate the content structure
+      if (!validatePageContent(parsedContent)) {
+        throw new Error('Invalid content structure. Please ensure all required fields are present.');
+      }
+      
+      // First check if the page already exists
       const { data: existingPage } = await supabase
         .from('pages')
         .select('id')
@@ -136,7 +141,7 @@ export const ContentEditor = () => {
         .from('pages')
         .insert({ 
           slug,
-          content: contentObj
+          content: parsedContent as Json
         });
 
       if (error) throw error;
