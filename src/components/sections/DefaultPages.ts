@@ -6,7 +6,7 @@ export const defaultPages: Record<string, PageContent> = {
     hero: {
       title: "About Us",
       description: "Learn about our journey and mission",
-      image: "/placeholder.svg",
+      image: "",
       price: 0
     },
     product: {
@@ -34,7 +34,7 @@ export const defaultPages: Record<string, PageContent> = {
     hero: {
       title: "Our Features",
       description: "Discover what makes us unique",
-      image: "/placeholder.svg",
+      image: "",
       price: 0
     },
     product: {
@@ -62,7 +62,7 @@ export const defaultPages: Record<string, PageContent> = {
     hero: {
       title: "Why Choose Us",
       description: "What sets us apart from the competition",
-      image: "/placeholder.svg",
+      image: "",
       price: 0
     },
     product: {
@@ -90,7 +90,7 @@ export const defaultPages: Record<string, PageContent> = {
     hero: {
       title: "Customer Reviews",
       description: "What our customers say about us",
-      image: "/placeholder.svg",
+      image: "",
       price: 0
     },
     product: {
@@ -118,7 +118,7 @@ export const defaultPages: Record<string, PageContent> = {
     hero: {
       title: "General Information",
       description: "Everything you need to know",
-      image: "/placeholder.svg",
+      image: "",
       price: 0
     },
     product: {
