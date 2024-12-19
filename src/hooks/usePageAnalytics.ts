@@ -11,24 +11,35 @@ export const usePageAnalytics = (pageSlug: string) => {
       }
 
       try {
-        // First try to get IP
-        const response = await fetch('https://api.ipify.org?format=json');
-        if (!response.ok) {
-          throw new Error('Failed to fetch IP address');
-        }
-        const { ip } = await response.json();
-        
-        // Then get location data
-        const locationResponse = await fetch(`https://ipapi.co/${ip}/json/`);
-        if (!locationResponse.ok) {
-          throw new Error('Failed to fetch location data');
-        }
-        const locationData = await locationResponse.json();
+        // Initialize default values
+        let ipAddress = null;
+        let locationData = null;
 
-        // Insert analytics data
+        // Try to get IP, but continue if it fails
+        try {
+          const response = await fetch('https://api.ipify.org?format=json');
+          if (response.ok) {
+            const { ip } = await response.json();
+            ipAddress = ip;
+
+            // Only try to get location if we have an IP
+            try {
+              const locationResponse = await fetch(`https://ipapi.co/${ip}/json/`);
+              if (locationResponse.ok) {
+                locationData = await locationResponse.json();
+              }
+            } catch (locationError) {
+              console.warn('Could not fetch location data:', locationError);
+            }
+          }
+        } catch (ipError) {
+          console.warn('Could not fetch IP address:', ipError);
+        }
+
+        // Insert analytics data with whatever information we have
         const { error: insertError } = await supabase.from('analytics').insert({
           page_slug: pageSlug,
-          ip_address: ip,
+          ip_address: ipAddress,
           user_agent: navigator.userAgent,
           location: locationData,
           session_id: crypto.randomUUID()
@@ -46,11 +57,14 @@ export const usePageAnalytics = (pageSlug: string) => {
         }
       } catch (error) {
         console.error('Error in analytics tracking:', error);
-        toast({
-          title: "Analytics Error",
-          description: error instanceof Error ? error.message : "Failed to track page visit",
-          variant: "destructive",
-        });
+        // Only show toast for critical errors
+        if (error instanceof Error && error.message.includes('supabase')) {
+          toast({
+            title: "Analytics Error",
+            description: "Failed to save page visit data",
+            variant: "destructive",
+          });
+        }
       }
     };
 
