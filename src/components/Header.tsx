@@ -1,4 +1,4 @@
-import { ShoppingCart, Clock, LogIn, LogOut } from "lucide-react";
+import { ShoppingCart, Clock, LogIn, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 
 const Header = () => {
-  const [cartTimer, setCartTimer] = useState(600); // 10 minutes in seconds
+  const [cartTimer, setCartTimer] = useState(600);
   const { session } = useAuth();
   const navigate = useNavigate();
 
@@ -55,6 +55,11 @@ const Header = () => {
             <a href="#features" className="text-gray-600 hover:text-primary transition-colors">Features</a>
             <a href="#why-us" className="text-gray-600 hover:text-primary transition-colors">Why Us</a>
             <a href="#reviews" className="text-gray-600 hover:text-primary transition-colors">Reviews</a>
+            {session && (
+              <Link to="/api-manager" className="text-gray-600 hover:text-primary transition-colors">
+                API Manager
+              </Link>
+            )}
           </nav>
           
           <div className="flex items-center space-x-4">

@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./components/auth/AuthProvider";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import ApiManager from "./pages/ApiManager";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/api-manager" element={<ApiManager />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
