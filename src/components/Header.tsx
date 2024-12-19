@@ -4,6 +4,8 @@ import { CartButton } from "./header/CartButton";
 import { AuthButtons } from "./header/AuthButtons";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface HeaderProps {
   brandName?: string;
@@ -13,9 +15,31 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
   const { session } = useAuth();
   const location = useLocation();
   const path = location.pathname.slice(1);
+  const [categorySlug, slug] = path.split('/');
+  const finalSlug = slug ? `${categorySlug}/${slug}` : '';
 
   // List of routes where we don't want to show the brand name
   const hideLogoRoutes = ['about', 'features', 'why-us', 'reviews', 'general'];
+
+  // Fetch page content for the current route
+  const { data: page } = useQuery({
+    queryKey: ['page', finalSlug],
+    queryFn: async () => {
+      if (!finalSlug) return null;
+      
+      const { data, error } = await supabase
+        .from('pages')
+        .select('content')
+        .eq('slug', finalSlug)
+        .maybeSingle();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!finalSlug
+  });
+
+  const displayBrandName = page?.content?.brandName || brandName;
 
   useEffect(() => {
     // Show login dialog immediately for non-authenticated users on the main page
@@ -31,7 +55,7 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
           <div className="text-xl font-bold text-primary relative">
             {!hideLogoRoutes.includes(path) && (
               <>
-                {brandName}
+                {displayBrandName}
                 <span className="absolute -top-1 -right-12 text-xs text-primary/60">™</span>
               </>
             )}
