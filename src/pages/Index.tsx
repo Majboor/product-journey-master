@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { defaultBurgerContent } from "@/components/api-manager/ContentEditor";
 
 const Index = () => {
   const { session } = useAuth();
@@ -26,12 +27,16 @@ const Index = () => {
     <div className="min-h-screen bg-white">
       <Header />
       <main>
-        <Hero />
-        <ProductSection />
-        <Features />
-        <Reviews />
+        <Hero {...defaultBurgerContent.hero} />
+        <ProductSection {...defaultBurgerContent.product} />
+        <Features features={defaultBurgerContent.features} />
+        <Reviews reviews={defaultBurgerContent.reviews} />
       </main>
-      <Footer />
+      <Footer 
+        brandName={defaultBurgerContent.brandName}
+        contact={defaultBurgerContent.footer.contact}
+        links={defaultBurgerContent.footer.links}
+      />
     </div>
   );
 };
