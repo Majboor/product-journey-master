@@ -1,9 +1,13 @@
-import { ShoppingCart, Clock } from "lucide-react";
+import { ShoppingCart, Clock, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { LoginForm } from "./auth/LoginForm";
+import { useAuth } from "./auth/AuthProvider";
 
 const Header = () => {
   const [cartTimer, setCartTimer] = useState(600); // 10 minutes in seconds
+  const { session } = useAuth();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -34,16 +38,32 @@ const Header = () => {
             <a href="#reviews" className="text-gray-600 hover:text-primary transition-colors">Reviews</a>
           </nav>
           
-          <div className="relative">
-            <Button variant="outline" size="icon" className="relative">
-              <ShoppingCart className="h-5 w-5" />
-              {cartTimer > 0 && (
-                <span className="absolute -top-2 -right-2 text-[10px] text-gray-500/80">
-                  <Clock className="h-3 w-3 inline-block mr-0.5" />
-                  {formatTime(cartTimer)}
-                </span>
-              )}
-            </Button>
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <Button variant="outline" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                {cartTimer > 0 && (
+                  <span className="absolute -top-2 -right-2 text-[10px] text-gray-500/80">
+                    <Clock className="h-3 w-3 inline-block mr-0.5" />
+                    {formatTime(cartTimer)}
+                  </span>
+                )}
+              </Button>
+            </div>
+
+            {!session ? (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="default" className="flex items-center gap-2">
+                    <LogIn className="h-4 w-4" />
+                    Sign In
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <LoginForm />
+                </DialogContent>
+              </Dialog>
+            ) : null}
           </div>
         </div>
       </div>
