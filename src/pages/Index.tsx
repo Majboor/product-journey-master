@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { defaultBurgerContent } from "@/components/api-manager/ContentEditor";
+import { defaultContent } from "@/components/api-manager/defaultContent";
 
 const Index = () => {
   const { session } = useAuth();
@@ -23,8 +23,8 @@ const Index = () => {
     return null;
   }
 
-  // Use defaultBurgerContent for the index page
-  const pageContent = defaultBurgerContent;
+  // Use defaultContent for the index page
+  const pageContent = defaultContent;
 
   return (
     <div className="min-h-screen bg-white">

@@ -5,6 +5,7 @@ import { toast } from "@/components/ui/use-toast";
 import { validatePageContent } from "@/types/content";
 import { defaultContent } from "./defaultContent";
 import { ContentForm } from "./ContentForm";
+import { Json } from "@/integrations/supabase/types";
 
 export const ContentEditor = () => {
   const [slug, setSlug] = useState("");
@@ -41,7 +42,7 @@ export const ContentEditor = () => {
         .from('pages')
         .insert({ 
           slug,
-          content: parsedContent
+          content: parsedContent as unknown as Json
         });
 
       if (error) throw error;
