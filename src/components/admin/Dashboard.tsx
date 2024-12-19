@@ -4,7 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Users, FileText, Globe } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { Analytics } from "@/types/analytics";
+import { Analytics, LocationData } from "@/types/analytics";
+import { Database } from "@/integrations/supabase/types";
+
+type AnalyticsResponse = Database['public']['Tables']['analytics']['Row'];
 
 export const Dashboard = () => {
   const { data: pages } = useQuery({
@@ -35,7 +38,11 @@ export const Dashboard = () => {
         .select('*')
         .order('created_at', { ascending: false });
       if (error) throw error;
-      return data;
+      
+      return data?.map(item => ({
+        ...item,
+        location: item.location as LocationData
+      })) as Analytics[];
     }
   });
 
