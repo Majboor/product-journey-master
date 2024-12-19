@@ -121,17 +121,21 @@ export const Dashboard = () => {
         visitsCount={analytics?.length || 0}
       />
 
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* Full width visits chart */}
+      <div className="w-full">
         <VisitsChart data={chartData} />
-        <LocationChart data={locationData} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <SignInAnalytics data={signInChartData || []} />
-        <ButtonClicksAnalytics data={buttonClicksData} />
+        <LocationChart data={locationData} />
       </div>
 
-      <SwipeAnalytics data={swipeData} />
+      <div className="grid gap-4 md:grid-cols-2">
+        <ButtonClicksAnalytics data={buttonClicksData} />
+        <SwipeAnalytics data={swipeData} />
+      </div>
+
       <PageAnalytics analytics={pageAnalytics} />
       <RecentPages pages={pages || []} />
     </div>
