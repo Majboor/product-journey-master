@@ -5,7 +5,6 @@ import { ProductDetails } from "./product/ProductDetails";
 import { ProductFeatures } from "./product/ProductFeatures";
 import { JokeDisplay } from "./jokes/JokeDisplay";
 import { useAuth } from "./auth/AuthProvider";
-import { LoginForm } from "./auth/LoginForm";
 import { ProductDetails as ProductDetailsType } from "@/types/content";
 
 interface ProductSectionProps {
@@ -75,7 +74,7 @@ const ProductSection = ({ images, details, features }: ProductSectionProps) => {
                     backgroundRepeat: "repeat" }} />
       
       <div className="container px-4 mx-auto">
-        {session ? (
+        {session && (
           <>
             {/* Joke Display */}
             <JokeDisplay userId={session.user.id} />
@@ -86,10 +85,6 @@ const ProductSection = ({ images, details, features }: ProductSectionProps) => {
               <span className="ml-2 text-sm opacity-80">Ends in {timeLeft}</span>
             </div>
           </>
-        ) : (
-          <div className="mb-8">
-            <LoginForm />
-          </div>
         )}
 
         <div className="flex flex-col lg:flex-row gap-12">
