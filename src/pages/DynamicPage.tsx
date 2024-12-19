@@ -9,7 +9,7 @@ import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
 import { ColorSchemeProvider } from "@/components/ColorSchemeProvider";
 import { PageContent } from "@/types/content";
-import { LoadingScreen } from "@/components/LoadingScreen";
+import LoadingScreen from "@/components/LoadingScreen";
 
 const DynamicPage = () => {
   const { slug } = useParams();
@@ -31,7 +31,7 @@ const DynamicPage = () => {
   if (isLoading) return <LoadingScreen />;
   if (!page) return <div>Page not found</div>;
 
-  const content = page.content as PageContent;
+  const content = page.content as unknown as PageContent;
 
   return (
     <ColorSchemeProvider colorScheme={content.colorScheme}>
@@ -39,7 +39,11 @@ const DynamicPage = () => {
         <Header brandName={content.brandName} />
         <main>
           <Hero {...content.hero} />
-          <ProductSection product={content.product} />
+          <ProductSection 
+            images={content.product.images}
+            details={content.product.details}
+            features={content.product.features}
+          />
           <Features features={content.features} />
           <Reviews reviews={content.reviews} />
         </main>
