@@ -52,6 +52,17 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
           description: "Page has been updated successfully",
         });
       } else {
+        // Check if trying to create root page
+        if (slug === '') {
+          toast({
+            title: "Error",
+            description: "The root page already exists and cannot be recreated. Please edit it instead.",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+
         const { data: existingPage } = await supabase
           .from('pages')
           .select('id')

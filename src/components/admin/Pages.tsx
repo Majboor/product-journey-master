@@ -24,25 +24,12 @@ export const Pages = () => {
   if (isLoading) {
     return <div>Loading pages...</div>;
   }
-
-  // Check if root page exists
-  const hasRootPage = pages?.some(page => page.slug === '');
   
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Pages Management</h1>
-        <div className="space-x-4">
-          {!hasRootPage && (
-            <Button 
-              variant="outline"
-              onClick={() => navigate('/admin/api-manager?edit=')}
-            >
-              Create Root Page
-            </Button>
-          )}
-          <Button onClick={() => navigate('/admin/api-manager')}>Create New Page</Button>
-        </div>
+        <Button onClick={() => navigate('/admin/api-manager')}>Create New Page</Button>
       </div>
 
       <div className="grid gap-4">
@@ -63,6 +50,7 @@ export const Pages = () => {
                 <Button
                   variant="destructive"
                   size="icon"
+                  disabled={page.slug === ''}
                 >
                   <Trash className="h-4 w-4" />
                 </Button>
