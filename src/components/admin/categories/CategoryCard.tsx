@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FolderOpen, ChevronRight, Trash2 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Button } from "@/components/ui/button";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface CategoryCardProps {
   category: {
@@ -16,7 +16,7 @@ interface CategoryCardProps {
     visits: number;
   }>;
   onClick: () => void;
-  onDelete: () => void;
+  onDelete: () => React.ReactNode;
 }
 
 export const CategoryCard = ({ category, analytics, onClick, onDelete }: CategoryCardProps) => {
@@ -41,19 +41,7 @@ export const CategoryCard = ({ category, analytics, onClick, onDelete }: Categor
                 <Trash2 className="h-4 w-4" />
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the category
-                  "{category.name}" and all its associated data.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={onDelete}>Delete</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
+            {onDelete()}
           </AlertDialog>
           <ChevronRight className="h-4 w-4" />
         </div>
