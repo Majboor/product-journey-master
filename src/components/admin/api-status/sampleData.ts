@@ -96,28 +96,28 @@ export const samplePageData = {
 
 export const colorSchemeExamples = {
   default: {
-    primary: "#2563eb",
-    secondary: "#f0f9ff",
-    accent: "#dbeafe"
+    primary: "#2563eb",    // Blue
+    secondary: "#f8fafc",  // Light gray
+    accent: "#dbeafe"      // Light blue
+  },
+  dark: {
+    primary: "#1A1F2C",    // Dark blue
+    secondary: "#f8fafc",  // Light gray
+    accent: "#6E59A5"      // Purple
   },
   purple: {
-    primary: "#9b87f5",
-    secondary: "#7E69AB",
-    accent: "#D6BCFA"
-  },
-  pastel: {
-    primary: "#F2FCE2",
-    secondary: "#FEF7CD",
-    accent: "#FEC6A1"
+    primary: "#6E59A5",    // Dark purple
+    secondary: "#f8fafc",  // Light gray
+    accent: "#9b87f5"      // Light purple
   },
   vivid: {
-    primary: "#8B5CF6",
-    secondary: "#D946EF",
-    accent: "#F97316"
+    primary: "#8B5CF6",    // Bright purple
+    secondary: "#f8fafc",  // Light gray
+    accent: "#F97316"      // Orange
   },
-  blue: {
-    primary: "#0EA5E9",
-    secondary: "#33C3F0",
-    accent: "#1EAEDB"
+  ocean: {
+    primary: "#0EA5E9",    // Ocean blue
+    secondary: "#f8fafc",  // Light gray
+    accent: "#1EAEDB"      // Bright blue
   }
 };
