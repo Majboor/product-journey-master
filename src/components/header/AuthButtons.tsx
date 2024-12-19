@@ -83,6 +83,7 @@ export const AuthButtons = ({ session }: AuthButtonsProps) => {
           variant="default" 
           className="flex items-center gap-2"
           onClick={handleSignInClick}
+          data-trigger="login-dialog"
         >
           <LogIn className="h-4 w-4" />
           Sign In / Register
