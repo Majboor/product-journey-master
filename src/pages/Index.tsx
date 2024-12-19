@@ -4,14 +4,30 @@ import Features from "@/components/Features";
 import ProductSection from "@/components/ProductSection";
 import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
+import LoadingScreen from "@/components/LoadingScreen";
 import { defaultContent } from "@/components/api-manager/defaultContent";
 import { useSwipeTracking } from "@/hooks/useSwipeTracking";
 import { useButtonTracking } from "@/hooks/useButtonTracking";
+import { useState, useEffect } from "react";
 
 const Index = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const pageContent = defaultContent;
   useSwipeTracking();
   useButtonTracking();
+
+  useEffect(() => {
+    // Simulate loading time for demonstration
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className="min-h-screen bg-white">

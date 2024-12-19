@@ -7,6 +7,7 @@ import Features from "@/components/Features";
 import ProductSection from "@/components/ProductSection";
 import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
+import LoadingScreen from "@/components/LoadingScreen";
 import { PageContent, isPageContent } from "@/types/content";
 import { usePageAnalytics } from "@/hooks/usePageAnalytics";
 import { useButtonTracking } from "@/hooks/useButtonTracking";
@@ -41,9 +42,7 @@ const DynamicPage = () => {
   });
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-    </div>;
+    return <LoadingScreen />;
   }
 
   if (error || !pageData) {
