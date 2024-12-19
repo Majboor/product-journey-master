@@ -1,12 +1,15 @@
-import { ShoppingCart, Clock, LogIn } from "lucide-react";
+import { ShoppingCart, Clock, LogIn, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./auth/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 const Header = () => {
   const [cartTimer, setCartTimer] = useState(600); // 10 minutes in seconds
   const { session } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -20,6 +23,23 @@ const Header = () => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Signed out successfully",
+        description: "You have been signed out of your account",
+      });
+      navigate("/login");
+    } catch (error) {
+      toast({
+        title: "Error signing out",
+        description: "There was a problem signing out. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -38,7 +58,16 @@ const Header = () => {
           </nav>
           
           <div className="flex items-center space-x-4">
-            {!session && (
+            {session ? (
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2"
+                onClick={handleSignOut}
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
+            ) : (
               <Link to="/login">
                 <Button variant="default" className="flex items-center gap-2">
                   <LogIn className="h-4 w-4" />
