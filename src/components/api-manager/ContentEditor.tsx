@@ -36,8 +36,23 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
       if (!validatePageContent(parsedContent)) {
         throw new Error('Invalid content structure. Please ensure all required fields are present.');
       }
-      
-      if (initialData) {
+
+      // Always treat empty slug as an update operation
+      if (slug === '') {
+        const { error } = await supabase
+          .from('pages')
+          .update({ 
+            content: parsedContent as unknown as Json
+          })
+          .eq('slug', '');
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Root page has been updated successfully",
+        });
+      } else if (initialData) {
         const { error } = await supabase
           .from('pages')
           .update({ 
@@ -52,17 +67,6 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
           description: "Page has been updated successfully",
         });
       } else {
-        // Check if trying to create root page
-        if (slug === '') {
-          toast({
-            title: "Error",
-            description: "The root page already exists and cannot be recreated. Please edit it instead.",
-            variant: "destructive",
-          });
-          setLoading(false);
-          return;
-        }
-
         const { data: existingPage } = await supabase
           .from('pages')
           .select('id')
