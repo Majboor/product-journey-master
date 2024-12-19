@@ -14,12 +14,9 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
   const location = useLocation();
 
   useEffect(() => {
-    // Show login dialog with discount offer after a delay
+    // Show login dialog immediately for non-authenticated users on the main page
     if (!session && location.pathname === '/') {
-      const timer = setTimeout(() => {
-        document.querySelector<HTMLButtonElement>('[data-trigger="login-dialog"]')?.click();
-      }, 5000); // Show after 5 seconds
-      return () => clearTimeout(timer);
+      document.querySelector<HTMLButtonElement>('[data-trigger="login-dialog"]')?.click();
     }
   }, [session, location.pathname]);
 
