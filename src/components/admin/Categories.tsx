@@ -3,10 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { CategoryCard } from "./categories/CategoryCard";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { AlertDialog } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
+import { DeleteCategoryDialog } from "./categories/DeleteCategoryDialog";
 
 export const Categories = () => {
   const navigate = useNavigate();
@@ -68,7 +68,7 @@ export const Categories = () => {
     navigate(`/admin/categories/${categorySlug}`);
   };
 
-  const handleDeleteCategory = async (categoryId: string, categorySlug: string) => {
+  const handleDeleteCategory = async (categoryId: string) => {
     try {
       if (deletePages) {
         // Get all pages for this category
@@ -168,50 +168,17 @@ export const Categories = () => {
             category={category}
             analytics={categoryAnalytics?.[category.slug] || []}
             onClick={() => handleCategoryClick(category.slug)}
-            onDelete={() => {
-              return (
-                <AlertDialog>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure you want to delete this category?</AlertDialogTitle>
-                      <AlertDialogDescription className="space-y-4">
-                        <p>This action cannot be undone.</p>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="deletePages"
-                            checked={deletePages}
-                            onCheckedChange={(checked) => setDeletePages(checked as boolean)}
-                          />
-                          <label htmlFor="deletePages">
-                            Delete all pages in this category
-                          </label>
-                        </div>
-                        {deletePages && (
-                          <div className="flex items-center space-x-2 ml-6">
-                            <Checkbox
-                              id="deleteAnalytics"
-                              checked={deleteAnalytics}
-                              onCheckedChange={(checked) => setDeleteAnalytics(checked as boolean)}
-                            />
-                            <label htmlFor="deleteAnalytics">
-                              Delete all analytics data for these pages
-                            </label>
-                          </div>
-                        )}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => handleDeleteCategory(category.id, category.slug)}
-                      >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              );
-            }}
+            onDelete={() => (
+              <DeleteCategoryDialog
+                onDelete={(deletePages, deleteAnalytics) => 
+                  handleDeleteCategory(category.id)
+                }
+                deletePages={deletePages}
+                setDeletePages={setDeletePages}
+                deleteAnalytics={deleteAnalytics}
+                setDeleteAnalytics={setDeleteAnalytics}
+              />
+            )}
           />
         ))}
       </div>

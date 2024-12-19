@@ -24,13 +24,8 @@ export const CategoryCard = ({ category, analytics, onClick, onDelete }: Categor
 
   return (
     <Card className="hover:bg-accent/50 transition-colors">
-      <CardHeader 
-        className="flex flex-row items-center justify-between space-y-0 pb-2"
-      >
-        <div 
-          className="flex items-center gap-2 cursor-pointer"
-          onClick={onClick}
-        >
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <div className="flex items-center gap-2">
           <FolderOpen className="h-5 w-5" />
           <CardTitle className="text-xl font-medium">
             {category.name}
@@ -45,7 +40,9 @@ export const CategoryCard = ({ category, analytics, onClick, onDelete }: Categor
             </AlertDialogTrigger>
             {deleteDialog}
           </AlertDialog>
-          <ChevronRight className="h-4 w-4" />
+          <Button variant="ghost" size="icon" onClick={onClick}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
       </CardHeader>
       <CardContent>
