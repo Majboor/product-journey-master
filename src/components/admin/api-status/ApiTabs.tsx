@@ -1,11 +1,13 @@
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { samplePageData } from "./sampleData";  // Add this import
+import { samplePageData } from "./sampleData";
 
 interface ApiTabsProps {
   testResponse: string;
 }
 
 export const ApiTabs = ({ testResponse }: ApiTabsProps) => {
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM";
+
   return (
     <>
       <TabsList>
@@ -25,8 +27,8 @@ export const ApiTabs = ({ testResponse }: ApiTabsProps) => {
         <h3 className="font-semibold">cURL Example:</h3>
         <pre className="bg-muted p-4 rounded-lg overflow-auto">
 {`curl -X POST 'https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/pages' \\
--H 'apikey: YOUR_ANON_KEY' \\
--H 'Authorization: Bearer YOUR_ACCESS_TOKEN' \\
+-H 'apikey: ${SUPABASE_ANON_KEY}' \\
+-H 'Authorization: Bearer ${SUPABASE_ANON_KEY}' \\
 -H 'Content-Type: application/json' \\
 -H 'Prefer: return=representation' \\
 -d '${JSON.stringify(samplePageData, null, 2)}'`}
@@ -42,8 +44,8 @@ import json
 url = "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/pages"
 
 headers = {
-    "apikey": "YOUR_ANON_KEY",
-    "Authorization": "Bearer YOUR_ACCESS_TOKEN",
+    "apikey": "${SUPABASE_ANON_KEY}",
+    "Authorization": "Bearer ${SUPABASE_ANON_KEY}",
     "Content-Type": "application/json",
     "Prefer": "return=representation"
 }
