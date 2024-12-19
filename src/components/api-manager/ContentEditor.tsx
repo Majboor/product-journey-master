@@ -113,12 +113,12 @@ export const ContentEditor = () => {
     try {
       const contentObj = JSON.parse(content) as unknown as Json;
       
-      // First check if the page already exists
+      // First check if the page already exists, using maybeSingle() instead of single()
       const { data: existingPage } = await supabase
         .from('pages')
         .select('id')
         .eq('slug', slug)
-        .single();
+        .maybeSingle();
 
       if (existingPage) {
         toast({
