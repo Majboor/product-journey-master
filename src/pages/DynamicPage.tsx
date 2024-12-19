@@ -10,9 +10,14 @@ import Footer from "@/components/Footer";
 import { ColorSchemeProvider } from "@/components/ColorSchemeProvider";
 import { PageContent } from "@/types/content";
 import LoadingScreen from "@/components/LoadingScreen";
+import { usePageAnalytics } from "@/hooks/usePageAnalytics";
+import { useEffect } from "react";
 
 const DynamicPage = () => {
-  const { slug } = useParams();
+  const { slug = '' } = useParams();
+
+  // Initialize analytics tracking
+  usePageAnalytics(slug);
 
   const { data: page, isLoading } = useQuery({
     queryKey: ['page', slug],

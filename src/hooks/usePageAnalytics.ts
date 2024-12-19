@@ -5,10 +5,8 @@ import { toast } from '@/hooks/use-toast';
 export const usePageAnalytics = (pageSlug: string) => {
   useEffect(() => {
     const trackPageVisit = async () => {
-      if (!pageSlug) {
-        console.error('No page slug provided for analytics tracking');
-        return;
-      }
+      // Convert undefined or null to empty string to match root page
+      const normalizedSlug = pageSlug || '';
 
       try {
         // Initialize default values
@@ -22,7 +20,6 @@ export const usePageAnalytics = (pageSlug: string) => {
             const { ip } = await response.json();
             ipAddress = ip;
 
-            // Use the free ip-api.com service instead of ipapi.co
             try {
               const locationResponse = await fetch(`http://ip-api.com/json/${ip}`);
               if (locationResponse.ok) {
@@ -38,7 +35,7 @@ export const usePageAnalytics = (pageSlug: string) => {
 
         // Insert analytics data with whatever information we have
         const { error: insertError } = await supabase.from('analytics').insert({
-          page_slug: pageSlug,
+          page_slug: normalizedSlug,
           ip_address: ipAddress,
           user_agent: navigator.userAgent,
           location: locationData,
@@ -53,11 +50,10 @@ export const usePageAnalytics = (pageSlug: string) => {
             variant: "destructive",
           });
         } else {
-          console.log('Page visit tracked successfully:', pageSlug);
+          console.log('Page visit tracked successfully:', normalizedSlug);
         }
       } catch (error) {
         console.error('Error in analytics tracking:', error);
-        // Only show toast for critical errors
         if (error instanceof Error && error.message.includes('supabase')) {
           toast({
             title: "Analytics Error",
@@ -68,8 +64,6 @@ export const usePageAnalytics = (pageSlug: string) => {
       }
     };
 
-    if (pageSlug) {
-      trackPageVisit();
-    }
+    trackPageVisit();
   }, [pageSlug]);
 };
