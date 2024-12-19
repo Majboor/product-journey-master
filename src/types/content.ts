@@ -1,4 +1,5 @@
 import { Json } from "@/integrations/supabase/types";
+import { ColorScheme } from "./colors";
 
 export interface Hero {
   title: string;
@@ -55,6 +56,7 @@ export interface PageContent {
   features: Feature[];
   reviews: Review[];
   footer: Footer;
+  colorScheme?: ColorScheme;
 }
 
 // Type guard to ensure PageContent is compatible with Json

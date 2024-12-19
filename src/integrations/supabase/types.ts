@@ -86,6 +86,7 @@ export type Database = {
       }
       pages: {
         Row: {
+          color_scheme: Json | null
           content: Json
           created_at: string
           id: string
@@ -93,6 +94,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          color_scheme?: Json | null
           content: Json
           created_at?: string
           id?: string
@@ -100,6 +102,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          color_scheme?: Json | null
           content?: Json
           created_at?: string
           id?: string

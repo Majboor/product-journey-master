@@ -7,74 +7,49 @@ import Features from "@/components/Features";
 import ProductSection from "@/components/ProductSection";
 import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
-import LoadingScreen from "@/components/LoadingScreen";
-import { PageContent, isPageContent } from "@/types/content";
-import { usePageAnalytics } from "@/hooks/usePageAnalytics";
-import { useButtonTracking } from "@/hooks/useButtonTracking";
-import { useSwipeTracking } from "@/hooks/useSwipeTracking";
+import { ColorSchemeProvider } from "@/components/ColorSchemeProvider";
+import { PageContent } from "@/types/content";
+import { LoadingScreen } from "@/components/LoadingScreen";
 
 const DynamicPage = () => {
-  const { slug = '' } = useParams();
-  usePageAnalytics(slug);
-  useButtonTracking();
-  useSwipeTracking();
+  const { slug } = useParams();
 
-  const { data: pageData, isLoading, error } = useQuery({
+  const { data: page, isLoading } = useQuery({
     queryKey: ['page', slug],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('pages')
-        .select('content')
+        .select('*')
         .eq('slug', slug)
         .single();
-
+      
       if (error) throw error;
-      
-      const content = data?.content;
-      if (!isPageContent(content)) {
-        throw new Error('Invalid page content structure');
-      }
-      
-      return content;
-    },
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 30,
+      return data;
+    }
   });
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  if (isLoading) return <LoadingScreen />;
+  if (!page) return <div>Page not found</div>;
 
-  if (error || !pageData) {
-    return <div className="min-h-screen flex items-center justify-center text-red-500">
-      Page not found or error loading content
-    </div>;
-  }
+  const content = page.content as PageContent;
 
   return (
-    <div className="min-h-screen bg-white">
-      <Header brandName={pageData.brandName} />
-      <main>
-        <Hero 
-          title={pageData.hero.title}
-          description={pageData.hero.description}
-          image={pageData.hero.image}
-          price={pageData.hero.price}
+    <ColorSchemeProvider colorScheme={content.colorScheme}>
+      <div className="min-h-screen bg-background">
+        <Header brandName={content.brandName} />
+        <main>
+          <Hero {...content.hero} />
+          <ProductSection product={content.product} />
+          <Features features={content.features} />
+          <Reviews reviews={content.reviews} />
+        </main>
+        <Footer
+          brandName={content.brandName}
+          contact={content.footer.contact}
+          links={content.footer.links}
         />
-        <ProductSection 
-          images={pageData.product.images}
-          details={pageData.product.details}
-          features={pageData.product.features}
-        />
-        <Features features={pageData.features} />
-        <Reviews reviews={pageData.reviews} />
-      </main>
-      <Footer 
-        brandName={pageData.brandName}
-        contact={pageData.footer.contact}
-        links={pageData.footer.links}
-      />
-    </div>
+      </div>
+    </ColorSchemeProvider>
   );
 };
 

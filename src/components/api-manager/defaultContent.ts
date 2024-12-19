@@ -2,6 +2,11 @@ import { PageContent } from "@/types/content";
 
 export const defaultContent: PageContent = {
   brandName: "Modern Bistro",
+  colorScheme: {
+    primary: "#2563eb",
+    secondary: "#f0f9ff",
+    accent: "#dbeafe"
+  },
   hero: {
     title: "Experience Modern Dining",
     description: "Contemporary cuisine crafted with passion and innovation",

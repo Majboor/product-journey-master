@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 interface ContentFormFieldsProps {
   slug: string;
@@ -26,9 +27,7 @@ export const ContentFormFields = ({
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       <div>
-        <label htmlFor="slug" className="block text-sm font-medium mb-2">
-          Page Slug
-        </label>
+        <Label htmlFor="slug">Page Slug</Label>
         <Input
           id="slug"
           value={slug}
@@ -41,9 +40,17 @@ export const ContentFormFields = ({
       </div>
 
       <div>
-        <label htmlFor="content" className="block text-sm font-medium mb-2">
-          Page Content (JSON)
-        </label>
+        <Label htmlFor="content">Page Content (JSON)</Label>
+        <div className="mb-2 text-sm text-muted-foreground">
+          Include colorScheme in your JSON to customize the page colors:
+          {`{
+  "colorScheme": {
+    "primary": "#2563eb",
+    "secondary": "#f0f9ff",
+    "accent": "#dbeafe"
+  }
+}`}
+        </div>
         <Textarea
           id="content"
           value={content}

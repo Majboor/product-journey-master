@@ -25,16 +25,16 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#2563eb", // Changed to a different blue
-          foreground: "#FFFFFF",
+          DEFAULT: "var(--primary-color)",
+          foreground: "var(--primary-foreground)",
         },
         secondary: {
-          DEFAULT: "#f0f9ff", // Changed to a lighter blue
-          foreground: "#1e40af",
+          DEFAULT: "var(--secondary-color)",
+          foreground: "var(--secondary-foreground)",
         },
         accent: {
-          DEFAULT: "#dbeafe", // Changed to match the new theme
-          foreground: "#1e40af",
+          DEFAULT: "var(--accent-color)",
+          foreground: "var(--accent-foreground)",
         },
       },
       keyframes: {

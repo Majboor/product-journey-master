@@ -2,6 +2,11 @@ export const samplePageData = {
   "slug": "sample-page",
   "content": {
     "brandName": "Sample Brand",
+    "colorScheme": {
+      "primary": "#2563eb",
+      "secondary": "#f0f9ff",
+      "accent": "#dbeafe"
+    },
     "hero": {
       "title": "Welcome to Our Sample Page",
       "description": "This is a complete example of a valid page structure",
@@ -87,4 +92,4 @@ export const samplePageData = {
       ]
     }
   }
-}
+};
