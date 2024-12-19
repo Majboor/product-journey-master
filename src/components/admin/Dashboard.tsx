@@ -1,15 +1,15 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, FileText, Globe } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { Analytics, LocationData } from "@/types/analytics";
 import { Database } from "@/integrations/supabase/types";
+import { StatsCards } from "./dashboard/StatsCards";
+import { VisitsChart } from "./dashboard/VisitsChart";
+import { LocationChart } from "./dashboard/LocationChart";
+import { PageAnalytics } from "./dashboard/PageAnalytics";
+import { RecentPages } from "./dashboard/RecentPages";
 
 type AnalyticsResponse = Database['public']['Tables']['analytics']['Row'];
 
-// Type guard to check if a value is a LocationData object
 const isLocationData = (value: unknown): value is LocationData => {
   if (typeof value !== 'object' || value === null) return false;
   
@@ -60,7 +60,6 @@ export const Dashboard = () => {
     }
   });
 
-  // Process analytics data for visualization
   const pageVisits = analytics?.reduce((acc: Record<string, number>, curr) => {
     acc[curr.page_slug] = (acc[curr.page_slug] || 0) + 1;
     return acc;
@@ -82,7 +81,6 @@ export const Dashboard = () => {
     visits
   }));
 
-  // Group analytics by page
   const visitsByPage = analytics?.reduce((acc: Record<string, any>, curr) => {
     if (!acc[curr.page_slug]) {
       acc[curr.page_slug] = {
@@ -107,136 +105,19 @@ export const Dashboard = () => {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Dashboard Overview</h1>
       
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Pages</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{pages?.length || 0}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{users?.length || 0}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Visits</CardTitle>
-            <Globe className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{analytics?.length || 0}</div>
-          </CardContent>
-        </Card>
-      </div>
+      <StatsCards 
+        pagesCount={pages?.length || 0}
+        usersCount={users?.length || 0}
+        visitsCount={analytics?.length || 0}
+      />
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Page Visits</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ChartContainer
-                config={{
-                  visits: {
-                    theme: {
-                      light: "hsl(var(--primary))",
-                      dark: "hsl(var(--primary))",
-                    },
-                  },
-                }}
-              >
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="page" />
-                  <YAxis />
-                  <ChartTooltip />
-                  <Bar dataKey="visits" fill="var(--color-visits)" />
-                </BarChart>
-              </ChartContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Visits by Location</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ChartContainer
-                config={{
-                  visits: {
-                    theme: {
-                      light: "hsl(var(--primary))",
-                      dark: "hsl(var(--primary))",
-                    },
-                  },
-                }}
-              >
-                <BarChart data={locationData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="country" />
-                  <YAxis />
-                  <ChartTooltip />
-                  <Bar dataKey="visits" fill="var(--color-visits)" />
-                </BarChart>
-              </ChartContainer>
-            </div>
-          </CardContent>
-        </Card>
+        <VisitsChart data={chartData} />
+        <LocationChart data={locationData} />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Page Analytics</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {pageAnalytics.map((page) => (
-              <div key={page.page} className="flex items-center justify-between border-b pb-2">
-                <div>
-                  <h3 className="font-medium">/{page.page}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {page.uniqueVisitors} unique visitors
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium">{page.totalVisits} visits</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Pages</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {pages?.slice(0, 5).map((page) => (
-              <div key={page.id} className="flex items-center justify-between">
-                <span>{page.slug}</span>
-                <span className="text-sm text-muted-foreground">
-                  {new Date(page.created_at).toLocaleDateString()}
-                </span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <PageAnalytics analytics={pageAnalytics} />
+      <RecentPages pages={pages || []} />
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { validatePageContent } from "@/types/content";
 import { defaultContent } from "./defaultContent";
-import { ContentForm } from "./ContentForm";
+import { ContentFormFields } from "./ContentFormFields";
 import { Json } from "@/integrations/supabase/types";
 
 interface ContentEditorProps {
@@ -38,7 +38,6 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
       }
       
       if (initialData) {
-        // Update existing page
         const { error } = await supabase
           .from('pages')
           .update({ 
@@ -53,7 +52,6 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
           description: "Page has been updated successfully",
         });
       } else {
-        // Check for existing page with same slug
         const { data: existingPage } = await supabase
           .from('pages')
           .select('id')
@@ -69,7 +67,6 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
           return;
         }
 
-        // Create new page
         const { error } = await supabase
           .from('pages')
           .insert({ 
@@ -106,7 +103,7 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
 
   return (
     <Card className="p-6">
-      <ContentForm
+      <ContentFormFields
         slug={slug}
         content={content}
         loading={loading}

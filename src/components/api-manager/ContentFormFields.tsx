@@ -1,0 +1,70 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+
+interface ContentFormFieldsProps {
+  slug: string;
+  content: string;
+  loading: boolean;
+  isEditing?: boolean;
+  onSlugChange: (value: string) => void;
+  onContentChange: (value: string) => void;
+  onReset: () => void;
+  onSubmit: (e: React.FormEvent) => void;
+}
+
+export const ContentFormFields = ({
+  slug,
+  content,
+  loading,
+  isEditing,
+  onSlugChange,
+  onContentChange,
+  onReset,
+  onSubmit
+}: ContentFormFieldsProps) => {
+  return (
+    <form onSubmit={onSubmit} className="space-y-6">
+      <div>
+        <label htmlFor="slug" className="block text-sm font-medium mb-2">
+          Page Slug
+        </label>
+        <Input
+          id="slug"
+          value={slug}
+          onChange={(e) => onSlugChange(e.target.value)}
+          placeholder="e.g., menu"
+          required
+          readOnly={isEditing}
+          className={isEditing ? "bg-muted" : ""}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="content" className="block text-sm font-medium mb-2">
+          Page Content (JSON)
+        </label>
+        <Textarea
+          id="content"
+          value={content}
+          onChange={(e) => onContentChange(e.target.value)}
+          className="font-mono min-h-[300px]"
+          required
+        />
+      </div>
+
+      <div className="flex justify-end gap-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onReset}
+        >
+          Reset
+        </Button>
+        <Button type="submit" disabled={loading}>
+          {loading ? "Saving..." : isEditing ? "Update Content" : "Save Content"}
+        </Button>
+      </div>
+    </form>
+  );
+};
