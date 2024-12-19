@@ -1,24 +1,45 @@
 import { PageContent } from "@/types/content";
 
 export const defaultPages: Record<string, PageContent> = {
-  about: {
+  "about": {
     brandName: "Supreme Crash Cams",
+    colorScheme: {
+      primary: "#2563eb",
+      secondary: "#f0f9ff",
+      accent: "#dbeafe"
+    },
     hero: {
       title: "About Us",
       description: "Learn about our journey and mission",
-      image: "",
+      image: "/placeholder.svg",
       price: 0
     },
     product: {
-      images: [],
+      images: ["/placeholder.svg"],
       details: {
         description: "Our story",
-        specifications: [],
-        buyNowLink: ""
+        specifications: ["Founded in 2024", "Global Presence", "24/7 Support"],
+        buyNowLink: "#contact"
       },
-      features: []
+      features: ["Quality Service", "Expert Team", "Innovation"]
     },
-    features: [],
+    features: [
+      {
+        icon: "Star",
+        title: "Excellence",
+        description: "Committed to delivering the best"
+      },
+      {
+        icon: "Users",
+        title: "Team",
+        description: "Expert professionals at your service"
+      },
+      {
+        icon: "Shield",
+        title: "Trust",
+        description: "Building lasting relationships"
+      }
+    ],
     reviews: [],
     footer: {
       contact: {
@@ -26,27 +47,51 @@ export const defaultPages: Record<string, PageContent> = {
         phone: "+1 234 567 890",
         address: "123 Main St"
       },
-      links: []
+      links: [
+        { title: "Home", url: "/" },
+        { title: "Contact", url: "#contact" }
+      ]
     }
   },
-  features: {
+  "features": {
     brandName: "Supreme Crash Cams",
+    colorScheme: {
+      primary: "#2563eb",
+      secondary: "#f0f9ff",
+      accent: "#dbeafe"
+    },
     hero: {
       title: "Our Features",
       description: "Discover what makes us unique",
-      image: "",
+      image: "/placeholder.svg",
       price: 0
     },
     product: {
-      images: [],
+      images: ["/placeholder.svg"],
       details: {
         description: "Feature overview",
-        specifications: [],
-        buyNowLink: ""
+        specifications: ["Advanced Technology", "Easy Integration", "Reliable Performance"],
+        buyNowLink: "#contact"
       },
-      features: []
+      features: ["24/7 Support", "Cloud Storage", "Real-time Analytics"]
     },
-    features: [],
+    features: [
+      {
+        icon: "Zap",
+        title: "Fast",
+        description: "Lightning quick performance"
+      },
+      {
+        icon: "Shield",
+        title: "Secure",
+        description: "Enterprise-grade security"
+      },
+      {
+        icon: "Settings",
+        title: "Customizable",
+        description: "Tailored to your needs"
+      }
+    ],
     reviews: [],
     footer: {
       contact: {
@@ -54,91 +99,10 @@ export const defaultPages: Record<string, PageContent> = {
         phone: "+1 234 567 890",
         address: "123 Main St"
       },
-      links: []
-    }
-  },
-  "why-us": {
-    brandName: "Supreme Crash Cams",
-    hero: {
-      title: "Why Choose Us",
-      description: "What sets us apart from the competition",
-      image: "",
-      price: 0
-    },
-    product: {
-      images: [],
-      details: {
-        description: "Our advantages",
-        specifications: [],
-        buyNowLink: ""
-      },
-      features: []
-    },
-    features: [],
-    reviews: [],
-    footer: {
-      contact: {
-        email: "contact@example.com",
-        phone: "+1 234 567 890",
-        address: "123 Main St"
-      },
-      links: []
-    }
-  },
-  reviews: {
-    brandName: "Supreme Crash Cams",
-    hero: {
-      title: "Customer Reviews",
-      description: "What our customers say about us",
-      image: "",
-      price: 0
-    },
-    product: {
-      images: [],
-      details: {
-        description: "Customer feedback",
-        specifications: [],
-        buyNowLink: ""
-      },
-      features: []
-    },
-    features: [],
-    reviews: [],
-    footer: {
-      contact: {
-        email: "contact@example.com",
-        phone: "+1 234 567 890",
-        address: "123 Main St"
-      },
-      links: []
-    }
-  },
-  general: {
-    brandName: "Supreme Crash Cams",
-    hero: {
-      title: "General Information",
-      description: "Everything you need to know",
-      image: "",
-      price: 0
-    },
-    product: {
-      images: [],
-      details: {
-        description: "General information",
-        specifications: [],
-        buyNowLink: ""
-      },
-      features: []
-    },
-    features: [],
-    reviews: [],
-    footer: {
-      contact: {
-        email: "contact@example.com",
-        phone: "+1 234 567 890",
-        address: "123 Main St"
-      },
-      links: []
+      links: [
+        { title: "Home", url: "/" },
+        { title: "Contact", url: "#contact" }
+      ]
     }
   }
 };

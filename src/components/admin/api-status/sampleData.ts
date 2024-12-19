@@ -1,5 +1,6 @@
 export const samplePageData = {
-  "slug": "sample-page",
+  "slug": "sample-product",
+  "category_id": "sample-category-id", // This will be replaced with actual category ID
   "content": {
     "brandName": "Sample Brand",
     "colorScheme": {
@@ -92,6 +93,12 @@ export const samplePageData = {
       ]
     }
   }
+};
+
+export const sampleCategoryData = {
+  "name": "Sample Category",
+  "slug": "sample-category",
+  "description": "This is a sample category description"
 };
 
 export const colorSchemeExamples = {
