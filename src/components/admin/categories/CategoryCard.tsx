@@ -20,6 +20,8 @@ interface CategoryCardProps {
 }
 
 export const CategoryCard = ({ category, analytics, onClick, onDelete }: CategoryCardProps) => {
+  const deleteDialog = onDelete();
+
   return (
     <Card className="hover:bg-accent/50 transition-colors">
       <CardHeader 
@@ -41,7 +43,7 @@ export const CategoryCard = ({ category, analytics, onClick, onDelete }: Categor
                 <Trash2 className="h-4 w-4" />
               </Button>
             </AlertDialogTrigger>
-            {onDelete()}
+            {deleteDialog}
           </AlertDialog>
           <ChevronRight className="h-4 w-4" />
         </div>
