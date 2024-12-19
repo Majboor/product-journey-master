@@ -1,11 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { CategoryCard } from "./categories/CategoryCard";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 export const Categories = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const { data: categories, isLoading: loadingCategories } = useQuery({
     queryKey: ['categories'],
@@ -56,13 +60,35 @@ export const Categories = () => {
     }
   });
 
-  if (loadingCategories) {
-    return <div>Loading categories...</div>;
-  }
-
   const handleCategoryClick = (categorySlug: string) => {
     navigate(`/admin/categories/${categorySlug}`);
   };
+
+  const handleDeleteCategory = async (categoryId: string) => {
+    const { error } = await supabase
+      .from('categories')
+      .delete()
+      .eq('id', categoryId);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete category. Please try again.",
+      });
+      return;
+    }
+
+    queryClient.invalidateQueries({ queryKey: ['categories'] });
+    toast({
+      title: "Success",
+      description: "Category deleted successfully.",
+    });
+  };
+
+  if (loadingCategories) {
+    return <div>Loading categories...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -78,6 +104,7 @@ export const Categories = () => {
             category={category}
             analytics={categoryAnalytics?.[category.slug] || []}
             onClick={() => handleCategoryClick(category.slug)}
+            onDelete={() => handleDeleteCategory(category.id)}
           />
         ))}
       </div>

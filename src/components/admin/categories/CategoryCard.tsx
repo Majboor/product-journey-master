@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FolderOpen, ChevronRight } from "lucide-react";
+import { FolderOpen, ChevronRight, Trash2 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface CategoryCardProps {
   category: {
@@ -14,22 +16,47 @@ interface CategoryCardProps {
     visits: number;
   }>;
   onClick: () => void;
+  onDelete: () => void;
 }
 
-export const CategoryCard = ({ category, analytics, onClick }: CategoryCardProps) => {
+export const CategoryCard = ({ category, analytics, onClick, onDelete }: CategoryCardProps) => {
   return (
     <Card className="hover:bg-accent/50 transition-colors">
       <CardHeader 
-        className="flex flex-row items-center justify-between space-y-0 pb-2 cursor-pointer"
-        onClick={onClick}
+        className="flex flex-row items-center justify-between space-y-0 pb-2"
       >
-        <div className="flex items-center gap-2">
+        <div 
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={onClick}
+        >
           <FolderOpen className="h-5 w-5" />
           <CardTitle className="text-xl font-medium">
             {category.name}
           </CardTitle>
         </div>
-        <ChevronRight className="h-4 w-4" />
+        <div className="flex items-center gap-2">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="icon">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the category
+                  "{category.name}" and all its associated data.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={onDelete}>Delete</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <ChevronRight className="h-4 w-4" />
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
