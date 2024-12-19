@@ -1,4 +1,4 @@
-import { ShoppingCart, Clock, LogIn, LogOut, Settings } from "lucide-react";
+import { ShoppingCart, Clock, LogIn, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -6,7 +6,11 @@ import { useAuth } from "./auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 
-const Header = () => {
+interface HeaderProps {
+  brandName?: string;
+}
+
+const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
   const [cartTimer, setCartTimer] = useState(600);
   const { session } = useAuth();
   const navigate = useNavigate();
@@ -47,7 +51,7 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="text-xl font-bold text-primary relative">
-            Supreme Crash Cams
+            {brandName}
             <span className="absolute -top-1 -right-12 text-xs text-primary/60">™</span>
           </div>
           

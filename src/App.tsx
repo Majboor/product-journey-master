@@ -7,6 +7,7 @@ import { AuthProvider } from "./components/auth/AuthProvider";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import ApiManager from "./pages/ApiManager";
+import DynamicPage from "./pages/DynamicPage";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/api-manager" element={<ApiManager />} />
+            <Route path="/:slug" element={<DynamicPage />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
