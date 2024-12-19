@@ -93,3 +93,31 @@ export const samplePageData = {
     }
   }
 };
+
+export const colorSchemeExamples = {
+  default: {
+    primary: "#2563eb",
+    secondary: "#f0f9ff",
+    accent: "#dbeafe"
+  },
+  purple: {
+    primary: "#9b87f5",
+    secondary: "#7E69AB",
+    accent: "#D6BCFA"
+  },
+  pastel: {
+    primary: "#F2FCE2",
+    secondary: "#FEF7CD",
+    accent: "#FEC6A1"
+  },
+  vivid: {
+    primary: "#8B5CF6",
+    secondary: "#D946EF",
+    accent: "#F97316"
+  },
+  blue: {
+    primary: "#0EA5E9",
+    secondary: "#33C3F0",
+    accent: "#1EAEDB"
+  }
+};

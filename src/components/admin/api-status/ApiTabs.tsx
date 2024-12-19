@@ -1,5 +1,5 @@
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { samplePageData } from "./sampleData";
+import { samplePageData, colorSchemeExamples } from "./sampleData";
 import { useAuth } from "@/components/auth/AuthProvider";
 
 interface ApiTabsProps {
@@ -17,6 +17,7 @@ export const ApiTabs = ({ testResponse }: ApiTabsProps) => {
         <TabsTrigger value="response">Sample Output</TabsTrigger>
         <TabsTrigger value="curl">cURL Example</TabsTrigger>
         <TabsTrigger value="python">Python Example</TabsTrigger>
+        <TabsTrigger value="colors">Color Schemes</TabsTrigger>
       </TabsList>
       
       <TabsContent value="response" className="space-y-4">
@@ -58,6 +59,30 @@ data = ${JSON.stringify(samplePageData, null, 2)}
 response = requests.post(url, headers=headers, json=data)
 print(response.json())`}
         </pre>
+      </TabsContent>
+
+      <TabsContent value="colors" className="space-y-4">
+        <h3 className="font-semibold">Color Scheme Examples:</h3>
+        <div className="grid gap-4">
+          {Object.entries(colorSchemeExamples).map(([name, scheme]) => (
+            <div key={name} className="space-y-2">
+              <h4 className="font-medium capitalize">{name}</h4>
+              <pre className="bg-muted p-4 rounded-lg overflow-auto">
+                {JSON.stringify({ colorScheme: scheme }, null, 2)}
+              </pre>
+              <div 
+                className="h-8 rounded flex items-center px-4"
+                style={{
+                  backgroundColor: scheme.secondary,
+                  border: `2px solid ${scheme.primary}`,
+                  color: scheme.primary
+                }}
+              >
+                Preview
+              </div>
+            </div>
+          ))}
+        </div>
       </TabsContent>
     </>
   );
