@@ -36,8 +36,8 @@ export const ContentFormFields = ({
           value={slug}
           onChange={(e) => onSlugChange(e.target.value)}
           placeholder="e.g., menu (or leave empty for root page)"
-          readOnly={isEditing}
           className={isEditing ? "bg-muted" : ""}
+          readOnly={isEditing}
         />
       </div>
 
@@ -49,7 +49,10 @@ export const ContentFormFields = ({
   "colorScheme": {
     "primary": "#2563eb",
     "secondary": "#f0f9ff",
-    "accent": "#dbeafe"
+    "accent": "#dbeafe",
+    "primaryText": "#ffffff",
+    "secondaryText": "#000000",
+    "accentText": "#000000"
   }
 }`}
         </div>

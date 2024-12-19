@@ -50,7 +50,7 @@ export const Pages = () => {
           <Card key={page.id}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xl font-medium">
-                {page.slug === '' ? '/' : `/${page.slug}`}
+                {page.slug === '' ? '/ (Root)' : `/${page.slug}`}
               </CardTitle>
               <div className="flex gap-2">
                 <Button

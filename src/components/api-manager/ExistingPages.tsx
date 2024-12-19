@@ -35,7 +35,7 @@ export const ExistingPages = ({ onLoadPage }: ExistingPagesProps) => {
         {pages.map((page) => (
           <div key={page.slug} className="border rounded-lg p-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-medium">{page.slug ? `/${page.slug}` : '/ (Root)'}</h3>
+              <h3 className="font-medium">{page.slug === '' ? '/ (Root)' : `/${page.slug}`}</h3>
               <Button
                 variant="outline"
                 size="sm"
