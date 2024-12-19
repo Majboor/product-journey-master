@@ -4,7 +4,7 @@ import Login from "@/pages/Login";
 import DynamicPage from "@/pages/DynamicPage";
 import ApiManager from "@/pages/ApiManager";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import AdminLayout from "@/components/admin/AdminLayout";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Dashboard } from "@/components/admin/Dashboard";
 import { Categories } from "@/components/admin/Categories";
 import { SingleCategory } from "@/components/admin/SingleCategory";
