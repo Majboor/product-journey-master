@@ -12,9 +12,9 @@ export const Documentation = () => {
           <li><strong>title</strong>: String - The main title of the page</li>
           <li><strong>description</strong>: String - A brief description</li>
           <li>
-            <strong>colorScheme</strong>: Object - Contains color settings
+            <strong>colorScheme</strong>: Object - Contains color settings with text colors
             <pre className="mt-2 p-2 bg-background rounded">
-              {JSON.stringify(colorSchemeExamples.default, null, 2)}
+              {JSON.stringify(colorSchemeExamples.premium, null, 2)}
             </pre>
             <div className="mt-2">Available color scheme examples:</div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
@@ -25,12 +25,14 @@ export const Documentation = () => {
                   style={{
                     backgroundColor: scheme.secondary,
                     border: `2px solid ${scheme.primary}`,
-                    color: scheme.primary
+                    color: scheme.secondaryText
                   }}
                 >
                   <div className="font-semibold capitalize">{name}</div>
                   <div className="text-xs opacity-80">
                     Primary: {scheme.primary}
+                    <br />
+                    Text Colors Included
                   </div>
                 </div>
               ))}

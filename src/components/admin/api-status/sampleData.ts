@@ -98,26 +98,33 @@ export const colorSchemeExamples = {
   default: {
     primary: "#2563eb",    // Blue
     secondary: "#f8fafc",  // Light gray
-    accent: "#dbeafe"      // Light blue
+    accent: "#dbeafe",     // Light blue
+    primaryText: "#FFFFFF", // White text for primary
+    secondaryText: "#1A1F2C", // Dark text for secondary
+    accentText: "#1A1F2C"  // Dark text for accent
   },
   dark: {
     primary: "#1A1F2C",    // Dark blue
     secondary: "#f8fafc",  // Light gray
-    accent: "#6E59A5"      // Purple
+    accent: "#6E59A5",     // Purple
+    primaryText: "#FFFFFF",
+    secondaryText: "#1A1F2C",
+    accentText: "#FFFFFF"
   },
-  purple: {
-    primary: "#6E59A5",    // Dark purple
-    secondary: "#f8fafc",  // Light gray
-    accent: "#9b87f5"      // Light purple
-  },
-  vivid: {
-    primary: "#8B5CF6",    // Bright purple
-    secondary: "#f8fafc",  // Light gray
-    accent: "#F97316"      // Orange
+  premium: {
+    primary: "#8B0000",    // Deep Red
+    secondary: "#F5F5F5",  // Light Gray
+    accent: "#FFD700",     // Gold
+    primaryText: "#FFFFFF", // White text for primary
+    secondaryText: "#1A1F2C", // Dark text for secondary
+    accentText: "#1A1F2C"  // Dark text for accent
   },
   ocean: {
     primary: "#0EA5E9",    // Ocean blue
     secondary: "#f8fafc",  // Light gray
-    accent: "#1EAEDB"      // Bright blue
+    accent: "#1EAEDB",     // Bright blue
+    primaryText: "#FFFFFF",
+    secondaryText: "#1A1F2C",
+    accentText: "#FFFFFF"
   }
 };

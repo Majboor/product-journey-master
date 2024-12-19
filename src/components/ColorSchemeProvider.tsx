@@ -47,7 +47,7 @@ const hexToHSL = (hex: string) => {
 // Function to check if a color is too light
 const isColorTooLight = (color: string) => {
   const hsl = hexToHSL(color);
-  return hsl.l > 70; // If lightness is too high
+  return hsl.l > 70;
 };
 
 // Function to get contrasting text color
@@ -61,6 +61,9 @@ const defaultColors = {
   primary: '#2563eb',    // Blue
   secondary: '#f8fafc',  // Light gray
   accent: '#dbeafe',     // Light blue
+  primaryText: '#FFFFFF', // White text for primary
+  secondaryText: '#1A1F2C', // Dark text for secondary
+  accentText: '#1A1F2C',  // Dark text for accent
 };
 
 // Function to ensure color has proper contrast
@@ -74,64 +77,41 @@ export const ColorSchemeProvider = ({ colorScheme, children }: ColorSchemeProvid
     
     // Ensure primary color has proper contrast
     const primaryColor = ensureColorContrast(colors.primary, defaultColors.primary);
-    document.documentElement.style.setProperty('--primary', primaryColor);
-    document.documentElement.style.setProperty(
-      '--primary-foreground',
-      getContrastingTextColor(primaryColor)
-    );
+    const primaryTextColor = colors.primaryText || getContrastingTextColor(primaryColor);
+    document.documentElement.style.setProperty('--primary-color', primaryColor);
+    document.documentElement.style.setProperty('--primary-foreground', primaryTextColor);
 
     // Set secondary color with guaranteed contrast
     const secondaryColor = ensureColorContrast(colors.secondary, defaultColors.secondary);
-    document.documentElement.style.setProperty('--secondary', secondaryColor);
-    document.documentElement.style.setProperty(
-      '--secondary-foreground',
-      getContrastingTextColor(secondaryColor)
-    );
+    const secondaryTextColor = colors.secondaryText || getContrastingTextColor(secondaryColor);
+    document.documentElement.style.setProperty('--secondary-color', secondaryColor);
+    document.documentElement.style.setProperty('--secondary-foreground', secondaryTextColor);
 
     // Set accent color with guaranteed contrast
     const accentColor = ensureColorContrast(colors.accent, defaultColors.accent);
-    document.documentElement.style.setProperty('--accent', accentColor);
-    document.documentElement.style.setProperty(
-      '--accent-foreground',
-      getContrastingTextColor(accentColor)
-    );
+    const accentTextColor = colors.accentText || getContrastingTextColor(accentColor);
+    document.documentElement.style.setProperty('--accent-color', accentColor);
+    document.documentElement.style.setProperty('--accent-foreground', accentTextColor);
 
-    // Set background and text colors with guaranteed contrast
+    // Set background and text colors
     document.documentElement.style.setProperty('--background', secondaryColor);
-    document.documentElement.style.setProperty(
-      '--foreground',
-      getContrastingTextColor(secondaryColor)
-    );
+    document.documentElement.style.setProperty('--foreground', secondaryTextColor);
 
-    // Update card colors for consistency
+    // Update card colors
     document.documentElement.style.setProperty('--card', secondaryColor);
-    document.documentElement.style.setProperty(
-      '--card-foreground',
-      getContrastingTextColor(secondaryColor)
-    );
+    document.documentElement.style.setProperty('--card-foreground', secondaryTextColor);
 
     // Update popover colors
     document.documentElement.style.setProperty('--popover', secondaryColor);
-    document.documentElement.style.setProperty(
-      '--popover-foreground',
-      getContrastingTextColor(secondaryColor)
-    );
+    document.documentElement.style.setProperty('--popover-foreground', secondaryTextColor);
 
-    // Set muted colors with proper contrast
-    const mutedBackground = isColorTooLight(secondaryColor) 
-      ? '#f1f5f9'  // Light muted
-      : '#334155'; // Dark muted
+    // Set muted colors
+    const mutedBackground = isColorTooLight(secondaryColor) ? '#f1f5f9' : '#334155';
     document.documentElement.style.setProperty('--muted', mutedBackground);
-    document.documentElement.style.setProperty(
-      '--muted-foreground',
-      getContrastingTextColor(mutedBackground)
-    );
+    document.documentElement.style.setProperty('--muted-foreground', getContrastingTextColor(mutedBackground));
 
     // Set border color
-    document.documentElement.style.setProperty(
-      '--border',
-      isColorTooLight(secondaryColor) ? '#e2e8f0' : '#1f2937'
-    );
+    document.documentElement.style.setProperty('--border', isColorTooLight(secondaryColor) ? '#e2e8f0' : '#1f2937');
 
   }, [colorScheme]);
 
