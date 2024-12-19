@@ -1,33 +1,26 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const ApiStatus = () => {
-  const { session } = useAuth();
-  const { toast } = useToast();
-  const [testResponse, setTestResponse] = useState<string>("");
-  const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM";
-  const accessToken = session?.access_token || '[Login to get your access token]';
+  const [testResponse, setTestResponse] = useState("");
 
   const testApi = async () => {
     try {
+      const slug = "toyland-express"; // Define the slug we'll use
+      
       // First check if the slug exists
       const { data: existingPage } = await supabase
         .from('pages')
         .select('id')
-        .eq('slug', 'toyland-express')
-        .single();
+        .eq('slug', slug)
+        .maybeSingle();
 
       if (existingPage) {
-        toast({
-          title: "Error",
-          description: "A page with slug 'toyland-express' already exists. Please use a different slug.",
-          variant: "destructive",
-        });
+        toast.error("A page with this slug already exists. Please use a different slug.");
         setTestResponse(JSON.stringify({
           error: "Duplicate slug",
           message: "A page with this slug already exists"
@@ -38,7 +31,7 @@ export const ApiStatus = () => {
       const { data, error } = await supabase
         .from('pages')
         .insert({
-          slug: 'toyland-express',
+          slug,
           content: {
             brandName: "Toyland Express",
             hero: {
@@ -60,7 +53,7 @@ export const ApiStatus = () => {
                   "Durable and Safe",
                   "Suitable for Ages 3+"
                 ],
-                buyNowLink: "#buy-now"
+                buyNowLink: "#" // Added missing required field
               },
               features: [
                 "Educational and Entertaining",
@@ -133,109 +126,73 @@ export const ApiStatus = () => {
             }
           }
         })
-        .select()
-        .single();
+        .select();
 
       if (error) throw error;
-      
+
+      toast.success("API test successful! Page created.");
       setTestResponse(JSON.stringify(data, null, 2));
-      toast({
-        title: "API Test Successful",
-        description: "Check the Sample Output tab to see the response",
-      });
+      
     } catch (error: any) {
-      toast({
-        title: "API Test Failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(error.message || "Failed to test API");
       setTestResponse(JSON.stringify(error, null, 2));
     }
   };
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">API Status & Documentation</h1>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>API Status</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span>Database Connection</span>
-              <span className="text-green-500">Connected</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>API Version</span>
-              <span>v1.0.0</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Project URL</span>
-              <span>https://tylpifixgpoxonedjyzo.supabase.co</span>
-            </div>
+      <Card className="p-6">
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold">API Status</h2>
+          <p className="text-muted-foreground">
+            Test the API endpoints and view sample responses.
+          </p>
+          <div className="flex items-center gap-4">
+            <Button onClick={testApi}>
+              Test API Now
+            </Button>
           </div>
-        </CardContent>
+        </div>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Your API Keys</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <h3 className="font-medium mb-2">Anon Key:</h3>
-            <pre className="bg-secondary p-2 rounded-lg overflow-x-auto text-sm">
-              {anonKey}
-            </pre>
-          </div>
-          <div>
-            <h3 className="font-medium mb-2">Access Token:</h3>
-            <pre className="bg-secondary p-2 rounded-lg overflow-x-auto text-sm">
-              {accessToken}
-            </pre>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>API Documentation</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4">
-            <Button onClick={testApi}>Test API Now</Button>
-          </div>
+      <Card className="p-6">
+        <Tabs defaultValue="response">
+          <TabsList>
+            <TabsTrigger value="response">Sample Output</TabsTrigger>
+            <TabsTrigger value="curl">cURL Example</TabsTrigger>
+            <TabsTrigger value="python">Python Example</TabsTrigger>
+          </TabsList>
           
-          <Tabs defaultValue="curl">
-            <TabsList>
-              <TabsTrigger value="curl">cURL</TabsTrigger>
-              <TabsTrigger value="python">Python</TabsTrigger>
-              <TabsTrigger value="output">Sample Output</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="curl" className="mt-4">
-              <pre className="bg-secondary p-4 rounded-lg overflow-x-auto">
-                {`curl -X POST https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/pages \\
--H "apikey: ${anonKey}" \\
--H "Authorization: Bearer ${accessToken}" \\
--H "Content-Type: application/json" \\
--H "Prefer: return=representation" \\
--d '{"slug":"toyland-express","content":{"brandName":"Toyland Express","hero":{"title":"Unleash the Joy of Play","description":"Discover a world of fun and creativity with our premium selection of toys for all ages.","image":"https://images.unsplash.com/photo-1589988344375-8b8998d6a799","price":19.99}}}'`}
-              </pre>
-            </TabsContent>
-            
-            <TabsContent value="python" className="mt-4">
-              <pre className="bg-secondary p-4 rounded-lg overflow-x-auto">
-                {`import requests
+          <TabsContent value="response" className="space-y-4">
+            <h3 className="font-semibold">Response:</h3>
+            <pre className="bg-muted p-4 rounded-lg overflow-auto">
+              {testResponse || "Click 'Test API Now' to see the response"}
+            </pre>
+          </TabsContent>
+
+          <TabsContent value="curl" className="space-y-4">
+            <h3 className="font-semibold">cURL Example:</h3>
+            <pre className="bg-muted p-4 rounded-lg overflow-auto">
+{`curl -X POST 'https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/pages' \\
+-H 'apikey: YOUR_ANON_KEY' \\
+-H 'Authorization: Bearer YOUR_ACCESS_TOKEN' \\
+-H 'Content-Type: application/json' \\
+-H 'Prefer: return=representation' \\
+-d '{"slug":"toyland-express","content":{"brandName":"Toyland Express",...}}'`}
+            </pre>
+          </TabsContent>
+
+          <TabsContent value="python" className="space-y-4">
+            <h3 className="font-semibold">Python Example:</h3>
+            <pre className="bg-muted p-4 rounded-lg overflow-auto">
+{`import requests
 import json
 
 url = "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/pages"
 
 headers = {
-    "apikey": "${anonKey}",
-    "Authorization": "Bearer ${accessToken}",
+    "apikey": "YOUR_ANON_KEY",
+    "Authorization": "Bearer YOUR_ACCESS_TOKEN",
     "Content-Type": "application/json",
     "Prefer": "return=representation"
 }
@@ -244,43 +201,15 @@ data = {
     "slug": "toyland-express",
     "content": {
         "brandName": "Toyland Express",
-        "hero": {
-            "title": "Unleash the Joy of Play",
-            "description": "Discover a world of fun and creativity with our premium selection of toys for all ages.",
-            "image": "https://images.unsplash.com/photo-1589988344375-8b8998d6a799",
-            "price": 19.99
-        }
+        ...
     }
 }
 
 response = requests.post(url, headers=headers, json=data)
 print(response.json())`}
-              </pre>
-            </TabsContent>
-
-            <TabsContent value="output" className="mt-4">
-              <pre className="bg-secondary p-4 rounded-lg overflow-x-auto">
-                {testResponse || `// Click "Test API Now" to see live output
-// Sample successful response:
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "slug": "toyland-express",
-  "content": {
-    "brandName": "Toyland Express",
-    "hero": {
-      "title": "Unleash the Joy of Play",
-      "description": "Discover a world of fun and creativity with our premium selection of toys for all ages.",
-      "image": "https://images.unsplash.com/photo-1589988344375-8b8998d6a799",
-      "price": 19.99
-    }
-  },
-  "created_at": "2024-03-20T12:00:00.000Z",
-  "updated_at": "2024-03-20T12:00:00.000Z"
-}`}
-              </pre>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
+            </pre>
+          </TabsContent>
+        </Tabs>
       </Card>
     </div>
   );
