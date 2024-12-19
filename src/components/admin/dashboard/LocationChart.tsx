@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 
 interface LocationChartProps {
@@ -27,13 +27,28 @@ export const LocationChart = ({ data }: LocationChartProps) => {
               },
             }}
           >
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="country" />
-              <YAxis />
-              <ChartTooltip />
-              <Bar dataKey="visits" fill="var(--color-visits)" />
-            </BarChart>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart 
+                data={data}
+                margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="country" 
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                  interval={0}
+                />
+                <YAxis />
+                <ChartTooltip />
+                <Bar 
+                  dataKey="visits" 
+                  fill="var(--color-visits)"
+                  maxBarSize={40}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </ChartContainer>
         </div>
       </CardContent>

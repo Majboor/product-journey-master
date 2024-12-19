@@ -11,12 +11,12 @@ interface VisitsChartProps {
 
 export const VisitsChart = ({ data }: VisitsChartProps) => {
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Page Visits</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[400px]"> {/* Increased height for better visibility */}
+        <div className="h-[500px]"> {/* Increased height for better data visibility */}
           <ChartContainer
             config={{
               visits: {
@@ -28,12 +28,25 @@ export const VisitsChart = ({ data }: VisitsChartProps) => {
             }}
           >
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data}>
+              <BarChart 
+                data={data}
+                margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="page" />
+                <XAxis 
+                  dataKey="page" 
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                  interval={0}
+                />
                 <YAxis />
                 <ChartTooltip />
-                <Bar dataKey="visits" fill="var(--color-visits)" />
+                <Bar 
+                  dataKey="visits" 
+                  fill="var(--color-visits)"
+                  maxBarSize={50}
+                />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>

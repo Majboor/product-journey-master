@@ -112,7 +112,7 @@ export const Dashboard = () => {
   ).map(([_, data]) => data);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-6">
       <h1 className="text-3xl font-bold">Dashboard Overview</h1>
       
       <StatsCards 
@@ -121,23 +121,25 @@ export const Dashboard = () => {
         visitsCount={analytics?.length || 0}
       />
 
-      {/* Full width visits chart */}
-      <div className="w-full">
+      {/* Full width visits chart with increased height */}
+      <div className="w-full bg-card rounded-lg shadow">
         <VisitsChart data={chartData} />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-2">
         <SignInAnalytics data={signInChartData || []} />
         <LocationChart data={locationData} />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-2">
         <ButtonClicksAnalytics data={buttonClicksData} />
         <SwipeAnalytics data={swipeData} />
       </div>
 
-      <PageAnalytics analytics={pageAnalytics} />
-      <RecentPages pages={pages || []} />
+      <div className="space-y-8">
+        <PageAnalytics analytics={pageAnalytics} />
+        <RecentPages pages={pages || []} />
+      </div>
     </div>
   );
 };
