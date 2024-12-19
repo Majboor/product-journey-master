@@ -7,6 +7,10 @@ import {
 } from "@/components/ui/carousel";
 
 export const ProductCarousel = ({ images }: { images: string[] }) => {
+  if (!images || images.length === 0) {
+    return null;
+  }
+
   return (
     <Carousel className="w-full max-w-xl mx-auto">
       <CarouselContent>

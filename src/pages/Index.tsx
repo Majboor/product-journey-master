@@ -25,10 +25,19 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      <Header brandName={defaultBurgerContent.brandName} />
       <main>
-        <Hero {...defaultBurgerContent.hero} />
-        <ProductSection {...defaultBurgerContent.product} />
+        <Hero 
+          title={defaultBurgerContent.hero.title}
+          description={defaultBurgerContent.hero.description}
+          image={defaultBurgerContent.hero.image}
+          price={defaultBurgerContent.hero.price}
+        />
+        <ProductSection 
+          images={defaultBurgerContent.product.images}
+          details={defaultBurgerContent.product.details}
+          features={defaultBurgerContent.product.features}
+        />
         <Features features={defaultBurgerContent.features} />
         <Reviews reviews={defaultBurgerContent.reviews} />
       </main>

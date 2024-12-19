@@ -6,6 +6,10 @@ interface ReviewsProps {
 }
 
 const Reviews = ({ reviews }: ReviewsProps) => {
+  if (!reviews || reviews.length === 0) {
+    return null;
+  }
+
   return (
     <section id="reviews" className="py-20">
       <div className="container px-4 mx-auto">
