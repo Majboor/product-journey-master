@@ -63,6 +63,33 @@ export type Database = {
         }
         Relationships: []
       }
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       jokes: {
         Row: {
           created_at: string
@@ -86,6 +113,7 @@ export type Database = {
       }
       pages: {
         Row: {
+          category_id: string | null
           color_scheme: Json | null
           content: Json
           created_at: string
@@ -94,6 +122,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          category_id?: string | null
           color_scheme?: Json | null
           content: Json
           created_at?: string
@@ -102,6 +131,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          category_id?: string | null
           color_scheme?: Json | null
           content?: Json
           created_at?: string
@@ -109,7 +139,15 @@ export type Database = {
           slug?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "pages_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       signin_attempts: {
         Row: {

@@ -1,5 +1,5 @@
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { Users, FileText, Database, LayoutDashboard, Link } from "lucide-react";
+import { Users, FileText, Database, LayoutDashboard, Link, FolderOpen } from "lucide-react";
 import { Link as RouterLink, Outlet } from "react-router-dom";
 
 export const AdminLayout = () => {
@@ -21,6 +21,15 @@ export const AdminLayout = () => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <RouterLink to="/admin/categories">
+                    <FolderOpen />
+                    <span>Categories</span>
+                  </RouterLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <RouterLink to="/admin/pages">

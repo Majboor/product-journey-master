@@ -1,62 +1,62 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import Header from "@/components/Header";
+import LoadingScreen from "@/components/LoadingScreen";
 import Hero from "@/components/Hero";
-import Features from "@/components/Features";
 import ProductSection from "@/components/ProductSection";
+import Features from "@/components/Features";
 import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
 import { ColorSchemeProvider } from "@/components/ColorSchemeProvider";
-import { PageContent } from "@/types/content";
-import LoadingScreen from "@/components/LoadingScreen";
 import { usePageAnalytics } from "@/hooks/usePageAnalytics";
-import { useEffect } from "react";
 
 const DynamicPage = () => {
-  const { slug = '' } = useParams();
-
-  // Initialize analytics tracking
-  usePageAnalytics(slug);
+  const { categorySlug, slug } = useParams();
+  const finalSlug = slug || '';
+  
+  usePageAnalytics(finalSlug);
 
   const { data: page, isLoading } = useQuery({
-    queryKey: ['page', slug],
+    queryKey: ['page', categorySlug, finalSlug],
     queryFn: async () => {
+      const { data: category } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', categorySlug)
+        .single();
+
+      if (!category) {
+        throw new Error('Category not found');
+      }
+
       const { data, error } = await supabase
         .from('pages')
         .select('*')
-        .eq('slug', slug)
+        .eq('category_id', category.id)
+        .eq('slug', finalSlug)
         .single();
-      
+
       if (error) throw error;
       return data;
     }
   });
 
-  if (isLoading) return <LoadingScreen />;
-  if (!page) return <div>Page not found</div>;
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
-  const content = page.content as unknown as PageContent;
+  if (!page) {
+    return <div>Page not found</div>;
+  }
 
   return (
-    <ColorSchemeProvider colorScheme={content.colorScheme}>
-      <div className="min-h-screen bg-background">
-        <Header brandName={content.brandName} />
-        <main>
-          <Hero {...content.hero} />
-          <ProductSection 
-            images={content.product.images}
-            details={content.product.details}
-            features={content.product.features}
-          />
-          <Features features={content.features} />
-          <Reviews reviews={content.reviews} />
-        </main>
-        <Footer
-          brandName={content.brandName}
-          contact={content.footer.contact}
-          links={content.footer.links}
-        />
+    <ColorSchemeProvider colorScheme={page.color_scheme}>
+      <div className="min-h-screen">
+        <Hero content={page.content} />
+        <ProductSection content={page.content} />
+        <Features content={page.content} />
+        <Reviews content={page.content} />
+        <Footer content={page.content} />
       </div>
     </ColorSchemeProvider>
   );

@@ -11,17 +11,20 @@ interface ContentEditorProps {
   initialData?: {
     slug: string;
     content: Json;
+    category_id?: string;
   } | null;
 }
 
 export const ContentEditor = ({ initialData }: ContentEditorProps) => {
   const [slug, setSlug] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [content, setContent] = useState(JSON.stringify(defaultContent, null, 2));
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (initialData) {
       setSlug(initialData.slug);
+      setCategoryId(initialData.category_id || "");
       setContent(JSON.stringify(initialData.content, null, 2));
     }
   }, [initialData]);
@@ -37,12 +40,17 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
         throw new Error('Invalid content structure. Please ensure all required fields are present.');
       }
 
+      if (!categoryId) {
+        throw new Error('Please select a category');
+      }
+
       // Always treat empty slug as an update operation
       if (slug === '') {
         const { error } = await supabase
           .from('pages')
           .update({ 
-            content: parsedContent as unknown as Json
+            content: parsedContent as unknown as Json,
+            category_id: categoryId
           })
           .eq('slug', '');
 
@@ -56,7 +64,8 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
         const { error } = await supabase
           .from('pages')
           .update({ 
-            content: parsedContent as unknown as Json
+            content: parsedContent as unknown as Json,
+            category_id: categoryId
           })
           .eq('slug', slug);
 
@@ -86,7 +95,8 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
           .from('pages')
           .insert({ 
             slug,
-            content: parsedContent as unknown as Json
+            content: parsedContent as unknown as Json,
+            category_id: categoryId
           });
 
         if (error) throw error;
@@ -112,6 +122,7 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
   const handleReset = () => {
     if (!initialData) {
       setSlug("");
+      setCategoryId("");
       setContent(JSON.stringify(defaultContent, null, 2));
     }
   };
@@ -121,9 +132,11 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
       <ContentFormFields
         slug={slug}
         content={content}
+        categoryId={categoryId}
         loading={loading}
         onSlugChange={setSlug}
         onContentChange={setContent}
+        onCategoryChange={setCategoryId}
         onReset={handleReset}
         onSubmit={handleSubmit}
         isEditing={!!initialData}
