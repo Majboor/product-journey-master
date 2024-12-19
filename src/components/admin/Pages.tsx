@@ -25,18 +25,33 @@ export const Pages = () => {
     return <div>Loading pages...</div>;
   }
 
+  // Check if root page exists
+  const hasRootPage = pages?.some(page => page.slug === '');
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Pages Management</h1>
-        <Button onClick={() => navigate('/admin/api-manager')}>Create New Page</Button>
+        <div className="space-x-4">
+          {!hasRootPage && (
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/admin/api-manager?edit=')}
+            >
+              Create Root Page
+            </Button>
+          )}
+          <Button onClick={() => navigate('/admin/api-manager')}>Create New Page</Button>
+        </div>
       </div>
 
       <div className="grid gap-4">
         {pages?.map((page) => (
           <Card key={page.id}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xl font-medium">/{page.slug}</CardTitle>
+              <CardTitle className="text-xl font-medium">
+                {page.slug === '' ? '/' : `/${page.slug}`}
+              </CardTitle>
               <div className="flex gap-2">
                 <Button
                   variant="outline"

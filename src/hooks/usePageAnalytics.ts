@@ -22,9 +22,9 @@ export const usePageAnalytics = (pageSlug: string) => {
             const { ip } = await response.json();
             ipAddress = ip;
 
-            // Only try to get location if we have an IP
+            // Use the free ip-api.com service instead of ipapi.co
             try {
-              const locationResponse = await fetch(`https://ipapi.co/${ip}/json/`);
+              const locationResponse = await fetch(`http://ip-api.com/json/${ip}`);
               if (locationResponse.ok) {
                 locationData = await locationResponse.json();
               }

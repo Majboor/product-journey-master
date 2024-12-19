@@ -28,12 +28,14 @@ export const ContentFormFields = ({
     <form onSubmit={onSubmit} className="space-y-6">
       <div>
         <Label htmlFor="slug">Page Slug</Label>
+        <div className="text-sm text-muted-foreground mb-2">
+          Leave empty for root page ("/")
+        </div>
         <Input
           id="slug"
           value={slug}
           onChange={(e) => onSlugChange(e.target.value)}
-          placeholder="e.g., menu"
-          required
+          placeholder="e.g., menu (or leave empty for root page)"
           readOnly={isEditing}
           className={isEditing ? "bg-muted" : ""}
         />
