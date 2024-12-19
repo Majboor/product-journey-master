@@ -80,17 +80,33 @@ export const Dashboard = () => {
   }));
 
   const swipeData = Object.entries(
-    (swipeEvents || []).reduce((acc: Record<string, { left: number; right: number }>, curr) => {
+    (swipeEvents || []).reduce((acc: Record<string, any>, curr) => {
       if (!acc[curr.page_slug]) {
-        acc[curr.page_slug] = { left: 0, right: 0 };
+        acc[curr.page_slug] = { 
+          page: curr.page_slug,
+          left: 0, 
+          right: 0,
+          up: 0,
+          down: 0,
+          mouse_movements: 0
+        };
       }
-      acc[curr.page_slug][curr.direction as 'left' | 'right'] += 1;
+      
+      switch (curr.event_type) {
+        case 'swipe':
+          acc[curr.page_slug][curr.direction] += 1;
+          break;
+        case 'scroll':
+          acc[curr.page_slug][curr.direction] += 1;
+          break;
+        case 'mouse_movement':
+          acc[curr.page_slug].mouse_movements += 1;
+          break;
+      }
+      
       return acc;
     }, {})
-  ).map(([page, data]) => ({
-    page,
-    ...data,
-  }));
+  ).map(([_, data]) => data);
 
   return (
     <div className="space-y-6">

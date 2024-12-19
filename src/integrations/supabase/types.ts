@@ -131,24 +131,33 @@ export type Database = {
       }
       swipe_events: {
         Row: {
+          additional_data: Json | null
           created_at: string
           direction: string
+          event_type: string
           id: string
           page_slug: string
+          scroll_position: number | null
           session_id: string | null
         }
         Insert: {
+          additional_data?: Json | null
           created_at?: string
           direction: string
+          event_type?: string
           id?: string
           page_slug: string
+          scroll_position?: number | null
           session_id?: string | null
         }
         Update: {
+          additional_data?: Json | null
           created_at?: string
           direction?: string
+          event_type?: string
           id?: string
           page_slug?: string
+          scroll_position?: number | null
           session_id?: string | null
         }
         Relationships: []
