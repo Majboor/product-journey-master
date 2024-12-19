@@ -9,10 +9,14 @@ import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
 import { PageContent, isPageContent } from "@/types/content";
 import { usePageAnalytics } from "@/hooks/usePageAnalytics";
+import { useButtonTracking } from "@/hooks/useButtonTracking";
+import { useSwipeTracking } from "@/hooks/useSwipeTracking";
 
 const DynamicPage = () => {
   const { slug } = useParams();
   usePageAnalytics(slug || '');
+  useButtonTracking();
+  useSwipeTracking();
 
   const { data: pageData, isLoading, error } = useQuery({
     queryKey: ['page', slug],

@@ -1,8 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { debounce } from 'lodash';
+import { useLocation } from 'react-router-dom';
 
-export const useSwipeTracking = (pageSlug: string) => {
+export const useSwipeTracking = () => {
+  const location = useLocation();
+  const pageSlug = location.pathname.replace('/', '') || 'index';
+  const lastScrollPosition = useRef(0);
+
   useEffect(() => {
     let touchStartX = 0;
     let touchEndX = 0;
@@ -40,7 +45,7 @@ export const useSwipeTracking = (pageSlug: string) => {
       try {
         await supabase.from('swipe_events').insert({
           page_slug: pageSlug,
-          direction: scrollPosition > (window.lastScrollPosition || 0) ? 'down' : 'up',
+          direction: scrollPosition > lastScrollPosition.current ? 'down' : 'up',
           event_type: 'scroll',
           scroll_position: Math.round(scrollPercentage),
           additional_data: {
@@ -49,7 +54,7 @@ export const useSwipeTracking = (pageSlug: string) => {
             documentHeight: document.documentElement.scrollHeight
           }
         });
-        window.lastScrollPosition = scrollPosition;
+        lastScrollPosition.current = scrollPosition;
       } catch (error) {
         console.error('Error tracking scroll:', error);
       }
