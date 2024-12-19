@@ -9,6 +9,20 @@ import { Database } from "@/integrations/supabase/types";
 
 type AnalyticsResponse = Database['public']['Tables']['analytics']['Row'];
 
+// Type guard to check if a value is a LocationData object
+const isLocationData = (value: unknown): value is LocationData => {
+  if (typeof value !== 'object' || value === null) return false;
+  
+  const location = value as Record<string, unknown>;
+  return (
+    typeof location.country_name === 'string' &&
+    typeof location.city === 'string' &&
+    typeof location.region === 'string' &&
+    typeof location.latitude === 'number' &&
+    typeof location.longitude === 'number'
+  );
+};
+
 export const Dashboard = () => {
   const { data: pages } = useQuery({
     queryKey: ['pages'],
@@ -41,7 +55,7 @@ export const Dashboard = () => {
       
       return data?.map(item => ({
         ...item,
-        location: item.location as LocationData
+        location: isLocationData(item.location) ? item.location : null
       })) as Analytics[];
     }
   });
