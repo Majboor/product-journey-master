@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PageContent } from "@/types/content";
+import { PageContent, validatePageContent } from "@/types/content";
 
 interface HeaderProps {
   brandName?: string;
@@ -40,7 +40,10 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
     enabled: !!finalSlug
   });
 
-  const displayBrandName = (page?.content as PageContent)?.brandName || brandName;
+  // Safely cast and validate the content
+  const content = page?.content as unknown;
+  const isValidContent = validatePageContent(content);
+  const displayBrandName = isValidContent ? (content as PageContent).brandName : brandName;
 
   useEffect(() => {
     // Show login dialog immediately for non-authenticated users on the main page
