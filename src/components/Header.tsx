@@ -5,6 +5,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { LoginForm } from "./auth/LoginForm";
 
 interface HeaderProps {
   brandName?: string;
@@ -14,6 +23,7 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
   const [cartTimer, setCartTimer] = useState(600);
   const { session } = useAuth();
   const navigate = useNavigate();
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -68,21 +78,37 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
           
           <div className="flex items-center space-x-4">
             {session ? (
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2"
-                onClick={handleSignOut}
-              >
-                <LogOut className="h-4 w-4" />
-                Sign Out
-              </Button>
-            ) : (
-              <Link to="/login">
-                <Button variant="default" className="flex items-center gap-2">
-                  <LogIn className="h-4 w-4" />
-                  Sign In / Register
+              <>
+                <div className="text-sm text-primary">
+                  Welcome back! Enjoy 10% off all items
+                </div>
+                <Button 
+                  variant="outline" 
+                  className="flex items-center gap-2"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
                 </Button>
-              </Link>
+              </>
+            ) : (
+              <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+                <DialogTrigger asChild>
+                  <Button variant="default" className="flex items-center gap-2">
+                    <LogIn className="h-4 w-4" />
+                    Sign In / Register
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Sign In</DialogTitle>
+                    <DialogDescription>
+                      Sign in to your account to get 10% off all items
+                    </DialogDescription>
+                  </DialogHeader>
+                  <LoginForm />
+                </DialogContent>
+              </Dialog>
             )}
             <div className="relative">
               <Button variant="outline" size="icon" className="relative">
