@@ -6,9 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ApiTabs } from "./api-status/ApiTabs";
 import { samplePageData } from "./api-status/sampleData";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export const ApiStatus = () => {
   const [testResponse, setTestResponse] = useState("");
+  const { session } = useAuth();
 
   const testApi = async () => {
     try {
