@@ -7,14 +7,21 @@ interface NavigationProps {
 export const Navigation = ({ isAuthenticated }: NavigationProps) => {
   return (
     <nav className="hidden md:flex space-x-8">
-      <a href="#features" className="text-gray-600 hover:text-primary transition-colors">Features</a>
-      <a href="#why-us" className="text-gray-600 hover:text-primary transition-colors">Why Us</a>
-      <a href="#reviews" className="text-gray-600 hover:text-primary transition-colors">Reviews</a>
-      {isAuthenticated && (
-        <Link to="/api-manager" className="text-gray-600 hover:text-primary transition-colors">
-          API Manager
-        </Link>
-      )}
+      <Link to="/about" className="text-gray-600 hover:text-primary transition-colors">
+        About Us
+      </Link>
+      <Link to="/features" className="text-gray-600 hover:text-primary transition-colors">
+        Features
+      </Link>
+      <Link to="/why-us" className="text-gray-600 hover:text-primary transition-colors">
+        Why Us
+      </Link>
+      <Link to="/reviews" className="text-gray-600 hover:text-primary transition-colors">
+        Reviews
+      </Link>
+      <Link to="/general" className="text-gray-600 hover:text-primary transition-colors">
+        General
+      </Link>
     </nav>
   );
 };

@@ -9,6 +9,7 @@ import { defaultContent } from "@/components/api-manager/defaultContent";
 import { useSwipeTracking } from "@/hooks/useSwipeTracking";
 import { useButtonTracking } from "@/hooks/useButtonTracking";
 import { useState, useEffect } from "react";
+import { initializeDefaultPages } from "@/utils/initializeDefaultPages";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -17,12 +18,16 @@ const Index = () => {
   useButtonTracking();
 
   useEffect(() => {
-    // Simulate loading time for demonstration
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    const init = async () => {
+      await initializeDefaultPages();
+      // Simulate loading time for demonstration
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
+      return () => clearTimeout(timer);
+    };
 
-    return () => clearTimeout(timer);
+    init();
   }, []);
 
   if (isLoading) {
