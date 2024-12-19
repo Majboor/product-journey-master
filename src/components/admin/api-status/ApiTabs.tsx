@@ -1,4 +1,5 @@
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { samplePageData } from "./sampleData";  // Add this import
 
 interface ApiTabsProps {
   testResponse: string;
