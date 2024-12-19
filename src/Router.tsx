@@ -11,19 +11,35 @@ import { SingleCategory } from "@/components/admin/SingleCategory";
 import { Pages } from "@/components/admin/Pages";
 import { Users } from "@/components/admin/Users";
 import { ApiStatus } from "@/components/admin/ApiStatus";
+import Header from "@/components/Header";
+import { Outlet } from "react-router-dom";
+
+const MainLayout = () => {
+  return (
+    <>
+      <Header />
+      <Outlet />
+    </>
+  );
+};
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Index />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/:categorySlug/:slug",
-    element: <DynamicPage />,
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/",
+        element: <Index />,
+      },
+      {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        path: "/:categorySlug/:slug",
+        element: <DynamicPage />,
+      },
+    ]
   },
   {
     path: "/admin",
