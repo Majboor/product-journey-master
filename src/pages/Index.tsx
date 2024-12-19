@@ -23,28 +23,31 @@ const Index = () => {
     return null;
   }
 
+  // Use defaultBurgerContent for the index page
+  const pageContent = defaultBurgerContent;
+
   return (
     <div className="min-h-screen bg-white">
-      <Header brandName={defaultBurgerContent.brandName} />
+      <Header brandName={pageContent.brandName} />
       <main>
         <Hero 
-          title={defaultBurgerContent.hero.title}
-          description={defaultBurgerContent.hero.description}
-          image={defaultBurgerContent.hero.image}
-          price={defaultBurgerContent.hero.price}
+          title={pageContent.hero.title}
+          description={pageContent.hero.description}
+          image={pageContent.hero.image}
+          price={pageContent.hero.price}
         />
         <ProductSection 
-          images={defaultBurgerContent.product.images}
-          details={defaultBurgerContent.product.details}
-          features={defaultBurgerContent.product.features}
+          images={pageContent.product.images}
+          details={pageContent.product.details}
+          features={pageContent.product.features}
         />
-        <Features features={defaultBurgerContent.features} />
-        <Reviews reviews={defaultBurgerContent.reviews} />
+        <Features features={pageContent.features} />
+        <Reviews reviews={pageContent.reviews} />
       </main>
       <Footer 
-        brandName={defaultBurgerContent.brandName}
-        contact={defaultBurgerContent.footer.contact}
-        links={defaultBurgerContent.footer.links}
+        brandName={pageContent.brandName}
+        contact={pageContent.footer.contact}
+        links={pageContent.footer.links}
       />
     </div>
   );

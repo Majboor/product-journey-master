@@ -8,13 +8,12 @@ import ProductSection from "@/components/ProductSection";
 import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
 import { PageContent, isPageContent } from "@/types/content";
-import { defaultBurgerContent } from "@/components/api-manager/ContentEditor";
 
 const DynamicPage = () => {
   const { slug } = useParams();
 
-  const { data: pageData, isLoading } = useQuery({
-    queryKey: ['page', slug],
+  const { data: pageData, isLoading, error } = useQuery({
+    queryKey: ['page', slug], // Ensure unique query key per slug
     queryFn: async () => {
       const { data, error } = await supabase
         .from('pages')
@@ -30,15 +29,21 @@ const DynamicPage = () => {
       }
       
       return content;
-    }
+    },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    cacheTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+    </div>;
   }
 
-  if (!pageData) {
-    return <div>Page not found</div>;
+  if (error || !pageData) {
+    return <div className="min-h-screen flex items-center justify-center text-red-500">
+      Page not found or error loading content
+    </div>;
   }
 
   return (
@@ -59,7 +64,11 @@ const DynamicPage = () => {
         <Features features={pageData.features} />
         <Reviews reviews={pageData.reviews} />
       </main>
-      <Footer {...pageData.footer} brandName={pageData.brandName} />
+      <Footer 
+        brandName={pageData.brandName}
+        contact={pageData.footer.contact}
+        links={pageData.footer.links}
+      />
     </div>
   );
 };
