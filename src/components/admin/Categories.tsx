@@ -6,8 +6,11 @@ import { Progress } from "@/components/ui/progress";
 import { FileEdit, Trash, FolderOpen, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useNavigate } from "react-router-dom";
 
 export const Categories = () => {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   
   const { data: categories, isLoading: loadingCategories } = useQuery({
@@ -19,6 +22,45 @@ export const Categories = () => {
       
       if (error) throw error;
       return data;
+    }
+  });
+
+  const { data: categoryAnalytics } = useQuery({
+    queryKey: ['category-analytics'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('analytics')
+        .select('*')
+        .order('created_at', { ascending: true });
+      
+      if (error) throw error;
+
+      // Group analytics by day for each category
+      const analyticsMap = new Map();
+      
+      data.forEach(visit => {
+        const date = new Date(visit.created_at).toISOString().split('T')[0];
+        const categorySlug = visit.page_slug.split('/')[0];
+        
+        if (!analyticsMap.has(categorySlug)) {
+          analyticsMap.set(categorySlug, new Map());
+        }
+        
+        const categoryData = analyticsMap.get(categorySlug);
+        categoryData.set(date, (categoryData.get(date) || 0) + 1);
+      });
+
+      // Convert to chart data format
+      const result = {};
+      analyticsMap.forEach((categoryData, categorySlug) => {
+        const chartData = Array.from(categoryData.entries()).map(([date, count]) => ({
+          date,
+          visits: count
+        }));
+        result[categorySlug] = chartData;
+      });
+
+      return result;
     }
   });
 
@@ -44,6 +86,11 @@ export const Categories = () => {
     return <div>Loading categories...</div>;
   }
 
+  const handleCategoryClick = (categoryId: string, categorySlug: string) => {
+    setSelectedCategory(categoryId);
+    navigate(`/admin/categories/${categorySlug}`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -56,7 +103,7 @@ export const Categories = () => {
           <Card key={category.id} className="hover:bg-accent/50 transition-colors">
             <CardHeader 
               className="flex flex-row items-center justify-between space-y-0 pb-2 cursor-pointer"
-              onClick={() => setSelectedCategory(category.id)}
+              onClick={() => handleCategoryClick(category.id, category.slug)}
             >
               <div className="flex items-center gap-2">
                 <FolderOpen className="h-5 w-5" />
@@ -67,7 +114,30 @@ export const Categories = () => {
               <ChevronRight className="h-4 w-4" />
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">{category.description}</p>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">{category.description}</p>
+                
+                {/* Analytics Chart */}
+                <div className="h-[200px] mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={categoryAnalytics?.[category.slug] || []}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line 
+                        type="monotone" 
+                        dataKey="visits" 
+                        stroke="#8884d8" 
+                        strokeWidth={2}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
             </CardContent>
           </Card>
         ))}
@@ -96,7 +166,7 @@ export const Categories = () => {
                           <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => {}}
+                            onClick={() => navigate(`/admin/api-manager?edit=${page.slug}`)}
                           >
                             <FileEdit className="h-4 w-4" />
                           </Button>
