@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { validatePageContent } from "@/types/content";
@@ -7,10 +7,24 @@ import { defaultContent } from "./defaultContent";
 import { ContentForm } from "./ContentForm";
 import { Json } from "@/integrations/supabase/types";
 
-export const ContentEditor = () => {
+interface ContentEditorProps {
+  initialData?: {
+    slug: string;
+    content: Json;
+  } | null;
+}
+
+export const ContentEditor = ({ initialData }: ContentEditorProps) => {
   const [slug, setSlug] = useState("");
   const [content, setContent] = useState(JSON.stringify(defaultContent, null, 2));
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (initialData) {
+      setSlug(initialData.slug);
+      setContent(JSON.stringify(initialData.content, null, 2));
+    }
+  }, [initialData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,40 +37,59 @@ export const ContentEditor = () => {
         throw new Error('Invalid content structure. Please ensure all required fields are present.');
       }
       
-      const { data: existingPage } = await supabase
-        .from('pages')
-        .select('id')
-        .eq('slug', slug)
-        .maybeSingle();
+      if (initialData) {
+        // Update existing page
+        const { error } = await supabase
+          .from('pages')
+          .update({ 
+            content: parsedContent as unknown as Json
+          })
+          .eq('slug', slug);
 
-      if (existingPage) {
+        if (error) throw error;
+
         toast({
-          title: "Error",
-          description: "A page with this slug already exists. Please use a different slug.",
-          variant: "destructive",
+          title: "Success",
+          description: "Page has been updated successfully",
         });
-        return;
+      } else {
+        // Check for existing page with same slug
+        const { data: existingPage } = await supabase
+          .from('pages')
+          .select('id')
+          .eq('slug', slug)
+          .maybeSingle();
+
+        if (existingPage) {
+          toast({
+            title: "Error",
+            description: "A page with this slug already exists. Please use a different slug.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Create new page
+        const { error } = await supabase
+          .from('pages')
+          .insert({ 
+            slug,
+            content: parsedContent as unknown as Json
+          });
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "New page has been created successfully",
+        });
+
+        handleReset();
       }
-
-      const { error } = await supabase
-        .from('pages')
-        .insert({ 
-          slug,
-          content: parsedContent as unknown as Json
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "New page has been created successfully",
-      });
-
-      handleReset();
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to create page",
+        description: error.message || "Failed to save page",
         variant: "destructive",
       });
     } finally {
@@ -65,8 +98,10 @@ export const ContentEditor = () => {
   };
 
   const handleReset = () => {
-    setSlug("");
-    setContent(JSON.stringify(defaultContent, null, 2));
+    if (!initialData) {
+      setSlug("");
+      setContent(JSON.stringify(defaultContent, null, 2));
+    }
   };
 
   return (
@@ -79,6 +114,7 @@ export const ContentEditor = () => {
         onContentChange={setContent}
         onReset={handleReset}
         onSubmit={handleSubmit}
+        isEditing={!!initialData}
       />
     </Card>
   );

@@ -82,6 +82,27 @@ export const Dashboard = () => {
     visits
   }));
 
+  // Group analytics by page
+  const visitsByPage = analytics?.reduce((acc: Record<string, any>, curr) => {
+    if (!acc[curr.page_slug]) {
+      acc[curr.page_slug] = {
+        total: 0,
+        uniqueUsers: new Set(),
+      };
+    }
+    acc[curr.page_slug].total += 1;
+    if (curr.session_id) {
+      acc[curr.page_slug].uniqueUsers.add(curr.session_id);
+    }
+    return acc;
+  }, {});
+
+  const pageAnalytics = Object.entries(visitsByPage || {}).map(([page, data]: [string, any]) => ({
+    page,
+    totalVisits: data.total,
+    uniqueVisitors: data.uniqueUsers.size,
+  }));
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Dashboard Overview</h1>
@@ -175,6 +196,29 @@ export const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Page Analytics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {pageAnalytics.map((page) => (
+              <div key={page.page} className="flex items-center justify-between border-b pb-2">
+                <div>
+                  <h3 className="font-medium">/{page.page}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {page.uniqueVisitors} unique visitors
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="font-medium">{page.totalVisits} visits</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

@@ -6,6 +6,7 @@ interface ContentFormProps {
   slug: string;
   content: string;
   loading: boolean;
+  isEditing?: boolean;
   onSlugChange: (value: string) => void;
   onContentChange: (value: string) => void;
   onReset: () => void;
@@ -16,6 +17,7 @@ export const ContentForm = ({
   slug,
   content,
   loading,
+  isEditing,
   onSlugChange,
   onContentChange,
   onReset,
@@ -33,6 +35,8 @@ export const ContentForm = ({
           onChange={(e) => onSlugChange(e.target.value)}
           placeholder="e.g., menu"
           required
+          readOnly={isEditing}
+          className={isEditing ? "bg-muted" : ""}
         />
       </div>
 
@@ -58,7 +62,7 @@ export const ContentForm = ({
           Reset
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? "Saving..." : "Save Content"}
+          {loading ? "Saving..." : isEditing ? "Update Content" : "Save Content"}
         </Button>
       </div>
     </form>
