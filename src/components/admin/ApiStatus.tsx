@@ -2,11 +2,47 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 export const ApiStatus = () => {
   const { session } = useAuth();
+  const { toast } = useToast();
+  const [testResponse, setTestResponse] = useState<string>("");
   const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM";
   const accessToken = session?.access_token || '[Login to get your access token]';
+
+  const testApi = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('pages')
+        .insert({
+          slug: 'test-page',
+          content: {
+            title: 'Test Page',
+            description: 'This is a test page'
+          }
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      setTestResponse(JSON.stringify(data, null, 2));
+      toast({
+        title: "API Test Successful",
+        description: "Check the Sample Output tab to see the response",
+      });
+    } catch (error: any) {
+      toast({
+        title: "API Test Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      setTestResponse(JSON.stringify(error, null, 2));
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -59,6 +95,10 @@ export const ApiStatus = () => {
           <CardTitle>API Documentation</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="mb-4">
+            <Button onClick={testApi}>Test API Now</Button>
+          </div>
+          
           <Tabs defaultValue="curl">
             <TabsList>
               <TabsTrigger value="curl">cURL</TabsTrigger>
@@ -72,8 +112,8 @@ export const ApiStatus = () => {
 -H "apikey: ${anonKey}" \\
 -H "Authorization: Bearer ${accessToken}" \\
 -H "Content-Type: application/json" \\
--H "Prefer: return=minimal" \\
--d '{"slug":"example","content":{"title":"Example Page"}}'`}
+-H "Prefer: return=representation" \\
+-d '{"slug":"test-page","content":{"title":"Test Page","description":"This is a test page"}}'`}
               </pre>
             </TabsContent>
             
@@ -88,29 +128,32 @@ headers = {
     "apikey": "${anonKey}",
     "Authorization": "Bearer ${accessToken}",
     "Content-Type": "application/json",
-    "Prefer": "return=minimal"
+    "Prefer": "return=representation"
 }
 
 data = {
-    "slug": "example",
+    "slug": "test-page",
     "content": {
-        "title": "Example Page"
+        "title": "Test Page",
+        "description": "This is a test page"
     }
 }
 
 response = requests.post(url, headers=headers, json=data)
-print(response.status_code)`}
+print(response.json())`}
               </pre>
             </TabsContent>
 
             <TabsContent value="output" className="mt-4">
               <pre className="bg-secondary p-4 rounded-lg overflow-x-auto">
-                {`// Sample successful response
+                {testResponse || `// Click "Test API Now" to see live output
+// Sample successful response:
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "slug": "example",
+  "slug": "test-page",
   "content": {
-    "title": "Example Page"
+    "title": "Test Page",
+    "description": "This is a test page"
   },
   "created_at": "2024-03-20T12:00:00.000Z",
   "updated_at": "2024-03-20T12:00:00.000Z"
