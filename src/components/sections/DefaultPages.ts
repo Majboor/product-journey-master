@@ -1,7 +1,7 @@
 import { PageContent } from "@/types/content";
 
 export const defaultPages: Record<string, PageContent> = {
-  "about": {
+  "sample-data/about": {
     brandName: "Supreme Crash Cams",
     colorScheme: {
       primary: "#2563eb",
@@ -53,7 +53,7 @@ export const defaultPages: Record<string, PageContent> = {
       ]
     }
   },
-  "features": {
+  "sample-data/features": {
     brandName: "Supreme Crash Cams",
     colorScheme: {
       primary: "#2563eb",

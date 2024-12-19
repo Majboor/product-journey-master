@@ -1,5 +1,5 @@
 export const samplePageData = {
-  "slug": "modern-bistro",
+  "slug": "sample-data/modern-bistro",
   "category_id": null, // Will be set dynamically
   "content": {
     "brandName": "Modern Bistro",
@@ -99,9 +99,9 @@ export const samplePageData = {
 };
 
 export const sampleCategoryData = {
-  "name": "Restaurants",
-  "slug": "restaurants",
-  "description": "Discover exceptional dining experiences"
+  "name": "Sample Data",
+  "slug": "sample-data",
+  "description": "Sample pages for demonstration purposes"
 };
 
 export const colorSchemeExamples = {
