@@ -10,8 +10,8 @@ import { useButtonTracking } from "@/hooks/useButtonTracking";
 
 const Index = () => {
   const pageContent = defaultContent;
-  useSwipeTracking('/');
-  useButtonTracking('/');
+  useSwipeTracking();
+  useButtonTracking();
 
   return (
     <div className="min-h-screen bg-white">
