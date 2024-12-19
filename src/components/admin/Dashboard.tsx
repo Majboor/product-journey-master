@@ -7,6 +7,8 @@ import { VisitsChart } from "./dashboard/VisitsChart";
 import { LocationChart } from "./dashboard/LocationChart";
 import { PageAnalytics } from "./dashboard/PageAnalytics";
 import { RecentPages } from "./dashboard/RecentPages";
+import { SignInAnalytics } from "./dashboard/SignInAnalytics";
+import { ButtonClicksAnalytics } from "./dashboard/ButtonClicksAnalytics";
 
 type AnalyticsResponse = Database['public']['Tables']['analytics']['Row'];
 
@@ -44,7 +46,7 @@ export const Dashboard = () => {
     }
   });
 
-  const { data: analytics } = useQuery<Analytics[]>({
+  const { data: analytics } = useQuery({
     queryKey: ['analytics'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -57,6 +59,28 @@ export const Dashboard = () => {
         ...item,
         location: isLocationData(item.location) ? item.location : null
       })) as Analytics[];
+    }
+  });
+
+  const { data: signInAttempts } = useQuery({
+    queryKey: ['signin-attempts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('signin_attempts')
+        .select('*');
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const { data: buttonClicks } = useQuery({
+    queryKey: ['button-clicks'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('button_clicks')
+        .select('*');
+      if (error) throw error;
+      return data;
     }
   });
 
@@ -80,6 +104,26 @@ export const Dashboard = () => {
     country,
     visits
   }));
+
+  const signInData = signInAttempts?.reduce((acc: Record<string, number>, curr) => {
+    acc[curr.page_slug] = (acc[curr.page_slug] || 0) + 1;
+    return acc;
+  }, {});
+
+  const signInChartData = Object.entries(signInData || {}).map(([page, attempts]) => ({
+    page,
+    attempts
+  }));
+
+  const buttonClicksData = buttonClicks?.reduce((acc: Array<{ page: string; button: string; clicks: number }>, curr) => {
+    const existingEntry = acc.find(entry => entry.page === curr.page_slug && entry.button === curr.button_name);
+    if (existingEntry) {
+      existingEntry.clicks += 1;
+    } else {
+      acc.push({ page: curr.page_slug, button: curr.button_name, clicks: 1 });
+    }
+    return acc;
+  }, []) || [];
 
   const visitsByPage = analytics?.reduce((acc: Record<string, any>, curr) => {
     if (!acc[curr.page_slug]) {
@@ -114,6 +158,11 @@ export const Dashboard = () => {
       <div className="grid gap-4 md:grid-cols-2">
         <VisitsChart data={chartData} />
         <LocationChart data={locationData} />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <SignInAnalytics data={signInChartData || []} />
+        <ButtonClicksAnalytics data={buttonClicksData} />
       </div>
 
       <PageAnalytics analytics={pageAnalytics} />
