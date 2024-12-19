@@ -39,6 +39,30 @@ export type Database = {
         }
         Relationships: []
       }
+      button_clicks: {
+        Row: {
+          button_name: string
+          created_at: string
+          id: string
+          page_slug: string
+          session_id: string | null
+        }
+        Insert: {
+          button_name: string
+          created_at?: string
+          id?: string
+          page_slug: string
+          session_id?: string | null
+        }
+        Update: {
+          button_name?: string
+          created_at?: string
+          id?: string
+          page_slug?: string
+          session_id?: string | null
+        }
+        Relationships: []
+      }
       jokes: {
         Row: {
           created_at: string
@@ -81,6 +105,27 @@ export type Database = {
           id?: string
           slug?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      signin_attempts: {
+        Row: {
+          created_at: string
+          id: string
+          page_slug: string
+          session_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          page_slug: string
+          session_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          page_slug?: string
+          session_id?: string | null
         }
         Relationships: []
       }

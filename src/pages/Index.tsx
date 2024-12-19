@@ -4,25 +4,9 @@ import Features from "@/components/Features";
 import ProductSection from "@/components/ProductSection";
 import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { defaultContent } from "@/components/api-manager/defaultContent";
 
 const Index = () => {
-  const { session } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!session) {
-      navigate("/login");
-    }
-  }, [session, navigate]);
-
-  if (!session) {
-    return null;
-  }
-
   // Use defaultContent for the index page
   const pageContent = defaultContent;
 

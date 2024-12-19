@@ -5,15 +5,20 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuth } from './AuthProvider';
 
-export const LoginForm = () => {
+interface LoginFormProps {
+  onClose?: () => void;
+}
+
+export const LoginForm = ({ onClose }: LoginFormProps) => {
   const navigate = useNavigate();
   const { session } = useAuth();
 
   useEffect(() => {
     if (session) {
+      onClose?.();
       navigate('/');
     }
-  }, [session, navigate]);
+  }, [session, navigate, onClose]);
 
   return (
     <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
