@@ -11,12 +11,17 @@ export const Pages = () => {
   const { data: pages, isLoading } = useQuery({
     queryKey: ['admin-pages'],
     queryFn: async () => {
+      console.log('Fetching pages...');
       const { data, error } = await supabase
         .from('pages')
         .select('*')
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching pages:', error);
+        throw error;
+      }
+      console.log('Fetched pages:', data);
       return data;
     }
   });
