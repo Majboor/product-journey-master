@@ -24,6 +24,13 @@ export const Pages = () => {
   if (isLoading) {
     return <div>Loading pages...</div>;
   }
+
+  // Sort pages to always show root page first
+  const sortedPages = pages?.sort((a, b) => {
+    if (a.slug === '') return -1;
+    if (b.slug === '') return 1;
+    return 0;
+  });
   
   return (
     <div className="space-y-6">
@@ -33,7 +40,7 @@ export const Pages = () => {
       </div>
 
       <div className="grid gap-4">
-        {pages?.map((page) => (
+        {sortedPages?.map((page) => (
           <Card key={page.id}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xl font-medium">
