@@ -6,8 +6,15 @@ import { ProductFeatures } from "./product/ProductFeatures";
 import { JokeDisplay } from "./jokes/JokeDisplay";
 import { useAuth } from "./auth/AuthProvider";
 import { LoginForm } from "./auth/LoginForm";
+import { ProductDetails as ProductDetailsType } from "@/types/content";
 
-const ProductSection = () => {
+interface ProductSectionProps {
+  images: string[];
+  details: ProductDetailsType;
+  features: string[];
+}
+
+const ProductSection = ({ images, details, features }: ProductSectionProps) => {
   const [timeLeft, setTimeLeft] = useState("23:59:59");
   const [stockCount, setStockCount] = useState(5);
   const [viewerCount, setViewerCount] = useState(245);
@@ -54,12 +61,6 @@ const ProductSection = () => {
 
     return () => clearInterval(purchaseTimer);
   }, []);
-
-  const images = [
-    "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
-    "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b",
-    "https://images.unsplash.com/photo-1518770660439-4636190af475",
-  ];
 
   if (loading) {
     return <div>Loading...</div>;
@@ -111,8 +112,8 @@ const ProductSection = () => {
           </div>
 
           <div className="flex-1 space-y-6">
-            <ProductDetails />
-            <ProductFeatures />
+            <ProductDetails {...details} />
+            <ProductFeatures features={features} />
           </div>
         </div>
       </div>

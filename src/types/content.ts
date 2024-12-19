@@ -48,7 +48,6 @@ export interface Footer {
 }
 
 export interface PageContent {
-  [key: string]: Json | undefined;
   brandName: string;
   hero: Hero;
   product: Product;
@@ -56,3 +55,16 @@ export interface PageContent {
   reviews: Review[];
   footer: Footer;
 }
+
+// Type guard to ensure PageContent is compatible with Json
+export const isPageContent = (content: unknown): content is PageContent => {
+  const pageContent = content as PageContent;
+  return (
+    typeof pageContent?.brandName === 'string' &&
+    pageContent?.hero !== undefined &&
+    pageContent?.product !== undefined &&
+    Array.isArray(pageContent?.features) &&
+    Array.isArray(pageContent?.reviews) &&
+    pageContent?.footer !== undefined
+  );
+};

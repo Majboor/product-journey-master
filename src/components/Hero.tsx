@@ -1,7 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Shield } from "lucide-react";
 
-const Hero = () => {
+interface HeroProps {
+  title: string;
+  description: string;
+  image: string;
+  price: number;
+}
+
+const Hero = ({ title, description, image, price }: HeroProps) => {
   return (
     <section className="pt-24 pb-12 md:pt-32 md:pb-20 relative overflow-hidden">
       {/* Subliminal Security Pattern */}

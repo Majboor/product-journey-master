@@ -1,27 +1,11 @@
 import { Star } from "lucide-react";
+import { Review } from "@/types/content";
 
-const reviews = [
-  {
-    name: "Sarah Johnson",
-    rating: 5,
-    comment: "Perfect – peace of mind guaranteed! The video quality is exceptional.",
-    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158",
-  },
-  {
-    name: "Michael Chen",
-    rating: 5,
-    comment: "Worth every penny. Installation was a breeze and it works flawlessly.",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
-  },
-  {
-    name: "Emily Williams",
-    rating: 5,
-    comment: "Basic, useful, and practical. Exactly what I needed for my daily commute.",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
-  },
-];
+interface ReviewsProps {
+  reviews: Review[];
+}
 
-const Reviews = () => {
+const Reviews = ({ reviews }: ReviewsProps) => {
   return (
     <section id="reviews" className="py-20">
       <div className="container px-4 mx-auto">

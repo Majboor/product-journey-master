@@ -7,7 +7,7 @@ import Features from "@/components/Features";
 import ProductSection from "@/components/ProductSection";
 import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
-import { PageContent } from "@/types/content";
+import { PageContent, isPageContent } from "@/types/content";
 
 const DynamicPage = () => {
   const { slug } = useParams();
@@ -22,7 +22,13 @@ const DynamicPage = () => {
         .single();
 
       if (error) throw error;
-      return data?.content as unknown as PageContent;
+      
+      const content = data?.content;
+      if (!isPageContent(content)) {
+        throw new Error('Invalid page content structure');
+      }
+      
+      return content;
     }
   });
 
