@@ -33,10 +33,7 @@ export const SingleCategory = () => {
       if (!category?.id) return [];
       const { data, error } = await supabase
         .from('pages')
-        .select(`
-          *,
-          analytics (count)
-        `)
+        .select('*')
         .eq('category_id', category.id);
       
       if (error) throw error;
@@ -134,8 +131,10 @@ export const SingleCategory = () => {
                   <CardContent>
                     <div className="space-y-4">
                       <div>
-                        <div className="text-sm font-medium">Visitors</div>
-                        <Progress value={45} className="mt-2" />
+                        <div className="text-sm font-medium">Page Content</div>
+                        <p className="text-sm text-muted-foreground truncate">
+                          {JSON.stringify(page.content).slice(0, 50)}...
+                        </p>
                       </div>
                       <div className="flex justify-end gap-2">
                         <Button
