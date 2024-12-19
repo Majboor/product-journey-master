@@ -7,10 +7,43 @@ import { toast } from "sonner";
 import { ApiTabs } from "./api-status/ApiTabs";
 import { samplePageData, sampleCategoryData } from "./api-status/sampleData";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { validatePageContent } from "@/types/content";
 
 export const ApiStatus = () => {
   const [testResponse, setTestResponse] = useState("");
   const { session } = useAuth();
+
+  const validateContent = (content: any) => {
+    // Check for required top-level properties
+    const requiredProps = ['brandName', 'hero', 'product', 'features', 'reviews', 'footer'];
+    const missingProps = requiredProps.filter(prop => !content[prop]);
+    
+    if (missingProps.length > 0) {
+      throw new Error(`Invalid content structure. Missing required properties: ${missingProps.join(', ')}`);
+    }
+
+    // Validate hero section
+    if (!content.hero.title || !content.hero.description || !content.hero.image || typeof content.hero.price !== 'number') {
+      throw new Error('Invalid hero section structure. Required: title (string), description (string), image (string), price (number)');
+    }
+
+    // Validate product section
+    if (!Array.isArray(content.product.images) || !content.product.details || !Array.isArray(content.product.features)) {
+      throw new Error('Invalid product section structure. Required: images (array), details (object), features (array)');
+    }
+
+    // Validate features array
+    if (!content.features.every((f: any) => f.icon && f.title && f.description)) {
+      throw new Error('Invalid features structure. Each feature must have: icon, title, description');
+    }
+
+    // Validate footer
+    if (!content.footer.contact || !Array.isArray(content.footer.links)) {
+      throw new Error('Invalid footer structure. Required: contact (object), links (array)');
+    }
+
+    return true;
+  };
 
   const testApi = async () => {
     try {
@@ -22,6 +55,13 @@ export const ApiStatus = () => {
         .single();
 
       if (categoryError) throw categoryError;
+
+      // Validate the page content structure before creating the page
+      try {
+        validateContent(samplePageData);
+      } catch (validationError: any) {
+        throw new Error(`Content validation failed: ${validationError.message}`);
+      }
 
       // Then create the page with the new category_id
       const pageDataWithCategory = {
@@ -68,7 +108,10 @@ export const ApiStatus = () => {
       
     } catch (error: any) {
       toast.error(error.message || "Failed to test API");
-      setTestResponse(JSON.stringify(error, null, 2));
+      setTestResponse(JSON.stringify({
+        error: error.message,
+        details: error.details || "No additional details available"
+      }, null, 2));
     }
   };
 
