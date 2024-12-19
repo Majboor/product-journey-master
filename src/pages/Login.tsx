@@ -1,17 +1,19 @@
 import { LoginForm } from "@/components/auth/LoginForm";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Login = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as any)?.from?.pathname || "/";
 
   useEffect(() => {
     if (session) {
-      navigate("/");
+      navigate(from);
     }
-  }, [session, navigate]);
+  }, [session, navigate, from]);
 
   if (session) {
     return null;

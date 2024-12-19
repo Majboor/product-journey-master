@@ -1,5 +1,4 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ContentEditor } from "@/components/api-manager/ContentEditor";
@@ -10,16 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 
 const ApiManager = () => {
-  const { session } = useAuth();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editSlug = searchParams.get('edit');
-
-  // Redirect if not authenticated
-  if (!session) {
-    navigate("/login");
-    return null;
-  }
 
   // Fetch page content if editing
   const { data: pageContent } = useQuery({
@@ -72,7 +63,7 @@ const ApiManager = () => {
 
             <TabsContent value="pages">
               <ExistingPages onLoadPage={(slug, content) => {
-                navigate(`/admin/api-manager?edit=${slug}`);
+                window.location.href = `/admin/api-manager?edit=${slug}`;
               }} />
             </TabsContent>
           </Tabs>

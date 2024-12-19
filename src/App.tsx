@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./components/auth/AuthProvider";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import ApiManager from "./pages/ApiManager";
@@ -28,8 +29,12 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/:slug" element={<DynamicPage />} />
             
-            {/* Admin routes */}
-            <Route path="/admin" element={<AdminLayout />}>
+            {/* Protected Admin routes */}
+            <Route path="/admin" element={
+              <ProtectedRoute>
+                <AdminLayout />
+              </ProtectedRoute>
+            }>
               <Route index element={<Dashboard />} />
               <Route path="pages" element={<Pages />} />
               <Route path="users" element={<Users />} />
