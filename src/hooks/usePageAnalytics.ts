@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/components/ui/use-toast';
 
 export const usePageAnalytics = (pageSlug: string) => {
   useEffect(() => {
@@ -11,18 +12,36 @@ export const usePageAnalytics = (pageSlug: string) => {
         const locationResponse = await fetch(`https://ipapi.co/${ip}/json/`);
         const locationData = await locationResponse.json();
 
-        await supabase.from('analytics').insert({
+        const { error } = await supabase.from('analytics').insert({
           page_slug: pageSlug,
           ip_address: ip,
           user_agent: navigator.userAgent,
           location: locationData,
           session_id: crypto.randomUUID()
         });
+
+        if (error) {
+          console.error('Error tracking page visit:', error);
+          toast({
+            title: "Analytics Error",
+            description: "Failed to track page visit",
+            variant: "destructive",
+          });
+        } else {
+          console.log('Page visit tracked:', pageSlug);
+        }
       } catch (error) {
         console.error('Error tracking page visit:', error);
+        toast({
+          title: "Analytics Error",
+          description: "Failed to track page visit",
+          variant: "destructive",
+        });
       }
     };
 
-    trackPageVisit();
+    if (pageSlug) {
+      trackPageVisit();
+    }
   }, [pageSlug]);
 };
