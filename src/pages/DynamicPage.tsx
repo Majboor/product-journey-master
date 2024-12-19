@@ -14,31 +14,27 @@ import { ColorScheme } from "@/types/colors";
 
 const DynamicPage = () => {
   const { categorySlug, slug } = useParams();
-  const finalSlug = slug || '';
+  const finalSlug = `${categorySlug}/${slug}`;
   
   usePageAnalytics(finalSlug);
 
-  const { data: page, isLoading } = useQuery({
-    queryKey: ['page', categorySlug, finalSlug],
+  const { data: page, isLoading, error } = useQuery({
+    queryKey: ['page', categorySlug, slug],
     queryFn: async () => {
-      const { data: category } = await supabase
-        .from('categories')
-        .select('id')
-        .eq('slug', categorySlug)
-        .single();
-
-      if (!category) {
-        throw new Error('Category not found');
-      }
-
+      console.log('Fetching page with slug:', finalSlug);
+      
       const { data, error } = await supabase
         .from('pages')
-        .select('*')
-        .eq('category_id', category.id)
+        .select('*, categories!inner(*)')
         .eq('slug', finalSlug)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching page:', error);
+        throw error;
+      }
+
+      console.log('Fetched page:', data);
       return data;
     }
   });
@@ -47,8 +43,15 @@ const DynamicPage = () => {
     return <LoadingScreen />;
   }
 
-  if (!page) {
-    return <div>Page not found</div>;
+  if (error || !page) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Page Not Found</h1>
+          <p className="text-gray-600">The page you're looking for doesn't exist or has been moved.</p>
+        </div>
+      </div>
+    );
   }
 
   const content = page.content as unknown as PageContent;
