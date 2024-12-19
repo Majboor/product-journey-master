@@ -1,3 +1,5 @@
+import { Json } from "@/integrations/supabase/types";
+
 export interface Hero {
   title: string;
   description: string;
@@ -46,6 +48,7 @@ export interface Footer {
 }
 
 export interface PageContent {
+  [key: string]: Json | undefined;
   brandName: string;
   hero: Hero;
   product: Product;

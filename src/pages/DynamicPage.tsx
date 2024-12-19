@@ -22,7 +22,7 @@ const DynamicPage = () => {
         .single();
 
       if (error) throw error;
-      return data?.content as PageContent;
+      return data?.content as unknown as PageContent;
     }
   });
 
@@ -38,25 +38,12 @@ const DynamicPage = () => {
     <div className="min-h-screen bg-white">
       <Header brandName={pageData.brandName} />
       <main>
-        <Hero 
-          title={pageData.hero.title}
-          description={pageData.hero.description}
-          image={pageData.hero.image}
-          price={pageData.hero.price}
-        />
-        <ProductSection 
-          images={pageData.product.images}
-          details={pageData.product.details}
-          features={pageData.product.features}
-        />
+        <Hero {...pageData.hero} />
+        <ProductSection {...pageData.product} />
         <Features features={pageData.features} />
         <Reviews reviews={pageData.reviews} />
       </main>
-      <Footer 
-        brandName={pageData.brandName}
-        contact={pageData.footer.contact}
-        links={pageData.footer.links}
-      />
+      <Footer {...pageData.footer} brandName={pageData.brandName} />
     </div>
   );
 };
