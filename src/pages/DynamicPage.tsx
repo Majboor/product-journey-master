@@ -11,12 +11,40 @@ import { PageContent, isPageContent } from "@/types/content";
 import { usePageAnalytics } from "@/hooks/usePageAnalytics";
 import { useButtonTracking } from "@/hooks/useButtonTracking";
 import { useSwipeTracking } from "@/hooks/useSwipeTracking";
+import { useEffect } from "react";
 
 const DynamicPage = () => {
-  const { slug } = useParams();
-  usePageAnalytics(slug || '');
+  const { slug = '' } = useParams();
+  usePageAnalytics(slug);
   useButtonTracking();
   useSwipeTracking();
+
+  // Track initial page load
+  useEffect(() => {
+    const trackPageVisit = async () => {
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const { ip } = await response.json();
+        
+        const locationResponse = await fetch(`https://ipapi.co/${ip}/json/`);
+        const locationData = await locationResponse.json();
+
+        await supabase.from('analytics').insert({
+          page_slug: slug,
+          ip_address: ip,
+          user_agent: navigator.userAgent,
+          location: locationData,
+          session_id: crypto.randomUUID()
+        });
+
+        console.log('Page visit tracked:', slug);
+      } catch (error) {
+        console.error('Error tracking page visit:', error);
+      }
+    };
+
+    trackPageVisit();
+  }, [slug]);
 
   const { data: pageData, isLoading, error } = useQuery({
     queryKey: ['page', slug],
