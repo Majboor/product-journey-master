@@ -6,10 +6,12 @@ import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
 import { defaultContent } from "@/components/api-manager/defaultContent";
 import { useSwipeTracking } from "@/hooks/useSwipeTracking";
+import { useButtonTracking } from "@/hooks/useButtonTracking";
 
 const Index = () => {
   const pageContent = defaultContent;
-  useSwipeTracking('/'); // Add swipe tracking
+  useSwipeTracking('/');
+  useButtonTracking('/');
 
   return (
     <div className="min-h-screen bg-white">
