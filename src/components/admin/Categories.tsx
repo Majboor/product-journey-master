@@ -79,7 +79,7 @@ export const Categories = () => {
             <CardTitle>Pages in Category</CardTitle>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="w-full" orientation="horizontal">
+            <ScrollArea className="w-full">
               <div className="flex gap-4 pb-4">
                 {pages?.map((page) => (
                   <Card key={page.id} className="w-[300px] flex-shrink-0">

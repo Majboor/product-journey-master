@@ -9,6 +9,7 @@ import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
 import { ColorSchemeProvider } from "@/components/ColorSchemeProvider";
 import { usePageAnalytics } from "@/hooks/usePageAnalytics";
+import { PageContent } from "@/types/content";
 
 const DynamicPage = () => {
   const { categorySlug, slug } = useParams();
@@ -49,14 +50,16 @@ const DynamicPage = () => {
     return <div>Page not found</div>;
   }
 
+  const content = page.content as PageContent;
+
   return (
-    <ColorSchemeProvider colorScheme={page.color_scheme}>
+    <ColorSchemeProvider colorScheme={page.color_scheme as ColorScheme}>
       <div className="min-h-screen">
-        <Hero content={page.content} />
-        <ProductSection content={page.content} />
-        <Features content={page.content} />
-        <Reviews content={page.content} />
-        <Footer content={page.content} />
+        <Hero {...content.hero} />
+        <ProductSection {...content.product} />
+        <Features features={content.features} />
+        <Reviews reviews={content.reviews} />
+        <Footer {...content.footer} />
       </div>
     </ColorSchemeProvider>
   );
