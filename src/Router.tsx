@@ -36,6 +36,26 @@ export const router = createBrowserRouter([
         element: <Login />,
       },
       {
+        path: "/about",
+        element: <DynamicPage />,
+      },
+      {
+        path: "/features",
+        element: <DynamicPage />,
+      },
+      {
+        path: "/why-us",
+        element: <DynamicPage />,
+      },
+      {
+        path: "/reviews",
+        element: <DynamicPage />,
+      },
+      {
+        path: "/general",
+        element: <DynamicPage />,
+      },
+      {
         path: "/:categorySlug/:slug",
         element: <DynamicPage />,
       },
