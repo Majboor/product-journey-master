@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { defaultPages } from "@/components/sections/DefaultPages";
+import { Json } from "@/integrations/supabase/types";
 
 export const initializeDefaultPages = async () => {
   try {
@@ -17,7 +18,7 @@ export const initializeDefaultPages = async () => {
           .from('pages')
           .insert({
             slug,
-            content
+            content: content as Json
           });
       }
     }
