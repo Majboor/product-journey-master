@@ -18,15 +18,18 @@ export const Dashboard = () => {
     swipeEvents
   } = useAnalyticsData();
 
-  const pageVisits = analytics?.reduce((acc: Record<string, number>, curr) => {
-    acc[curr.page_slug] = (acc[curr.page_slug] || 0) + 1;
+  // Group analytics by page and count visits
+  const pageVisits = (analytics || []).reduce((acc: Record<string, number>, curr) => {
+    const pageSlug = curr.page_slug;
+    acc[pageSlug] = (acc[pageSlug] || 0) + 1;
     return acc;
   }, {});
 
-  const chartData = Object.entries(pageVisits || {}).map(([page, visits]) => ({
+  // Transform the data for the visits chart
+  const chartData = Object.entries(pageVisits).map(([page, visits]) => ({
     page,
     visits
-  }));
+  })).sort((a, b) => b.visits - a.visits); // Sort by visits in descending order
 
   const locations = analytics?.reduce((acc: Record<string, number>, curr) => {
     const country = curr.location?.country_name || 'Unknown';
