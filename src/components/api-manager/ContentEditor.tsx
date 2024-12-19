@@ -113,20 +113,36 @@ export const ContentEditor = () => {
     try {
       const contentObj = JSON.parse(content) as unknown as Json;
       
+      // First check if the page already exists
+      const { data: existingPage } = await supabase
+        .from('pages')
+        .select('id')
+        .eq('slug', slug)
+        .single();
+
+      if (existingPage) {
+        toast({
+          title: "Error",
+          description: "A page with this slug already exists. Please use a different slug.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // If no existing page, create a new one
       const { error } = await supabase
         .from('pages')
-        .upsert({ 
+        .insert({ 
           slug,
           content: contentObj
-        }, { 
-          onConflict: 'slug' 
         });
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Page content has been updated successfully",
+        description: "New page has been created successfully",
       });
 
       setSlug("");
@@ -134,7 +150,7 @@ export const ContentEditor = () => {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to update page content",
+        description: error.message || "Failed to create page",
         variant: "destructive",
       });
     } finally {

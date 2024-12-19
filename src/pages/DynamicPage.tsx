@@ -8,6 +8,7 @@ import ProductSection from "@/components/ProductSection";
 import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
 import { PageContent, isPageContent } from "@/types/content";
+import { defaultBurgerContent } from "@/components/api-manager/ContentEditor";
 
 const DynamicPage = () => {
   const { slug } = useParams();
@@ -44,8 +45,17 @@ const DynamicPage = () => {
     <div className="min-h-screen bg-white">
       <Header brandName={pageData.brandName} />
       <main>
-        <Hero {...pageData.hero} />
-        <ProductSection {...pageData.product} />
+        <Hero 
+          title={pageData.hero.title}
+          description={pageData.hero.description}
+          image={pageData.hero.image}
+          price={pageData.hero.price}
+        />
+        <ProductSection 
+          images={pageData.product.images}
+          details={pageData.product.details}
+          features={pageData.product.features}
+        />
         <Features features={pageData.features} />
         <Reviews reviews={pageData.reviews} />
       </main>
