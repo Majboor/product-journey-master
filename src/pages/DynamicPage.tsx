@@ -25,13 +25,17 @@ const DynamicPage = () => {
       
       const { data, error } = await supabase
         .from('pages')
-        .select('*, categories!inner(*)')
+        .select('*, categories(*)')
         .eq('slug', finalSlug)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching page:', error);
         throw error;
+      }
+
+      if (!data) {
+        throw new Error('Page not found');
       }
 
       console.log('Fetched page:', data);
