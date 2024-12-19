@@ -12,6 +12,10 @@ interface HeaderProps {
 const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
   const { session } = useAuth();
   const location = useLocation();
+  const path = location.pathname.slice(1);
+
+  // List of routes where we don't want to show the brand name
+  const hideLogoRoutes = ['about', 'features', 'why-us', 'reviews', 'general'];
 
   useEffect(() => {
     // Show login dialog immediately for non-authenticated users on the main page
@@ -25,8 +29,12 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="text-xl font-bold text-primary relative">
-            {brandName}
-            <span className="absolute -top-1 -right-12 text-xs text-primary/60">™</span>
+            {!hideLogoRoutes.includes(path) && (
+              <>
+                {brandName}
+                <span className="absolute -top-1 -right-12 text-xs text-primary/60">™</span>
+              </>
+            )}
           </div>
           
           <Navigation isAuthenticated={!!session} />

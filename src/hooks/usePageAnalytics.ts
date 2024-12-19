@@ -21,9 +21,18 @@ export const usePageAnalytics = (pageSlug: string) => {
             ipAddress = ip;
 
             try {
-              const locationResponse = await fetch(`http://ip-api.com/json/${ip}`);
+              const locationResponse = await fetch(`https://ipwho.is/${ip}`);
               if (locationResponse.ok) {
-                locationData = await locationResponse.json();
+                const data = await locationResponse.json();
+                if (data.success) {
+                  locationData = {
+                    country_name: data.country,
+                    city: data.city,
+                    region: data.region,
+                    latitude: data.latitude,
+                    longitude: data.longitude
+                  };
+                }
               }
             } catch (locationError) {
               console.warn('Could not fetch location data:', locationError);
