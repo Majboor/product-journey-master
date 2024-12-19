@@ -9,6 +9,7 @@ import { PageAnalytics } from "./dashboard/PageAnalytics";
 import { RecentPages } from "./dashboard/RecentPages";
 import { SignInAnalytics } from "./dashboard/SignInAnalytics";
 import { ButtonClicksAnalytics } from "./dashboard/ButtonClicksAnalytics";
+import { SwipeAnalytics } from "./dashboard/SwipeAnalytics";
 
 type AnalyticsResponse = Database['public']['Tables']['analytics']['Row'];
 
@@ -84,6 +85,17 @@ export const Dashboard = () => {
     }
   });
 
+  const { data: swipeEvents } = useQuery({
+    queryKey: ['swipe-events'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('swipe_events')
+        .select('*');
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const pageVisits = analytics?.reduce((acc: Record<string, number>, curr) => {
     acc[curr.page_slug] = (acc[curr.page_slug] || 0) + 1;
     return acc;
@@ -145,6 +157,19 @@ export const Dashboard = () => {
     uniqueVisitors: data.uniqueUsers.size,
   }));
 
+  const swipeData = Object.entries(
+    (swipeEvents || []).reduce((acc: Record<string, { left: number; right: number }>, curr) => {
+      if (!acc[curr.page_slug]) {
+        acc[curr.page_slug] = { left: 0, right: 0 };
+      }
+      acc[curr.page_slug][curr.direction as 'left' | 'right'] += 1;
+      return acc;
+    }, {})
+  ).map(([page, data]) => ({
+    page,
+    ...data,
+  }));
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Dashboard Overview</h1>
@@ -165,6 +190,7 @@ export const Dashboard = () => {
         <ButtonClicksAnalytics data={buttonClicksData} />
       </div>
 
+      <SwipeAnalytics data={swipeData} />
       <PageAnalytics analytics={pageAnalytics} />
       <RecentPages pages={pages || []} />
     </div>
