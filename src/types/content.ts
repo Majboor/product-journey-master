@@ -10,6 +10,7 @@ export interface Hero {
 export interface ProductDetails {
   description: string;
   specifications: string[];
+  buyNowLink: string;
 }
 
 export interface Product {

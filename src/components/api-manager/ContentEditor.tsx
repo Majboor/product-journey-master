@@ -28,7 +28,8 @@ export const defaultBurgerContent: PageContent = {
         "100% Angus Beef",
         "Artisanal Buns",
         "House-made Sauces"
-      ]
+      ],
+      buyNowLink: "https://example.com/buy-now"
     },
     features: [
       "Made to Order",
