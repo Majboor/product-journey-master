@@ -57,27 +57,27 @@ export const CategoryUrlsTable = ({
 
   const viewSitemap = async (categoryId: string) => {
     try {
-      const { data: sitemap, error } = await supabase
+      const { data, error } = await supabase
         .from('sitemaps')
         .select('content')
         .eq('category_id', categoryId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       
-      if (!sitemap?.content) {
+      if (!data?.content) {
         toast.error("No sitemap found. Try updating the sitemap first.");
         return;
       }
 
-      // Create a blob with the XML content
-      const blob = new Blob([sitemap.content], { type: 'application/xml' });
+      // Create a new blob and URL each time
+      const blob = new Blob([data.content], { type: 'application/xml' });
       const url = URL.createObjectURL(blob);
       
       // Open in new tab
-      window.open(url, '_blank')?.focus();
+      window.open(url, '_blank');
       
-      // Clean up
+      // Clean up the URL object after a short delay
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (error) {
       console.error('Error viewing sitemap:', error);
