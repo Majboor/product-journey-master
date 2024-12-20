@@ -11,8 +11,6 @@ export const Users = () => {
   const { data: users, isLoading } = useQuery({
     queryKey: ['users'],
     queryFn: async () => {
-      // Instead of using admin.listUsers(), we'll query the auth.users view
-      // which is accessible to authenticated users with appropriate permissions
       const { data, error } = await supabase
         .from('users')
         .select('id, email, created_at');
@@ -52,7 +50,7 @@ export const Users = () => {
             </CardHeader>
             <CardContent>
               <div className="text-sm text-muted-foreground">
-                Created: {new Date(user.created_at).toLocaleDateString()}
+                Created: {new Date(user.created_at || '').toLocaleDateString()}
               </div>
             </CardContent>
           </Card>
