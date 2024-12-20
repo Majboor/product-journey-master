@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const BashScriptGenerator = () => {
   const [basePath, setBasePath] = useState("/var/www/sitemaps");
+  const APP_URL = "https://7000d7ca-2533-4634-aaa0-707176140978.lovableproject.com";
   
   const { data: categories } = useQuery({
     queryKey: ['categories'],
@@ -73,24 +74,24 @@ download_sitemap() {
 # Function to get domain mapping for a category
 get_domain_mapping() {
     local category_id=$1
-    local domain_mapping=$(curl -s "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/domain_mappings?category_id=eq.$category_id&select=domain" \
-      -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM" \
-      -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM")
+    local domain_mapping=$(curl -s "${APP_URL}/api/domain-mappings?category_id=$category_id" \
+      -H "apikey: ${SUPABASE_ANON_KEY}" \
+      -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
     echo "$domain_mapping" | jq -r '.[0].domain'
 }
 
 # Function to get main domain
 get_main_domain() {
-    local main_domain=$(curl -s "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/domain_mappings?is_main=eq.true&select=domain" \
-      -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM" \
-      -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM")
+    local main_domain=$(curl -s "${APP_URL}/api/domain-mappings?is_main=true" \
+      -H "apikey: ${SUPABASE_ANON_KEY}" \
+      -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
     echo "$main_domain" | jq -r '.[0].domain'
 }
 
 # Get all categories from database
-categories=$(curl -s "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/categories?select=id,slug,name" \
-  -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM" \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM")
+categories=$(curl -s "${APP_URL}/api/categories" \
+  -H "apikey: ${SUPABASE_ANON_KEY}" \
+  -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
 
 if [ -z "$categories" ] || [ "$categories" = "[]" ]; then
     echo "No categories found in the database"
