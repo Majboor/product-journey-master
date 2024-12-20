@@ -52,26 +52,21 @@ ${pages.map(page => `
   </url>`).join('')}
 </urlset>`;
 
-      // Set the content type to XML
-      const blob = new Blob([xml], { type: 'application/xml' });
-      const url = URL.createObjectURL(blob);
+      // Set content type and display XML
+      document.body.innerHTML = '';
+      document.body.style.margin = '0';
+      const pre = document.createElement('pre');
+      pre.style.margin = '0';
+      pre.style.padding = '20px';
+      pre.style.whiteSpace = 'pre-wrap';
+      pre.textContent = xml;
+      document.body.appendChild(pre);
 
-      // If accessed directly (not in an iframe), download the file
-      if (window.self === window.top) {
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `sitemap.xml`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      } else {
-        // If in iframe, display the content
-        const iframe = document.querySelector('iframe');
-        if (iframe) {
-          iframe.src = url;
-        }
-      }
+      // Set XML content type
+      const meta = document.createElement('meta');
+      meta.httpEquiv = 'Content-Type';
+      meta.content = 'application/xml';
+      document.head.appendChild(meta);
     }
   }, [pages, isLoading, categorySlug, domainMappings]);
 
@@ -83,16 +78,7 @@ ${pages.map(page => `
     return <div>No pages found</div>;
   }
 
-  return (
-    <iframe 
-      style={{ 
-        width: '100%', 
-        height: '100vh', 
-        border: 'none' 
-      }}
-      title="Sitemap XML"
-    />
-  );
+  return null;
 };
 
 export default Sitemap;
