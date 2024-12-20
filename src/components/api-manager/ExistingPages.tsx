@@ -2,15 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 
 interface ExistingPagesProps {
   onLoadPage: (slug: string, content: any) => void;
 }
 
 export const ExistingPages = ({ onLoadPage }: ExistingPagesProps) => {
-  const navigate = useNavigate();
-  
   const { data: pages, isLoading } = useQuery({
     queryKey: ['pages'],
     queryFn: async () => {
@@ -26,9 +23,6 @@ export const ExistingPages = ({ onLoadPage }: ExistingPagesProps) => {
 
   const handleEdit = (slug: string, content: any) => {
     onLoadPage(slug, content);
-    // Encode the slug to handle special characters
-    const encodedSlug = encodeURIComponent(slug);
-    navigate(`/admin/api-manager?edit=${encodedSlug}`);
   };
 
   if (isLoading) {

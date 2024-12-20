@@ -7,9 +7,11 @@ import { Documentation } from "@/components/api-manager/Documentation";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ApiManager = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const editSlug = searchParams.get('edit');
   const decodedSlug = editSlug ? decodeURIComponent(editSlug) : null;
 
@@ -43,6 +45,11 @@ const ApiManager = () => {
     }
   }, [pageContent]);
 
+  const handleLoadPage = (slug: string, content: any) => {
+    const encodedSlug = encodeURIComponent(slug);
+    navigate(`/admin/api-manager?edit=${encodedSlug}`);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -63,10 +70,7 @@ const ApiManager = () => {
             </TabsContent>
 
             <TabsContent value="pages">
-              <ExistingPages onLoadPage={(slug, content) => {
-                const encodedSlug = encodeURIComponent(slug);
-                window.location.href = `/admin/api-manager?edit=${encodedSlug}`;
-              }} />
+              <ExistingPages onLoadPage={handleLoadPage} />
             </TabsContent>
           </Tabs>
 
