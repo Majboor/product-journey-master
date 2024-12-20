@@ -5,6 +5,7 @@ interface CreatePaymentIntentParams {
   message: string;
   successUrl: string;
   cancelUrl: string;
+  currencyCode?: string; // Add currency code parameter
   test?: boolean;
 }
 
@@ -13,6 +14,7 @@ export const createPaymentIntent = async ({
   message,
   successUrl,
   cancelUrl,
+  currencyCode = 'USD', // Default to USD if not specified
   test = true // Default to test mode for safety
 }: CreatePaymentIntentParams) => {
   try {
@@ -33,6 +35,9 @@ export const createPaymentIntent = async ({
       throw new Error('Ziina API key not found in secrets');
     }
 
+    // Log the currency being used
+    console.log(`Creating Ziina payment with currency: ${currencyCode}`);
+
     const response = await fetch('https://api-v2.ziina.com/api/payment_intent', {
       method: 'POST',
       headers: {
@@ -41,7 +46,7 @@ export const createPaymentIntent = async ({
       },
       body: JSON.stringify({
         amount,
-        currency_code: 'USD',
+        currency_code: currencyCode,
         message,
         success_url: successUrl,
         cancel_url: cancelUrl,
@@ -56,6 +61,7 @@ export const createPaymentIntent = async ({
     }
 
     const responseData = await response.json();
+    console.log('Ziina payment intent created:', responseData);
     return responseData;
   } catch (error) {
     console.error('Error creating payment intent:', error);

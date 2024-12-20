@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 type User = Database['public']['Views']['users']['Row'];
 
@@ -55,6 +56,16 @@ export const OrdersTable = ({ users }: OrdersTableProps) => {
     }
   });
 
+  // Handle currency change
+  const handleCurrencyChange = (newCurrency: string) => {
+    setSelectedCurrency(newCurrency);
+    toast({
+      title: "Currency Updated",
+      description: `Payment currency changed to ${newCurrency}`,
+    });
+    console.log('Currency changed to:', newCurrency);
+  };
+
   if (orderError || currencyError) {
     return (
       <Alert variant="destructive">
@@ -80,7 +91,7 @@ export const OrdersTable = ({ users }: OrdersTableProps) => {
       <div className="flex justify-end">
         <Select
           value={selectedCurrency}
-          onValueChange={setSelectedCurrency}
+          onValueChange={handleCurrencyChange}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Select Currency" />
