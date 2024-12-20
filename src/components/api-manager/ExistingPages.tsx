@@ -26,7 +26,9 @@ export const ExistingPages = ({ onLoadPage }: ExistingPagesProps) => {
 
   const handleEdit = (slug: string, content: any) => {
     onLoadPage(slug, content);
-    navigate(`/admin/api-manager?edit=${slug}`);
+    // Encode the slug to handle special characters
+    const encodedSlug = encodeURIComponent(slug);
+    navigate(`/admin/api-manager?edit=${encodedSlug}`);
   };
 
   if (isLoading) {

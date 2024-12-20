@@ -11,22 +11,23 @@ import { useEffect } from "react";
 const ApiManager = () => {
   const [searchParams] = useSearchParams();
   const editSlug = searchParams.get('edit');
+  const decodedSlug = editSlug ? decodeURIComponent(editSlug) : null;
 
   // Fetch page content if editing
   const { data: pageContent } = useQuery({
-    queryKey: ['page-content', editSlug],
+    queryKey: ['page-content', decodedSlug],
     queryFn: async () => {
-      if (!editSlug) return null;
+      if (!decodedSlug) return null;
       const { data, error } = await supabase
         .from('pages')
         .select('*')
-        .eq('slug', editSlug)
-        .single();
+        .eq('slug', decodedSlug)
+        .maybeSingle();
       
       if (error) throw error;
       return data;
     },
-    enabled: !!editSlug
+    enabled: !!decodedSlug
   });
 
   useEffect(() => {
@@ -48,10 +49,10 @@ const ApiManager = () => {
       <main className="container mx-auto px-4 pt-24">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-3xl font-bold mb-8">
-            {editSlug ? `Editing Page: ${editSlug}` : 'API Content Manager'}
+            {decodedSlug ? `Editing Page: ${decodedSlug}` : 'API Content Manager'}
           </h1>
           
-          <Tabs defaultValue={editSlug ? "editor" : "pages"} className="w-full">
+          <Tabs defaultValue={decodedSlug ? "editor" : "pages"} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="editor">Content Editor</TabsTrigger>
               <TabsTrigger value="pages">Existing Pages</TabsTrigger>
@@ -63,7 +64,8 @@ const ApiManager = () => {
 
             <TabsContent value="pages">
               <ExistingPages onLoadPage={(slug, content) => {
-                window.location.href = `/admin/api-manager?edit=${slug}`;
+                const encodedSlug = encodeURIComponent(slug);
+                window.location.href = `/admin/api-manager?edit=${encodedSlug}`;
               }} />
             </TabsContent>
           </Tabs>
