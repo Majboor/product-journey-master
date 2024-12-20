@@ -44,14 +44,13 @@ export const CategoryUrlsTable = ({
   onDownloadSitemap,
   onUpdateSitemap,
 }: CategoryUrlsTableProps) => {
-  const openSitemap = (categorySlug: string) => {
-    const mapping = domainMappings?.find(dm => dm.category_id === categorySlug);
-    const mainMapping = domainMappings?.find(dm => dm.is_main);
-    const domain = mapping?.domain || mainMapping?.domain || window.location.host;
-    const sitemapUrl = `${window.location.protocol}//${domain}/${categorySlug}/sitemap.xml`;
-    const win = window.open(sitemapUrl, '_blank');
-    if (win) {
-      win.focus();
+  const handleSitemapUpdate = async (categoryId: string, domain: string) => {
+    try {
+      await onUpdateSitemap(categoryId, domain);
+      toast.success("Sitemap updated successfully");
+    } catch (error) {
+      console.error('Error updating sitemap:', error);
+      toast.error("Failed to update sitemap");
     }
   };
 
@@ -114,22 +113,7 @@ export const CategoryUrlsTable = ({
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => openSitemap(category.slug)}
-                    className="flex items-center gap-2"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    Open Sitemap
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={async () => {
-                      try {
-                        await onUpdateSitemap(category.id, domain);
-                        toast.success("Sitemap updated successfully");
-                      } catch (error) {
-                        toast.error("Failed to update sitemap");
-                      }
-                    }}
+                    onClick={() => handleSitemapUpdate(category.id, domain)}
                     className="flex items-center gap-2"
                   >
                     <RefreshCw className="h-4 w-4" />

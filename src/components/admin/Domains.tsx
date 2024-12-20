@@ -91,13 +91,12 @@ ${pages.map(page => `
   </url>`).join('')}
 </urlset>`;
 
-      // Store the sitemap in the database
       const { error: sitemapError } = await supabase
         .from('sitemaps')
         .upsert({
           category_id: categoryId,
           content: sitemap,
-          last_updated: new Date().toISOString(),
+          last_generated: new Date().toISOString(),
         });
 
       if (sitemapError) throw sitemapError;
