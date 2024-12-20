@@ -34,14 +34,49 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
     setLoading(true);
 
     try {
-      const parsedContent = JSON.parse(content);
+      let parsedContent;
+      try {
+        parsedContent = JSON.parse(content);
+      } catch (error) {
+        toast({
+          title: "Invalid JSON Format",
+          description: "Please ensure your JSON is properly formatted.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
       
-      if (!validatePageContent(parsedContent)) {
-        throw new Error('Invalid content structure. Please ensure all required fields are present.');
+      const validation = validatePageContent(parsedContent);
+      
+      if (!validation.isValid) {
+        const errorMessages = validation.errors.map(error => `${error.field}: ${error.message}`);
+        toast({
+          title: "Invalid Content Structure",
+          description: (
+            <div className="mt-2 space-y-2">
+              <p>Please fix the following issues:</p>
+              <ul className="list-disc pl-4">
+                {errorMessages.map((message, index) => (
+                  <li key={index} className="text-sm">{message}</li>
+                ))}
+              </ul>
+            </div>
+          ),
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
       }
 
       if (!categoryId) {
-        throw new Error('Please select a category');
+        toast({
+          title: "Error",
+          description: "Please select a category",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
       }
 
       // Always treat empty slug as an update operation
@@ -109,6 +144,7 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
         handleReset();
       }
     } catch (error: any) {
+      console.error('Error saving page:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to save page",
