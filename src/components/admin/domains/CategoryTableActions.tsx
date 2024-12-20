@@ -25,7 +25,6 @@ export const CategoryTableActions = ({
       const { data, error } = await supabase.functions.invoke('manage-apache-sitemap', {
         body: {
           categoryId,
-          apachePath,
         },
       });
 
