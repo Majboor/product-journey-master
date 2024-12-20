@@ -31,7 +31,13 @@ const Index = () => {
         return defaultContent;
       }
       
-      return (data?.content as PageContent) || defaultContent;
+      // Ensure the content matches PageContent type
+      const content = data?.content;
+      if (typeof content === 'object' && content !== null && 'brandName' in content) {
+        return content as PageContent;
+      }
+      
+      return defaultContent;
     }
   });
 
