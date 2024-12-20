@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import { initializeDefaultPages } from "@/utils/initializeDefaultPages";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { PageContent } from "@/types/content";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +31,7 @@ const Index = () => {
         return defaultContent;
       }
       
-      return data?.content || defaultContent;
+      return (data?.content as PageContent) || defaultContent;
     }
   });
 
