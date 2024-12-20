@@ -41,9 +41,8 @@ export const CategoryUrlsTable = ({
   onCopyLink,
   onDownloadSitemap,
 }: CategoryUrlsTableProps) => {
-  const openSitemap = (categorySlug: string, domain: string) => {
-    const sitemapUrl = `${domain}/${categorySlug}/sitemap.xml`;
-    window.open(sitemapUrl, '_blank');
+  const openSitemap = (categorySlug: string) => {
+    window.open(`/${categorySlug}/sitemap.xml`, '_blank');
   };
 
   return (
@@ -105,7 +104,7 @@ export const CategoryUrlsTable = ({
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => openSitemap(category.slug, domain)}
+                    onClick={() => openSitemap(category.slug)}
                     className="flex items-center gap-2"
                   >
                     <ExternalLink className="h-4 w-4" />

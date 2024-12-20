@@ -6,6 +6,7 @@ import ApiManager from "@/pages/ApiManager";
 import PaymentSuccess from "@/pages/PaymentSuccess";
 import PaymentFailed from "@/pages/PaymentFailed";
 import OrderTracking from "@/pages/OrderTracking";
+import Sitemap from "@/pages/Sitemap";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Dashboard } from "@/components/admin/Dashboard";
@@ -71,6 +72,10 @@ export const router = createBrowserRouter([
       {
         path: "/order-tracking/:orderId",
         element: <OrderTracking />,
+      },
+      {
+        path: "/:categorySlug/sitemap.xml",
+        element: <Sitemap />,
       },
       {
         path: "/:categorySlug/:slug",
