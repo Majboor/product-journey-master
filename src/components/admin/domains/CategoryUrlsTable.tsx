@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Copy, Download } from "lucide-react";
+import { Copy, Download, ExternalLink } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -41,6 +41,11 @@ export const CategoryUrlsTable = ({
   onCopyLink,
   onDownloadSitemap,
 }: CategoryUrlsTableProps) => {
+  const openSitemap = (categorySlug: string, domain: string) => {
+    const sitemapUrl = `${domain}/${categorySlug}/sitemap.xml`;
+    window.open(sitemapUrl, '_blank');
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -89,14 +94,24 @@ export const CategoryUrlsTable = ({
                 </div>
               </TableCell>
               <TableCell>
-                <Button
-                  variant="outline"
-                  onClick={() => onDownloadSitemap(category.id)}
-                  className="flex items-center gap-2"
-                >
-                  <Download className="h-4 w-4" />
-                  Download Sitemap
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => onDownloadSitemap(category.id)}
+                    className="flex items-center gap-2"
+                  >
+                    <Download className="h-4 w-4" />
+                    Download Sitemap
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => openSitemap(category.slug, domain)}
+                    className="flex items-center gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Open Sitemap
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           );
