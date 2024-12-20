@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Copy, Download, ExternalLink, RefreshCw } from "lucide-react";
+import { Copy, Download, ExternalLink, RefreshCw, Eye } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -52,6 +52,11 @@ export const CategoryUrlsTable = ({
       console.error('Error updating sitemap:', error);
       toast.error("Failed to update sitemap");
     }
+  };
+
+  const viewSitemap = (categoryId: string, domain: string) => {
+    const url = `${window.location.protocol}//${domain}/sitemap.xml`;
+    window.open(url, '_blank')?.focus();
   };
 
   return (
@@ -118,6 +123,14 @@ export const CategoryUrlsTable = ({
                   >
                     <RefreshCw className="h-4 w-4" />
                     Update Sitemap
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => viewSitemap(category.id, domain)}
+                    className="flex items-center gap-2"
+                  >
+                    <Eye className="h-4 w-4" />
+                    View Sitemap
                   </Button>
                 </div>
               </TableCell>
