@@ -73,12 +73,16 @@ export const Domains = () => {
 
   const generateSitemap = async (categoryId: string, domain: string) => {
     try {
-      const { data: pages } = await supabase
+      const { data: pages, error: pagesError } = await supabase
         .from('pages')
         .select('slug, updated_at')
         .eq('category_id', categoryId);
 
-      if (!pages) throw new Error("No pages found");
+      if (pagesError) throw pagesError;
+      if (!pages || pages.length === 0) {
+        toast.error("No pages found for this category");
+        return;
+      }
 
       const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -97,6 +101,8 @@ ${pages.map(page => `
           category_id: categoryId,
           content: sitemap,
           last_generated: new Date().toISOString(),
+        }, {
+          onConflict: 'category_id'
         });
 
       if (sitemapError) throw sitemapError;
@@ -109,29 +115,20 @@ ${pages.map(page => `
 
   const downloadSitemap = async (categoryId: string) => {
     try {
-      const { data: pages } = await supabase
-        .from('pages')
-        .select('slug, updated_at')
-        .eq('category_id', categoryId);
+      const { data: sitemap, error } = await supabase
+        .from('sitemaps')
+        .select('content')
+        .eq('category_id', categoryId)
+        .single();
 
-      if (!pages) throw new Error("No pages found");
+      if (error) throw error;
+      
+      if (!sitemap?.content) {
+        toast.error("No sitemap found. Try updating the sitemap first.");
+        return;
+      }
 
-      const mainDomainMapping = domainMappings?.find(dm => dm.is_main);
-      const categoryDomainMapping = domainMappings?.find(dm => dm.category_id === categoryId);
-      const domain = categoryDomainMapping?.domain || mainDomainMapping?.domain || window.location.host;
-
-      const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${pages.map(page => `
-  <url>
-    <loc>https://${domain}/${page.slug}</loc>
-    <lastmod>${new Date(page.updated_at).toISOString().split('T')[0]}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>`).join('')}
-</urlset>`;
-
-      const blob = new Blob([sitemap], { type: 'application/xml' });
+      const blob = new Blob([sitemap.content], { type: 'application/xml' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -141,8 +138,8 @@ ${pages.map(page => `
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (error) {
-      toast.error("Failed to generate sitemap");
-      console.error(error);
+      console.error('Error downloading sitemap:', error);
+      toast.error("Failed to download sitemap");
     }
   };
 

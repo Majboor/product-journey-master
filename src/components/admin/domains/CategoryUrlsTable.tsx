@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Copy, Download, ExternalLink, RefreshCw, Eye } from "lucide-react";
+import { Copy, Download, RefreshCw, Eye } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -61,7 +61,7 @@ export const CategoryUrlsTable = ({
         .from('sitemaps')
         .select('content')
         .eq('category_id', categoryId)
-        .maybeSingle();
+        .single();
 
       if (error) throw error;
       
