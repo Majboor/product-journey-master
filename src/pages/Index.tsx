@@ -12,7 +12,7 @@ import { useState, useEffect } from "react";
 import { initializeDefaultPages } from "@/utils/initializeDefaultPages";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PageContent } from "@/types/content";
+import { PageContent, isPageContent } from "@/types/content";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -31,12 +31,13 @@ const Index = () => {
         return defaultContent;
       }
       
-      // Ensure the content matches PageContent type
+      // Use the type guard to validate the content
       const content = data?.content;
-      if (typeof content === 'object' && content !== null && 'brandName' in content) {
-        return content as PageContent;
+      if (content && isPageContent(content)) {
+        return content;
       }
       
+      console.warn('Invalid page content structure, using default content');
       return defaultContent;
     }
   });
