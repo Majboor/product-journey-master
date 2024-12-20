@@ -107,7 +107,7 @@ export const ApiConfig = () => {
         <div className="space-y-2">
           <label className="block text-sm font-medium">Test Mode</label>
           <Select
-            defaultValue={testMode ? 'true' : 'false'}
+            value={testMode ? 'true' : 'false'}
             onValueChange={updateTestMode}
           >
             <SelectTrigger className="w-[200px]">
