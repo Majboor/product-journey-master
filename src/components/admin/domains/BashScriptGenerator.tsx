@@ -42,7 +42,7 @@ download_sitemap() {
     
     # Download sitemap
     echo "Downloading sitemap for $category_slug..."
-    curl -s "https://$domain/$category_slug/sitemap.xml" > "$BASE_DIR/$category_slug/sitemap.xml"
+    curl -s "https://$domain/sitemap.xml" > "$BASE_DIR/$category_slug/sitemap.xml"
     
     if [ $? -eq 0 ]; then
         echo "Successfully downloaded sitemap for $category_slug"
@@ -52,19 +52,29 @@ download_sitemap() {
 }
 
 # Download sitemaps for all categories
-${categories.map(category => {
-  const domainMapping = `# Get domain for ${category.name}
-domain=$(curl -s "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/domain_mappings?category_id=eq.${category.id}&select=domain" \
+${categories.map(category => `
+# Get domain mapping for ${category.name}
+domain_mapping=$(curl -s "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/domain_mappings?category_id=eq.${category.id}&select=domain" \
   -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM")
+
+domain=$(echo $domain_mapping | jq -r '.[0].domain')
 
 if [ -n "$domain" ]; then
     download_sitemap "${category.slug}" "$domain"
 else
-    echo "No domain mapping found for ${category.name}"
-fi`
-  return domainMapping;
-}).join('\n\n')}
+    # If no specific domain mapping found, try to get main domain
+    main_domain=$(curl -s "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/domain_mappings?is_main=eq.true&select=domain" \
+      -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM" \
+      -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM")
+    main_domain_value=$(echo $main_domain | jq -r '.[0].domain')
+    
+    if [ -n "$main_domain_value" ]; then
+        download_sitemap "${category.slug}" "$main_domain_value"
+    else
+        echo "No domain mapping found for ${category.name}"
+    fi
+fi`).join('\n\n')}
 
 echo "All sitemaps have been downloaded!"`;
   };
