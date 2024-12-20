@@ -39,21 +39,19 @@ const Sitemap = () => {
 
   useEffect(() => {
     if (sitemap?.content) {
-      // Create a new document with XML content type
-      const xmlDoc = new DOMParser().parseFromString(sitemap.content, 'application/xml');
+      // Set the content type header
+      const blob = new Blob([sitemap.content], { type: 'application/xml' });
+      const url = URL.createObjectURL(blob);
       
-      // Clear the current document
-      document.open('text/xml');
+      // Redirect to the XML content
+      window.location.href = url;
       
-      // Write the XML content
-      document.write(xmlDoc.documentElement.outerHTML);
-      
-      // Close the document
-      document.close();
+      // Clean up the URL object after navigation
+      return () => URL.revokeObjectURL(url);
     }
   }, [sitemap]);
 
-  // Return null as we're handling the document content directly
+  // Return null as we're handling the redirect
   return null;
 };
 
