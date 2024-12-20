@@ -42,7 +42,10 @@ export const CategoryUrlsTable = ({
   onDownloadSitemap,
 }: CategoryUrlsTableProps) => {
   const openSitemap = (categorySlug: string) => {
-    window.open(`/${categorySlug}/sitemap.xml`, '_blank');
+    const mapping = domainMappings?.find(dm => dm.category_id === categorySlug);
+    const mainMapping = domainMappings?.find(dm => dm.is_main);
+    const domain = mapping?.domain || mainMapping?.domain || window.location.origin;
+    window.open(`${domain}/${categorySlug}/sitemap.xml`, '_blank');
   };
 
   return (
