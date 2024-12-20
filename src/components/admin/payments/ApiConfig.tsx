@@ -78,6 +78,7 @@ export const ApiConfig = () => {
       toast.success(`Test mode ${value === 'true' ? 'enabled' : 'disabled'}`);
       queryClient.invalidateQueries({ queryKey: ['ziina-test-mode'] });
     } catch (error) {
+      console.error('Error updating test mode:', error);
       toast.error("Failed to update test mode");
     }
   };
@@ -106,7 +107,7 @@ export const ApiConfig = () => {
         <div className="space-y-2">
           <label className="block text-sm font-medium">Test Mode</label>
           <Select
-            value={testMode ? 'true' : 'false'}
+            defaultValue={testMode ? 'true' : 'false'}
             onValueChange={updateTestMode}
           >
             <SelectTrigger className="w-[200px]">
