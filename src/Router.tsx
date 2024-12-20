@@ -3,6 +3,9 @@ import Index from "@/pages/Index";
 import Login from "@/pages/Login";
 import DynamicPage from "@/pages/DynamicPage";
 import ApiManager from "@/pages/ApiManager";
+import PaymentSuccess from "@/pages/PaymentSuccess";
+import PaymentFailed from "@/pages/PaymentFailed";
+import OrderTracking from "@/pages/OrderTracking";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Dashboard } from "@/components/admin/Dashboard";
@@ -54,6 +57,18 @@ export const router = createBrowserRouter([
       {
         path: "/general",
         element: <DynamicPage />,
+      },
+      {
+        path: "/payment/success",
+        element: <PaymentSuccess />,
+      },
+      {
+        path: "/payment/failed",
+        element: <PaymentFailed />,
+      },
+      {
+        path: "/order-tracking/:orderId",
+        element: <OrderTracking />,
       },
       {
         path: "/:categorySlug/:slug",

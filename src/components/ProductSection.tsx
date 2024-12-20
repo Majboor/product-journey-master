@@ -7,6 +7,9 @@ import { JokeDisplay } from "./jokes/JokeDisplay";
 import { useAuth } from "./auth/AuthProvider";
 import { ProductDetails as ProductDetailsType } from "@/types/content";
 import { useToast } from "@/components/ui/use-toast";
+import { createPaymentIntent } from "@/services/ziina";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 interface ProductSectionProps {
   images?: string[];
@@ -62,6 +65,51 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
 
     return () => clearInterval(purchaseTimer);
   }, []);
+
+  const handleBuyNow = async () => {
+    try {
+      // Generate a unique order ID
+      const orderId = `ORD-${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Create the order in the database
+      const { error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          order_id: orderId,
+          amount: details?.price || 0,
+          currency_code: 'AED',
+          customer_email: session?.user?.email,
+          customer_name: session?.user?.user_metadata?.full_name,
+        });
+
+      if (orderError) throw orderError;
+
+      // Create payment intent with Ziina
+      const paymentIntent = await createPaymentIntent({
+        amount: details?.price || 0,
+        message: `Payment for ${details?.title || 'Product'}`,
+        successUrl: `${window.location.origin}/payment/success?order_id=${orderId}`,
+        cancelUrl: `${window.location.origin}/payment/failed`,
+        test: true // Set to false in production
+      });
+
+      // Update order with payment intent ID
+      await supabase
+        .from('orders')
+        .update({ payment_intent_id: paymentIntent.id })
+        .eq('order_id', orderId);
+
+      // Redirect to Ziina payment page
+      window.location.href = paymentIntent.redirect_url;
+    } catch (error) {
+      console.error('Error creating payment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to process payment. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -127,6 +175,13 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
           <div className="flex-1 space-y-6">
             <ProductDetails {...details} />
             <ProductFeatures features={features} />
+            <Button 
+              size="lg" 
+              className="bg-primary hover:bg-primary/90 text-white px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+              onClick={handleBuyNow}
+            >
+              Buy Now - ${details?.price || 0}
+            </Button>
           </div>
         </div>
       </div>
