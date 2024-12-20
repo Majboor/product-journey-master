@@ -39,6 +39,8 @@ export const ProductActions = ({ price, title }: ProductActionsProps) => {
         return;
       }
 
+      // Ensure we have a valid title for the payment message
+      const paymentTitle = title || 'Product';
       const orderId = `ORD-${Math.random().toString(36).substr(2, 9)}`;
       const amountInCents = Math.round(price * 100);
       
@@ -56,7 +58,7 @@ export const ProductActions = ({ price, title }: ProductActionsProps) => {
 
       const paymentIntent = await createPaymentIntent({
         amount: amountInCents,
-        message: `Payment for ${title}`,
+        message: `Payment for ${paymentTitle}`,
         successUrl: `${window.location.origin}/payment/success?order_id=${orderId}`,
         cancelUrl: `${window.location.origin}/payment/failed`,
         test: testMode ?? true
