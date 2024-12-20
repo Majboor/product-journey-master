@@ -68,18 +68,27 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
 
   const handleBuyNow = async () => {
     try {
+      if (!details?.price || details.price < 10) {
+        toast({
+          title: "Invalid Price",
+          description: "Product price must be at least 10 AED",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Generate a unique order ID
       const orderId = `ORD-${Math.random().toString(36).substr(2, 9)}`;
       
-      // Convert price to integer (cents/fils)
-      const amountInCents = Math.round((details?.price || 0) * 100);
+      // Convert price to integer (fils)
+      const amountInFils = Math.round(details.price * 100);
       
       // Create the order in the database
       const { error: orderError } = await supabase
         .from('orders')
         .insert({
           order_id: orderId,
-          amount: amountInCents, // Store amount in cents/fils
+          amount: amountInFils,
           currency_code: 'AED',
           customer_email: session?.user?.email,
           customer_name: session?.user?.user_metadata?.full_name,
@@ -87,13 +96,13 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
 
       if (orderError) throw orderError;
 
-      // Create payment intent with Ziina (amount is already in cents/fils)
+      // Create payment intent with Ziina
       const paymentIntent = await createPaymentIntent({
-        amount: amountInCents,
-        message: `Payment for ${details?.title || 'Product'}`,
+        amount: amountInFils,
+        message: `Payment for ${details.title}`,
         successUrl: `${window.location.origin}/payment/success?order_id=${orderId}`,
         cancelUrl: `${window.location.origin}/payment/failed`,
-        test: true // Set to false in production
+        test: true // Always use test mode for now
       });
 
       // Update order with payment intent ID

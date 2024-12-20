@@ -14,6 +14,7 @@ import { SingleCategory } from "@/components/admin/SingleCategory";
 import { Pages } from "@/components/admin/Pages";
 import { Users } from "@/components/admin/Users";
 import { ApiStatus } from "@/components/admin/ApiStatus";
+import { Payments } from "@/components/admin/Payments";
 import Header from "@/components/Header";
 import { Outlet } from "react-router-dom";
 
@@ -103,6 +104,10 @@ export const router = createBrowserRouter([
       {
         path: "users",
         element: <Users />,
+      },
+      {
+        path: "payments",
+        element: <Payments />,
       },
       {
         path: "api-status",
