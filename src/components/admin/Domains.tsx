@@ -10,7 +10,6 @@ export const Domains = () => {
   const [categoryUrls, setCategoryUrls] = useState<Record<string, string>>({});
   const queryClient = useQueryClient();
   
-  // Fetch categories and their domain mappings
   const { data: categories } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
@@ -35,7 +34,6 @@ export const Domains = () => {
     },
   });
 
-  // Update domain mapping mutation
   const updateDomainMapping = useMutation({
     mutationFn: async ({ categoryId, domain, isMain = false }: { categoryId?: string, domain: string, isMain?: boolean }) => {
       const { error } = await supabase
@@ -90,7 +88,7 @@ export const Domains = () => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${pages.map(page => `
   <url>
-    <loc>https://${domain}/${categorySlug}/${page.slug}</loc>
+    <loc>https://${domain}/${page.slug}</loc>
     <lastmod>${new Date(page.updated_at).toISOString().split('T')[0]}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -101,7 +99,7 @@ ${pages.map(page => `
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `sitemap-${categorySlug}.xml`;
+      a.download = `sitemap.xml`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

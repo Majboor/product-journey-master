@@ -41,11 +41,11 @@ export const CategoryUrlsTable = ({
   onCopyLink,
   onDownloadSitemap,
 }: CategoryUrlsTableProps) => {
-  const openSitemap = (category: Category) => {
-    const mapping = domainMappings?.find(dm => dm.category_id === category.id);
+  const openSitemap = (categorySlug: string) => {
+    const mapping = domainMappings?.find(dm => dm.category_id === categorySlug);
     const mainMapping = domainMappings?.find(dm => dm.is_main);
     const domain = mapping?.domain || mainMapping?.domain || window.location.host;
-    window.open(`https://${domain}/${category.slug}/sitemap.xml`, '_blank');
+    window.open(`https://${domain}/sitemap.xml`, '_blank');
   };
 
   return (
@@ -107,7 +107,7 @@ export const CategoryUrlsTable = ({
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => openSitemap(category)}
+                    onClick={() => openSitemap(category.slug)}
                     className="flex items-center gap-2"
                   >
                     <ExternalLink className="h-4 w-4" />
