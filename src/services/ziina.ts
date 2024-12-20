@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 interface CreatePaymentIntentParams {
-  amount: number;  // Amount in fils
+  amount: number;  // Amount in cents
   message: string;
   successUrl: string;
   cancelUrl: string;
@@ -41,7 +41,7 @@ export const createPaymentIntent = async ({
       },
       body: JSON.stringify({
         amount,
-        currency_code: 'AED',
+        currency_code: 'USD',
         message,
         success_url: successUrl,
         cancel_url: cancelUrl,

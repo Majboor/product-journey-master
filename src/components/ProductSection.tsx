@@ -83,10 +83,10 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
 
   const handleBuyNow = async () => {
     try {
-      if (!details?.price || details.price < 10) {
+      if (!details?.price || details.price < 1) {
         toast({
           title: "Invalid Price",
-          description: "Product price must be at least 10 AED",
+          description: "Product price must be at least 1 USD",
           variant: "destructive",
         });
         return;
@@ -95,16 +95,16 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
       // Generate a unique order ID
       const orderId = `ORD-${Math.random().toString(36).substr(2, 9)}`;
       
-      // Convert price to integer (fils)
-      const amountInFils = Math.round(details.price * 100);
+      // Convert price to integer (cents)
+      const amountInCents = Math.round(details.price * 100);
       
       // Create the order in the database
       const { error: orderError } = await supabase
         .from('orders')
         .insert({
           order_id: orderId,
-          amount: amountInFils,
-          currency_code: 'AED',
+          amount: amountInCents,
+          currency_code: 'USD',
           customer_email: session?.user?.email,
           customer_name: session?.user?.user_metadata?.full_name,
         });
@@ -113,7 +113,7 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
 
       // Create payment intent with Ziina
       const paymentIntent = await createPaymentIntent({
-        amount: amountInFils,
+        amount: amountInCents,
         message: `Payment for ${details.title}`,
         successUrl: `${window.location.origin}/payment/success?order_id=${orderId}`,
         cancelUrl: `${window.location.origin}/payment/failed`,
@@ -168,10 +168,8 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
       <div className="container px-4 mx-auto">
         {session && (
           <>
-            {/* Joke Display */}
             <JokeDisplay userId={session.user.id} />
             
-            {/* Flash Sale Banner */}
             <div className="mt-4 mb-8 bg-yellow-100/80 text-primary p-3 rounded-lg text-center animate-pulse">
               <span className="font-semibold opacity-90">🎉 Flash Sale Alert!</span>
               <span className="ml-2 text-sm opacity-80">Ends in {timeLeft}</span>
@@ -183,7 +181,6 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
           <div className="flex-1">
             <ProductCarousel images={images} />
             
-            {/* Social Proof Section */}
             <div className="mt-4 space-y-2">
               <div className="flex items-center justify-center text-sm text-primary/80">
                 <Users className="w-4 h-4 mr-2" />
