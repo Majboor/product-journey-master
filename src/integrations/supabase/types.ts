@@ -114,6 +114,41 @@ export type Database = {
         }
         Relationships: []
       }
+      domain_mappings: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          domain: string
+          id: string
+          is_main: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          domain: string
+          id?: string
+          is_main?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          domain?: string
+          id?: string
+          is_main?: boolean | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "domain_mappings_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: true
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       domains: {
         Row: {
           created_at: string
