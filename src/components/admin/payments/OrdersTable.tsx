@@ -45,6 +45,14 @@ export const OrdersTable = ({ users }: OrdersTableProps) => {
     );
   }
 
+  const formatAmount = (amount: number, currency: string) => {
+    const value = amount / 100; // Convert cents to dollars
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency
+    }).format(value);
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -62,7 +70,7 @@ export const OrdersTable = ({ users }: OrdersTableProps) => {
             <TableRow key={order.id}>
               <TableCell className="font-medium">{order.order_id}</TableCell>
               <TableCell>{order.customer_email || 'N/A'}</TableCell>
-              <TableCell>{order.amount} {order.currency_code}</TableCell>
+              <TableCell>{formatAmount(order.amount, order.currency_code)}</TableCell>
               <TableCell>{order.payment_status}</TableCell>
               <TableCell>{new Date(order.created_at).toLocaleDateString()}</TableCell>
             </TableRow>
