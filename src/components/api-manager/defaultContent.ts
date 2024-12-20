@@ -11,7 +11,7 @@ export const defaultContent: PageContent = {
     title: "Experience Modern Dining",
     description: "Contemporary cuisine crafted with passion and innovation",
     image: "/placeholder.svg",
-    price: 45.00
+    price: 149.99
   },
   product: {
     images: ["/placeholder.svg"],
