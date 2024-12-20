@@ -49,7 +49,26 @@ export const defaultContent: PageContent = {
       description: "Your data is protected"
     }
   ],
-  reviews: [],
+  reviews: [
+    {
+      name: "John Smith",
+      rating: 5,
+      comment: "Best dash cam I've ever used! The quality is amazing and customer support is top-notch.",
+      image: "/placeholder.svg"
+    },
+    {
+      name: "Sarah Johnson",
+      rating: 4,
+      comment: "Very impressed with the night vision capabilities. Installation was a breeze.",
+      image: "/placeholder.svg"
+    },
+    {
+      name: "Michael Brown",
+      rating: 5,
+      comment: "The motion detection feature has already saved me twice. Highly recommend!",
+      image: "/placeholder.svg"
+    }
+  ],
   footer: {
     contact: {
       email: "contact@example.com",
