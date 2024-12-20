@@ -17,6 +17,8 @@ export const defaultPages: Record<string, PageContent> = {
     product: {
       images: ["/placeholder.svg"],
       details: {
+        title: "Our Story",
+        price: 0,
         description: "Our story",
         specifications: ["Founded in 2024", "Global Presence", "24/7 Support"],
         buyNowLink: "#contact"
@@ -69,6 +71,8 @@ export const defaultPages: Record<string, PageContent> = {
     product: {
       images: ["/placeholder.svg"],
       details: {
+        title: "Feature Overview",
+        price: 0,
         description: "Feature overview",
         specifications: ["Advanced Technology", "Easy Integration", "Reliable Performance"],
         buyNowLink: "#contact"

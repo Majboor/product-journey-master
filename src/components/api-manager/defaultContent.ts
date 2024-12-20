@@ -16,6 +16,8 @@ export const defaultContent: PageContent = {
   product: {
     images: ["/placeholder.svg"],
     details: {
+      title: "Supreme Crash Cam Pro",
+      price: 299.99,
       description: "Our signature products feature cutting-edge technology and superior quality",
       specifications: [
         "High Quality",
