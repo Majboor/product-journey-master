@@ -44,8 +44,8 @@ export const CategoryUrlsTable = ({
   const openSitemap = (category: Category) => {
     const mapping = domainMappings?.find(dm => dm.category_id === category.id);
     const mainMapping = domainMappings?.find(dm => dm.is_main);
-    const domain = mapping?.domain || mainMapping?.domain || window.location.origin;
-    window.open(`${domain}/${category.slug}/sitemap.xml`, '_blank');
+    const domain = mapping?.domain || mainMapping?.domain || window.location.host;
+    window.open(`https://${domain}/${category.slug}/sitemap.xml`, '_blank');
   };
 
   return (
@@ -62,8 +62,8 @@ export const CategoryUrlsTable = ({
         {categories?.map((category) => {
           const mapping = domainMappings?.find(dm => dm.category_id === category.id);
           const mainMapping = domainMappings?.find(dm => dm.is_main);
-          const domain = mapping?.domain || mainMapping?.domain || window.location.origin;
-          const liveLink = `${domain}/${category.slug}`;
+          const domain = mapping?.domain || mainMapping?.domain || window.location.host;
+          const liveLink = `https://${domain}/${category.slug}`;
 
           return (
             <TableRow key={category.id}>

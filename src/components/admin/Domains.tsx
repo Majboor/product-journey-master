@@ -84,13 +84,13 @@ export const Domains = () => {
 
       const mainDomainMapping = domainMappings?.find(dm => dm.is_main);
       const categoryDomainMapping = domainMappings?.find(dm => dm.category_id === categorySlug);
-      const domain = categoryDomainMapping?.domain || mainDomainMapping?.domain || window.location.origin;
+      const domain = categoryDomainMapping?.domain || mainDomainMapping?.domain || window.location.host;
 
       const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${pages.map(page => `
   <url>
-    <loc>${domain}/${categorySlug}/${page.slug}</loc>
+    <loc>https://${domain}/${categorySlug}/${page.slug}</loc>
     <lastmod>${new Date(page.updated_at).toISOString().split('T')[0]}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

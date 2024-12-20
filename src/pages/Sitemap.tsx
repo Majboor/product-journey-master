@@ -26,12 +26,12 @@ const Sitemap = () => {
     return <div>No pages found</div>;
   }
 
-  // Generate sitemap XML
+  // Generate sitemap XML with proper URL formatting
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${pages.map(page => `
   <url>
-    <loc>${window.location.origin}/${categorySlug}/${page.slug}</loc>
+    <loc>https://${window.location.host}/${categorySlug}/${page.slug}</loc>
     <lastmod>${new Date(page.updated_at).toISOString().split('T')[0]}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -42,7 +42,6 @@ ${pages.map(page => `
   const blob = new Blob([xml], { type: 'application/xml' });
   const url = URL.createObjectURL(blob);
 
-  // Create an iframe to display the XML content
   return (
     <iframe 
       src={url} 
