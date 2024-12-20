@@ -78,13 +78,16 @@ export const ProductActions = ({ price, title }: ProductActionsProps) => {
     }
   };
 
+  // Format the price to ensure it's displayed with 2 decimal places
+  const formattedPrice = price ? price.toFixed(2) : '0.00';
+
   return (
     <Button 
       size="lg" 
       className="w-full bg-primary hover:bg-primary/90 text-white px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
       onClick={handleBuyNow}
     >
-      Buy Now - ${price}
+      Buy Now - ${formattedPrice}
     </Button>
   );
 };
