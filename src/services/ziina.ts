@@ -16,14 +16,21 @@ export const createPaymentIntent = async ({
   test = false
 }: CreatePaymentIntentParams) => {
   try {
+    // Get the API key using maybeSingle() instead of single()
     const { data: secretData, error: secretError } = await supabase
       .from('secrets')
       .select('value')
       .eq('name', 'ZIINA_API_KEY')
-      .single();
+      .maybeSingle();
 
-    if (secretError) throw secretError;
-    if (!secretData?.value) throw new Error('Ziina API key not found');
+    if (secretError) {
+      console.error('Error fetching Ziina API key:', secretError);
+      throw new Error('Failed to retrieve Ziina API key');
+    }
+
+    if (!secretData?.value) {
+      throw new Error('Ziina API key not found in secrets');
+    }
 
     const response = await fetch('https://api-v2.ziina.com/api/payment_intent', {
       method: 'POST',
@@ -43,6 +50,7 @@ export const createPaymentIntent = async ({
 
     if (!response.ok) {
       const errorData = await response.json();
+      console.error('Ziina API error:', errorData);
       throw new Error(errorData.message || 'Failed to create payment intent');
     }
 
