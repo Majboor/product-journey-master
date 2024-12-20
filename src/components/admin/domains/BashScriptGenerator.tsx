@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const BashScriptGenerator = () => {
   const [basePath, setBasePath] = useState("/var/www/sitemaps");
-  const APP_URL = "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1";
+  const APP_URL = "https://7000d7ca-2533-4634-aaa0-707176140978.lovableproject.com";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM";
   
   const { data: categories } = useQuery({
@@ -50,13 +50,12 @@ check_sitemap() {
 # Function to download sitemap for a category
 download_sitemap() {
     local category_slug=$1
-    local domain=$2
     
     # Create category directory
     mkdir -p "$BASE_DIR/$category_slug"
     
-    # First try category-specific sitemap URL
-    local sitemap_url="https://$domain/sitemap.xml"
+    # Use the Lovable project URL directly
+    local sitemap_url="${APP_URL}/$category_slug/sitemap.xml"
     
     echo "Attempting to download sitemap for $category_slug from $sitemap_url"
     
@@ -72,25 +71,8 @@ download_sitemap() {
     return 1
 }
 
-# Function to get domain mapping for a category
-get_domain_mapping() {
-    local category_id=$1
-    local domain_mapping=$(curl -s "${APP_URL}/domain_mappings?category_id=eq.$category_id" \\
-      -H "apikey: ${SUPABASE_ANON_KEY}" \\
-      -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
-    echo "$domain_mapping" | jq -r '.[0].domain // empty'
-}
-
-# Function to get main domain
-get_main_domain() {
-    local main_domain=$(curl -s "${APP_URL}/domain_mappings?is_main=eq.true" \\
-      -H "apikey: ${SUPABASE_ANON_KEY}" \\
-      -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
-    echo "$main_domain" | jq -r '.[0].domain // empty'
-}
-
 # Get all categories from database
-categories=$(curl -s "${APP_URL}/categories" \\
+categories=$(curl -s "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/categories" \\
   -H "apikey: ${SUPABASE_ANON_KEY}" \\
   -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
 
@@ -101,25 +83,11 @@ fi
 
 # Process each category
 echo "$categories" | jq -c '.[]' | while read -r category; do
-    id=$(echo "$category" | jq -r '.id')
     slug=$(echo "$category" | jq -r '.slug')
     name=$(echo "$category" | jq -r '.name')
     
     echo "Processing category: $name"
-    
-    # Try to get category-specific domain first
-    domain=$(get_domain_mapping "$id")
-    
-    if [ -z "$domain" ]; then
-        # If no specific domain, try main domain
-        domain=$(get_main_domain)
-        if [ -z "$domain" ]; then
-            echo "⚠️ No domain mapping found for $name, skipping..."
-            continue
-        fi
-    fi
-    
-    download_sitemap "$slug" "$domain"
+    download_sitemap "$slug"
 done
 
 echo "✨ Sitemap download process completed!"`;
