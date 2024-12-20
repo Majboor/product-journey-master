@@ -38,20 +38,22 @@ ${pages.map(page => `
   </url>`).join('')}
 </urlset>`;
 
-  // Set content type to XML
+  // Set the content type to XML
   const blob = new Blob([xml], { type: 'application/xml' });
   const url = URL.createObjectURL(blob);
-  
-  // Automatically download the file
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `sitemap-${categorySlug}.xml`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 
-  return null;
+  // Create an iframe to display the XML content
+  return (
+    <iframe 
+      src={url} 
+      style={{ 
+        width: '100%', 
+        height: '100vh', 
+        border: 'none' 
+      }}
+      title="Sitemap XML"
+    />
+  );
 };
 
 export default Sitemap;
