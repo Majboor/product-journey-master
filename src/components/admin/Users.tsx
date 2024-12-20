@@ -4,6 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Database } from "@/integrations/supabase/types";
+
+type UserView = Database['public']['Views']['users']['Row'];
 
 export const Users = () => {
   const { toast } = useToast();
@@ -13,7 +16,7 @@ export const Users = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('users')
-        .select('id, email, created_at');
+        .select('*');
       
       if (error) {
         toast({
@@ -24,7 +27,7 @@ export const Users = () => {
         throw error;
       }
       
-      return data;
+      return data as UserView[];
     }
   });
 
@@ -50,7 +53,7 @@ export const Users = () => {
             </CardHeader>
             <CardContent>
               <div className="text-sm text-muted-foreground">
-                Created: {new Date(user.created_at || '').toLocaleDateString()}
+                Created: {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
               </div>
             </CardContent>
           </Card>
