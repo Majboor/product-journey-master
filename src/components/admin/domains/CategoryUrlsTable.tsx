@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Category {
   id: string;
@@ -54,9 +55,34 @@ export const CategoryUrlsTable = ({
     }
   };
 
-  const viewSitemap = (categoryId: string, domain: string) => {
-    const url = `${window.location.protocol}//${domain}/sitemap.xml`;
-    window.open(url, '_blank')?.focus();
+  const viewSitemap = async (categoryId: string) => {
+    try {
+      const { data: sitemap, error } = await supabase
+        .from('sitemaps')
+        .select('content')
+        .eq('category_id', categoryId)
+        .maybeSingle();
+
+      if (error) throw error;
+      
+      if (!sitemap?.content) {
+        toast.error("No sitemap found. Try updating the sitemap first.");
+        return;
+      }
+
+      // Create a blob with the XML content
+      const blob = new Blob([sitemap.content], { type: 'application/xml' });
+      const url = URL.createObjectURL(blob);
+      
+      // Open in new tab
+      window.open(url, '_blank')?.focus();
+      
+      // Clean up
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (error) {
+      console.error('Error viewing sitemap:', error);
+      toast.error("Failed to view sitemap");
+    }
   };
 
   return (
@@ -126,7 +152,7 @@ export const CategoryUrlsTable = ({
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => viewSitemap(category.id, domain)}
+                    onClick={() => viewSitemap(category.id)}
                     className="flex items-center gap-2"
                   >
                     <Eye className="h-4 w-4" />
