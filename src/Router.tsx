@@ -78,7 +78,7 @@ export const router = createBrowserRouter([
         element: <Sitemap />,
       },
       {
-        path: "/category/:categorySlug/sitemap.xml",
+        path: "/:categorySlug/sitemap.xml",
         element: <Sitemap />,
       },
       {
