@@ -29,15 +29,6 @@ export const Users = () => {
       }
       
       return data as UserView[];
-    },
-    meta: {
-      onError: (error: Error) => {
-        toast({
-          title: "Error fetching users",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
     }
   });
 
