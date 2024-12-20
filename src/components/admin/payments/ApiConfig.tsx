@@ -31,7 +31,7 @@ export const ApiConfig = () => {
     },
   });
 
-  const { data: testMode } = useQuery({
+  const { data: testMode, isLoading } = useQuery({
     queryKey: ['ziina-test-mode'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -76,7 +76,7 @@ export const ApiConfig = () => {
       if (error) throw error;
 
       toast.success(`Test mode ${value === 'true' ? 'enabled' : 'disabled'}`);
-      queryClient.invalidateQueries({ queryKey: ['ziina-test-mode'] });
+      await queryClient.invalidateQueries({ queryKey: ['ziina-test-mode'] });
     } catch (error) {
       console.error('Error updating test mode:', error);
       toast.error("Failed to update test mode");
@@ -107,8 +107,9 @@ export const ApiConfig = () => {
         <div className="space-y-2">
           <label className="block text-sm font-medium">Test Mode</label>
           <Select
-            value={testMode ? 'true' : 'false'}
+            disabled={isLoading}
             onValueChange={updateTestMode}
+            value={testMode ? 'true' : 'false'}
           >
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Select test mode" />
