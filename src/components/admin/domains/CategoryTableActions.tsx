@@ -31,14 +31,14 @@ export const CategoryTableActions = ({
 
       if (error) throw error;
       
-      toast.success("Sitemap deployed to Apache successfully");
+      toast.success("Sitemap deployed successfully");
       toast.success(`File location: ${data.path}`);
-      toast.success(`Live URL: ${data.url}`);
+      toast.success(`Public URL: ${data.url}`);
       
       setIsApacheDialogOpen(false);
     } catch (error) {
       console.error('Error deploying sitemap:', error);
-      toast.error("Failed to deploy sitemap to Apache");
+      toast.error("Failed to deploy sitemap");
     }
   };
 
@@ -56,7 +56,7 @@ export const CategoryTableActions = ({
         variant="outline"
         onClick={() => setIsApacheDialogOpen(true)}
       >
-        Deploy to Apache
+        Deploy to Storage
       </Button>
 
       <ApachePathDialog

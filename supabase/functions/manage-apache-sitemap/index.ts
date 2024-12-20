@@ -13,12 +13,12 @@ serve(async (req) => {
   }
 
   try {
-    const { categoryId, apachePath } = await req.json()
+    const { categoryId } = await req.json()
     
     // Initialize Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
     // Get category info
@@ -43,19 +43,29 @@ serve(async (req) => {
     if (sitemapError) throw sitemapError
     if (!sitemap) throw new Error('Sitemap not found')
 
-    // Create category directory
-    const categoryPath = `${apachePath}/${category.slug}`
-    await Deno.mkdir(categoryPath, { recursive: true })
+    // Upload sitemap to storage
+    const filePath = `${category.slug}/sitemap.xml`
+    const { error: uploadError } = await supabaseClient
+      .storage
+      .from('sitemaps')
+      .upload(filePath, sitemap.content, {
+        contentType: 'application/xml',
+        upsert: true
+      })
 
-    // Write sitemap file
-    const sitemapPath = `${categoryPath}/sitemap.xml`
-    await Deno.writeTextFile(sitemapPath, sitemap.content)
+    if (uploadError) throw uploadError
+
+    // Get public URL
+    const { data: publicUrl } = supabaseClient
+      .storage
+      .from('sitemaps')
+      .getPublicUrl(filePath)
 
     return new Response(
       JSON.stringify({
         success: true,
-        path: sitemapPath,
-        url: `/${category.slug}/sitemap.xml`
+        path: filePath,
+        url: publicUrl.publicUrl
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
