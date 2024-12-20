@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 const Sitemap = () => {
   const { categorySlug } = useParams();
@@ -36,19 +37,19 @@ const Sitemap = () => {
     enabled: !!category?.id,
   });
 
-  if (!sitemap) {
-    return <div>No sitemap found</div>;
-  }
+  useEffect(() => {
+    if (sitemap?.content) {
+      const xmlDoc = new DOMParser().parseFromString(sitemap.content, 'application/xml');
+      const xmlString = new XMLSerializer().serializeToString(xmlDoc);
+      
+      // Create a new document with XML content type
+      document.open('text/xml');
+      document.write(xmlString);
+      document.close();
+    }
+  }, [sitemap]);
 
-  // Set XML content type
-  const xmlDoc = new DOMParser().parseFromString(sitemap.content, 'application/xml');
-  const xmlString = new XMLSerializer().serializeToString(xmlDoc);
-  const blob = new Blob([xmlString], { type: 'application/xml' });
-  const url = URL.createObjectURL(blob);
-
-  // Redirect to the blob URL
-  window.location.href = url;
-  
+  // Return null as we're handling the document content directly
   return null;
 };
 
