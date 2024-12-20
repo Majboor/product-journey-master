@@ -74,6 +74,10 @@ export const router = createBrowserRouter([
         element: <OrderTracking />,
       },
       {
+        path: "/sitemap.xml",
+        element: <Sitemap />,
+      },
+      {
         path: "/:categorySlug/sitemap.xml",
         element: <Sitemap />,
       },

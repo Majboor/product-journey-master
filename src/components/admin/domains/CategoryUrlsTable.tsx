@@ -45,7 +45,7 @@ export const CategoryUrlsTable = ({
     const mapping = domainMappings?.find(dm => dm.category_id === categorySlug);
     const mainMapping = domainMappings?.find(dm => dm.is_main);
     const domain = mapping?.domain || mainMapping?.domain || window.location.host;
-    window.open(`https://${domain}/sitemap.xml`, '_blank');
+    window.open(`https://${domain}/${categorySlug}/sitemap.xml`, '_blank');
   };
 
   return (
