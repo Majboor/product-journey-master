@@ -37,8 +37,8 @@ export const TestModeSection = () => {
 
       if (error) throw error;
 
-      toast.success(`Test mode ${value === 'true' ? 'enabled' : 'disabled'}`);
       await queryClient.invalidateQueries({ queryKey: ['ziina-test-mode'] });
+      toast.success(`Test mode ${value === 'true' ? 'enabled' : 'disabled'}`);
     } catch (error) {
       console.error('Error updating test mode:', error);
       toast.error("Failed to update test mode");
@@ -51,7 +51,8 @@ export const TestModeSection = () => {
       <Select
         disabled={isLoading}
         onValueChange={updateTestMode}
-        value={testMode ? 'true' : 'false'}
+        value={String(!!testMode)}
+        defaultValue={String(!!testMode)}
       >
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder="Select test mode" />
