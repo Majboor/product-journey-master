@@ -3,14 +3,30 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export const Users = () => {
+  const { toast } = useToast();
+  
   const { data: users, isLoading } = useQuery({
-    queryKey: ['admin-users'],
+    queryKey: ['users'],
     queryFn: async () => {
-      const { data: { users }, error } = await supabase.auth.admin.listUsers();
-      if (error) throw error;
-      return users;
+      // Instead of using admin.listUsers(), we'll query the auth.users view
+      // which is accessible to authenticated users with appropriate permissions
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, email, created_at');
+      
+      if (error) {
+        toast({
+          title: "Error fetching users",
+          description: error.message,
+          variant: "destructive",
+        });
+        throw error;
+      }
+      
+      return data;
     }
   });
 
