@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
 
 const Sitemap = () => {
   const { categorySlug } = useParams();
@@ -39,17 +38,15 @@ const Sitemap = () => {
 
   useEffect(() => {
     if (sitemap?.content) {
-      // Clear any existing document content
-      document.documentElement.innerHTML = '';
+      // Set the content type to XML
+      document.contentType = 'application/xml';
       
-      // Set XML content type
-      const meta = document.createElement('meta');
-      meta.httpEquiv = 'Content-Type';
-      meta.content = 'application/xml';
-      document.head.appendChild(meta);
+      // Remove the doctype
+      const xmlContent = sitemap.content.replace(/<!DOCTYPE[^>]*>/, '');
       
-      // Write the XML content directly
-      document.write(sitemap.content);
+      // Clear the document and write the XML
+      document.documentElement.remove();
+      document.write(xmlContent);
     }
   }, [sitemap]);
 
