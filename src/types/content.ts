@@ -59,37 +59,94 @@ export interface PageContent {
   colorScheme?: ColorScheme;
 }
 
-// Type guard to ensure PageContent is compatible with Json
-export const isPageContent = (content: unknown): content is PageContent => {
+interface ValidationError {
+  field: string;
+  message: string;
+}
+
+export const validatePageContent = (content: unknown): { isValid: boolean; errors: ValidationError[] } => {
+  const errors: ValidationError[] = [];
   const pageContent = content as PageContent;
-  return (
-    typeof pageContent?.brandName === 'string' &&
-    pageContent?.hero !== undefined &&
-    pageContent?.product !== undefined &&
-    Array.isArray(pageContent?.features) &&
-    Array.isArray(pageContent?.reviews) &&
-    pageContent?.footer !== undefined
-  );
+
+  if (!pageContent?.brandName) {
+    errors.push({ field: 'brandName', message: 'Brand name is required' });
+  }
+
+  // Validate hero section
+  if (!pageContent?.hero) {
+    errors.push({ field: 'hero', message: 'Hero section is required' });
+  } else {
+    if (!pageContent.hero.title) errors.push({ field: 'hero.title', message: 'Hero title is required' });
+    if (!pageContent.hero.description) errors.push({ field: 'hero.description', message: 'Hero description is required' });
+    if (!pageContent.hero.image) errors.push({ field: 'hero.image', message: 'Hero image is required' });
+    if (typeof pageContent.hero.price !== 'number') errors.push({ field: 'hero.price', message: 'Hero price must be a number' });
+  }
+
+  // Validate product section
+  if (!pageContent?.product) {
+    errors.push({ field: 'product', message: 'Product section is required' });
+  } else {
+    if (!Array.isArray(pageContent.product.images)) {
+      errors.push({ field: 'product.images', message: 'Product images must be an array' });
+    }
+    if (!pageContent.product.details) {
+      errors.push({ field: 'product.details', message: 'Product details are required' });
+    } else {
+      if (!pageContent.product.details.description) {
+        errors.push({ field: 'product.details.description', message: 'Product description is required' });
+      }
+      if (!pageContent.product.details.buyNowLink) {
+        errors.push({ field: 'product.details.buyNowLink', message: 'Buy now link is required' });
+      }
+      if (!Array.isArray(pageContent.product.details.specifications)) {
+        errors.push({ field: 'product.details.specifications', message: 'Product specifications must be an array' });
+      }
+    }
+    if (!Array.isArray(pageContent.product.features)) {
+      errors.push({ field: 'product.features', message: 'Product features must be an array' });
+    }
+  }
+
+  // Validate features array
+  if (!Array.isArray(pageContent?.features)) {
+    errors.push({ field: 'features', message: 'Features must be an array' });
+  } else {
+    pageContent.features.forEach((feature, index) => {
+      if (!feature.icon) errors.push({ field: `features[${index}].icon`, message: 'Feature icon is required' });
+      if (!feature.title) errors.push({ field: `features[${index}].title`, message: 'Feature title is required' });
+      if (!feature.description) errors.push({ field: `features[${index}].description`, message: 'Feature description is required' });
+    });
+  }
+
+  // Validate footer
+  if (!pageContent?.footer) {
+    errors.push({ field: 'footer', message: 'Footer section is required' });
+  } else {
+    if (!pageContent.footer.contact) {
+      errors.push({ field: 'footer.contact', message: 'Footer contact information is required' });
+    } else {
+      if (!pageContent.footer.contact.email) errors.push({ field: 'footer.contact.email', message: 'Contact email is required' });
+      if (!pageContent.footer.contact.phone) errors.push({ field: 'footer.contact.phone', message: 'Contact phone is required' });
+      if (!pageContent.footer.contact.address) errors.push({ field: 'footer.contact.address', message: 'Contact address is required' });
+    }
+    if (!Array.isArray(pageContent.footer.links)) {
+      errors.push({ field: 'footer.links', message: 'Footer links must be an array' });
+    } else {
+      pageContent.footer.links.forEach((link, index) => {
+        if (!link.title) errors.push({ field: `footer.links[${index}].title`, message: 'Link title is required' });
+        if (!link.url) errors.push({ field: `footer.links[${index}].url`, message: 'Link URL is required' });
+      });
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
 };
 
-// Add this validation function
-export const validatePageContent = (content: unknown): content is PageContent => {
-  const pageContent = content as PageContent;
-  return (
-    typeof pageContent?.brandName === 'string' &&
-    pageContent?.hero !== undefined &&
-    typeof pageContent.hero.title === 'string' &&
-    typeof pageContent.hero.description === 'string' &&
-    typeof pageContent.hero.image === 'string' &&
-    typeof pageContent.hero.price === 'number' &&
-    pageContent?.product !== undefined &&
-    Array.isArray(pageContent.product.images) &&
-    pageContent.product.details !== undefined &&
-    Array.isArray(pageContent.product.features) &&
-    Array.isArray(pageContent?.features) &&
-    Array.isArray(pageContent?.reviews) &&
-    pageContent?.footer !== undefined &&
-    pageContent.footer.contact !== undefined &&
-    Array.isArray(pageContent.footer.links)
-  );
+// Type guard to ensure PageContent is compatible with Json
+export const isPageContent = (content: unknown): content is PageContent => {
+  const validation = validatePageContent(content);
+  return validation.isValid;
 };

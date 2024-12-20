@@ -6,6 +6,7 @@ import { ProductFeatures } from "./product/ProductFeatures";
 import { JokeDisplay } from "./jokes/JokeDisplay";
 import { useAuth } from "./auth/AuthProvider";
 import { ProductDetails as ProductDetailsType } from "@/types/content";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ProductSectionProps {
   images?: string[];
@@ -19,6 +20,7 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
   const [viewerCount, setViewerCount] = useState(245);
   const [recentPurchase, setRecentPurchase] = useState({ show: false, name: "", location: "" });
   const { session, loading } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -66,6 +68,12 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
   }
 
   if (!details) {
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: "Product details are missing or invalid. Please check your data and try again.",
+    });
+    
     return (
       <div className="py-16 bg-accent">
         <div className="container px-4 mx-auto text-center">
