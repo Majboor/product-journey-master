@@ -165,6 +165,8 @@ ${pages.map(page => `
           onUpdateSitemap={generateSitemap}
         />
       </Card>
+
+      <BashScriptGenerator />
     </div>
   );
 };
