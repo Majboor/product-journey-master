@@ -7,6 +7,7 @@ import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageContent, validatePageContent } from "@/types/content";
+import { useToast } from "@/hooks/use-toast";
 
 interface HeaderProps {
   brandName?: string;
@@ -15,6 +16,7 @@ interface HeaderProps {
 const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
   const { session } = useAuth();
   const location = useLocation();
+  const { toast } = useToast();
   const path = location.pathname.slice(1);
   const [categorySlug, slug] = path.split('/');
   const finalSlug = slug ? `${categorySlug}/${slug}` : '';
@@ -23,7 +25,7 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
   const hideLogoRoutes = ['about', 'features', 'why-us', 'reviews', 'general'];
 
   // Fetch page content for the current route
-  const { data: page } = useQuery({
+  const { data: page, error } = useQuery({
     queryKey: ['page', finalSlug],
     queryFn: async () => {
       if (!finalSlug) return null;
@@ -34,7 +36,15 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
         .eq('slug', finalSlug)
         .maybeSingle();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching page:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load page content",
+          variant: "destructive",
+        });
+        return null;
+      }
       return data;
     },
     enabled: !!finalSlug
@@ -43,7 +53,8 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
   // Safely cast and validate the content
   const content = page?.content as unknown;
   const isValidContent = validatePageContent(content);
-  const displayBrandName = isValidContent ? (content as PageContent).brandName : brandName;
+  // Fallback to default brandName if content is invalid or missing
+  const displayBrandName = isValidContent && content ? (content as PageContent).brandName : brandName;
 
   useEffect(() => {
     // Show login dialog immediately for non-authenticated users on the main page
