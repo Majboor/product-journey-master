@@ -52,41 +52,21 @@ export const CategoryTableActions = ({
         return;
       }
 
-      const { data: sitemap, error } = await supabase
-        .from('sitemaps')
-        .select('content')
-        .eq('category_id', categoryId)
-        .order('last_generated', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const { data, error } = await supabase.functions.invoke('save-sitemap-locally', {
+        body: {
+          categoryId,
+          localPath,
+        },
+      });
 
       if (error) throw error;
       
-      if (!sitemap?.content) {
-        toast.error("No sitemap found. Try updating the sitemap first.");
-        return;
-      }
-
-      // Create a blob with the XML content
-      const blob = new Blob([sitemap.content], { type: 'application/xml' });
-      const url = URL.createObjectURL(blob);
-      
-      // Create a temporary link element
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${localPath}/sitemap.xml`;
-      document.body.appendChild(a);
-      a.click();
-      
-      // Clean up
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
       setIsLocalDownloadDialogOpen(false);
-      toast.success("Sitemap downloaded successfully");
+      toast.success("Sitemap saved successfully");
+      toast.success(`File location: ${data.path}`);
     } catch (error) {
-      console.error('Error downloading sitemap:', error);
-      toast.error("Failed to download sitemap");
+      console.error('Error saving sitemap:', error);
+      toast.error("Failed to save sitemap locally");
     }
   };
 
@@ -110,7 +90,7 @@ export const CategoryTableActions = ({
         variant="outline"
         onClick={() => setIsLocalDownloadDialogOpen(true)}
       >
-        Download Locally
+        Save Locally
       </Button>
 
       <ApachePathDialog
@@ -122,11 +102,11 @@ export const CategoryTableActions = ({
       <Dialog open={isLocalDownloadDialogOpen} onOpenChange={setIsLocalDownloadDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Download Sitemap Locally</DialogTitle>
+            <DialogTitle>Save Sitemap Locally</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <Input
-              placeholder="Enter file path (e.g., /path/to/folder)"
+              placeholder="Enter server path (e.g., /var/www/sitemaps)"
               value={localPath}
               onChange={(e) => setLocalPath(e.target.value)}
             />
@@ -136,7 +116,7 @@ export const CategoryTableActions = ({
               Cancel
             </Button>
             <Button onClick={downloadLocally}>
-              Download
+              Save
             </Button>
           </DialogFooter>
         </DialogContent>
