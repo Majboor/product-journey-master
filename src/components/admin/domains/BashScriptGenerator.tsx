@@ -48,49 +48,65 @@ get_sitemap_content() {
 save_sitemap() {
     local category_slug=$1
     local category_id=$2
-    
-    echo "Processing category: $category_slug"
-    
-    # Get sitemap content from database
     local content=$(get_sitemap_content "$category_id")
     
     if [ -n "$content" ]; then
-        # Create category directory
-        mkdir -p "$BASE_DIR/$category_slug"
+        local dir="$BASE_DIR/$category_slug"
+        mkdir -p "$dir"
         
-        # Save sitemap content to file
-        echo "$content" > "$BASE_DIR/$category_slug/sitemap.xml"
+        # Check if content is different from existing file
+        if [ -f "$dir/sitemap.xml" ]; then
+            local existing_content=$(cat "$dir/sitemap.xml")
+            if [ "$existing_content" = "$content" ]; then
+                echo "ℹ️ No changes in sitemap for $category_slug"
+                return 0
+            fi
+        fi
         
+        # Save new content
+        echo "$content" > "$dir/sitemap.xml"
         if [ $? -eq 0 ]; then
-            echo "✅ Successfully saved sitemap for $category_slug"
+            echo "✅ Updated sitemap for $category_slug"
             return 0
         fi
+    else
+        echo "⚠️ No sitemap content found for $category_slug"
     fi
-    
-    echo "❌ No sitemap content found for $category_slug"
     return 1
 }
 
-# Get all categories from database
-categories=$(curl -s "${APP_URL}/categories" \\
-  -H "apikey: ${SUPABASE_ANON_KEY}" \\
-  -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
+# Function to process all categories
+process_categories() {
+    local categories=$(curl -s "${APP_URL}/categories" \\
+      -H "apikey: ${SUPABASE_ANON_KEY}" \\
+      -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
 
-if [ -z "$categories" ] || [ "$categories" = "[]" ]; then
-    echo "No categories found in the database"
-    exit 1
-fi
+    if [ -z "$categories" ] || [ "$categories" = "[]" ]; then
+        echo "No categories found in the database"
+        return 1
+    fi
 
-# Process each category
-echo "$categories" | jq -c '.[]' | while read -r category; do
-    id=$(echo "$category" | jq -r '.id')
-    slug=$(echo "$category" | jq -r '.slug')
-    name=$(echo "$category" | jq -r '.name')
+    echo "🔄 Checking for sitemap updates..."
     
-    save_sitemap "$slug" "$id"
+    echo "$categories" | jq -c '.[]' | while read -r category; do
+        id=$(echo "$category" | jq -r '.id')
+        slug=$(echo "$category" | jq -r '.slug')
+        name=$(echo "$category" | jq -r '.name')
+        
+        save_sitemap "$slug" "$id"
+    done
+}
+
+# Initial run
+process_categories
+
+# Set up monitoring loop (checks every 5 minutes)
+while true; do
+    sleep 300  # Wait for 5 minutes
+    process_categories
 done
 
-echo "✨ Sitemap download process completed!"`;
+echo "✨ Sitemap monitoring started!"`;
   };
 
   const copyBashScript = () => {
