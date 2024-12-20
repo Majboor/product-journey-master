@@ -76,8 +76,15 @@ export const CategoryUrlsTable = ({
       const blob = new Blob([data.content], { type: 'application/xml' });
       const url = URL.createObjectURL(blob);
       
-      // Open in new tab
-      window.open(url, '_blank');
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `sitemap.xml`; // Set the download filename
+      
+      // Simulate click to trigger download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       
       // Clean up the URL object after a short delay
       setTimeout(() => URL.revokeObjectURL(url), 1000);
