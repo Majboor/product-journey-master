@@ -1,8 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -16,6 +17,7 @@ import {
 
 export const Payments = () => {
   const [apiKey, setApiKey] = useState("");
+  const queryClient = useQueryClient();
   
   const { data: orders, isLoading } = useQuery({
     queryKey: ['orders'],
@@ -44,6 +46,20 @@ export const Payments = () => {
     },
   });
 
+  const { data: testMode } = useQuery({
+    queryKey: ['ziina-test-mode'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('secrets')
+        .select('value')
+        .eq('name', 'ZIINA_TEST_MODE')
+        .single();
+      
+      if (error) throw error;
+      return data?.value === 'true';
+    },
+  });
+
   const updateApiKey = async () => {
     try {
       const { error } = await supabase
@@ -57,8 +73,27 @@ export const Payments = () => {
 
       toast.success("Ziina API key updated successfully");
       setApiKey("");
+      queryClient.invalidateQueries({ queryKey: ['ziina-key'] });
     } catch (error) {
       toast.error("Failed to update Ziina API key");
+    }
+  };
+
+  const toggleTestMode = async () => {
+    try {
+      const { error } = await supabase
+        .from('secrets')
+        .upsert({ 
+          name: 'ZIINA_TEST_MODE',
+          value: (!testMode).toString()
+        });
+
+      if (error) throw error;
+
+      toast.success(`Test mode ${!testMode ? 'enabled' : 'disabled'}`);
+      queryClient.invalidateQueries({ queryKey: ['ziina-test-mode'] });
+    } catch (error) {
+      toast.error("Failed to toggle test mode");
     }
   };
 
@@ -69,21 +104,36 @@ export const Payments = () => {
     <div className="space-y-6">
       <Card className="p-6">
         <h2 className="text-2xl font-bold mb-4">Ziina API Configuration</h2>
-        <div className="flex gap-4 items-end">
-          <div className="flex-1">
-            <label className="block text-sm font-medium mb-2">
-              API Key
-            </label>
-            <Input
-              type="password"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder={ziinaKey?.value ? "••••••••" : "Enter Ziina API key"}
+        <div className="space-y-6">
+          <div className="flex gap-4 items-end">
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-2">
+                API Key
+              </label>
+              <Input
+                type="password"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder={ziinaKey?.value ? "••••••••" : "Enter Ziina API key"}
+              />
+            </div>
+            <Button onClick={updateApiKey} disabled={!apiKey}>
+              Update API Key
+            </Button>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h3 className="font-medium">Test Mode</h3>
+              <p className="text-sm text-muted-foreground">
+                Enable test mode to process payments in sandbox environment
+              </p>
+            </div>
+            <Switch
+              checked={testMode}
+              onCheckedChange={toggleTestMode}
             />
           </div>
-          <Button onClick={updateApiKey} disabled={!apiKey}>
-            Update API Key
-          </Button>
         </div>
       </Card>
 

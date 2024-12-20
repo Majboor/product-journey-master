@@ -10,6 +10,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { createPaymentIntent } from "@/services/ziina";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
 
 interface ProductSectionProps {
   images?: string[];
@@ -24,6 +25,20 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
   const [recentPurchase, setRecentPurchase] = useState({ show: false, name: "", location: "" });
   const { session, loading } = useAuth();
   const { toast } = useToast();
+
+  const { data: testMode } = useQuery({
+    queryKey: ['ziina-test-mode'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('secrets')
+        .select('value')
+        .eq('name', 'ZIINA_TEST_MODE')
+        .single();
+      
+      if (error) throw error;
+      return data?.value === 'true';
+    },
+  });
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -102,7 +117,7 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
         message: `Payment for ${details.title}`,
         successUrl: `${window.location.origin}/payment/success?order_id=${orderId}`,
         cancelUrl: `${window.location.origin}/payment/failed`,
-        test: true // Always use test mode for now
+        test: testMode // Use the test mode setting from the database
       });
 
       // Update order with payment intent ID
@@ -145,7 +160,6 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
 
   return (
     <section className="py-16 bg-accent relative overflow-hidden">
-      {/* Subliminal Watermark */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
            style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E')", 
                     backgroundSize: "48px", 
