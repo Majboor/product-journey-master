@@ -2,30 +2,50 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle, Truck, Package, Clock } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const OrderTracking = () => {
   const { orderId } = useParams();
 
-  const { data: order, isLoading } = useQuery({
+  const { data: order, isLoading, error } = useQuery({
     queryKey: ['order', orderId],
     queryFn: async () => {
+      if (!orderId) throw new Error('Order ID is required');
+      
       const { data, error } = await supabase
         .from('orders')
         .select('*')
         .eq('order_id', orderId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) throw new Error('Order not found');
       return data;
     },
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-background py-12">
+        <div className="max-w-3xl mx-auto px-4">
+          Loading order details...
+        </div>
+      </div>
+    );
   }
 
-  if (!order) {
-    return <div>Order not found</div>;
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background py-12">
+        <div className="max-w-3xl mx-auto px-4">
+          <Alert variant="destructive">
+            <AlertDescription>
+              {error instanceof Error ? error.message : 'Failed to load order details'}
+            </AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    );
   }
 
   const steps = [
