@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 interface CreatePaymentIntentParams {
-  amount: number;
+  amount: number;  // Amount in fils
   message: string;
   successUrl: string;
   cancelUrl: string;
@@ -32,7 +32,7 @@ export const createPaymentIntent = async ({
         'Authorization': `Bearer ${secretData.value}`,
       },
       body: JSON.stringify({
-        amount: amount * 100, // Convert to fils
+        amount,  // Already in fils from ProductSection
         currency_code: 'AED',
         message,
         success_url: successUrl,
@@ -42,7 +42,8 @@ export const createPaymentIntent = async ({
     });
 
     if (!response.ok) {
-      throw new Error('Failed to create payment intent');
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to create payment intent');
     }
 
     const responseData = await response.json();
