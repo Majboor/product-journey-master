@@ -3,14 +3,11 @@ import { Clock, Users, CheckCircle } from "lucide-react";
 import { ProductCarousel } from "./product/ProductCarousel";
 import { ProductDetails } from "./product/ProductDetails";
 import { ProductFeatures } from "./product/ProductFeatures";
+import { ProductActions } from "./product/ProductActions";
 import { JokeDisplay } from "./jokes/JokeDisplay";
 import { useAuth } from "./auth/AuthProvider";
 import { ProductDetails as ProductDetailsType } from "@/types/content";
 import { useToast } from "@/components/ui/use-toast";
-import { createPaymentIntent } from "@/services/ziina";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
 
 interface ProductSectionProps {
   images?: string[];
@@ -20,25 +17,10 @@ interface ProductSectionProps {
 
 const ProductSection = ({ images = [], details, features = [] }: ProductSectionProps) => {
   const [timeLeft, setTimeLeft] = useState("23:59:59");
-  const [stockCount, setStockCount] = useState(5);
   const [viewerCount, setViewerCount] = useState(245);
   const [recentPurchase, setRecentPurchase] = useState({ show: false, name: "", location: "" });
   const { session, loading } = useAuth();
   const { toast } = useToast();
-
-  const { data: testMode } = useQuery({
-    queryKey: ['ziina-test-mode'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('secrets')
-        .select('value')
-        .eq('name', 'ZIINA_TEST_MODE')
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data?.value === 'true';
-    },
-  });
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -66,7 +48,6 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
     return () => clearInterval(timer);
   }, [timeLeft]);
 
-  // Simulated Recent Purchase Effect
   useEffect(() => {
     const purchaseTimer = setInterval(() => {
       const names = ["Sarah", "John", "Emma", "Michael", "Lisa"];
@@ -80,63 +61,6 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
 
     return () => clearInterval(purchaseTimer);
   }, []);
-
-  const handleBuyNow = async () => {
-    try {
-      if (!details?.price || details.price < 1) {
-        toast({
-          title: "Invalid Price",
-          description: "Product price must be at least 1 USD",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Generate a unique order ID
-      const orderId = `ORD-${Math.random().toString(36).substr(2, 9)}`;
-      
-      // Convert price to integer (cents)
-      const amountInCents = Math.round(details.price * 100);
-      
-      // Create the order in the database
-      const { error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          order_id: orderId,
-          amount: amountInCents,
-          currency_code: 'USD',
-          customer_email: session?.user?.email,
-          customer_name: session?.user?.user_metadata?.full_name,
-        });
-
-      if (orderError) throw orderError;
-
-      // Create payment intent with Ziina
-      const paymentIntent = await createPaymentIntent({
-        amount: amountInCents,
-        message: `Payment for ${details.title}`,
-        successUrl: `${window.location.origin}/payment/success?order_id=${orderId}`,
-        cancelUrl: `${window.location.origin}/payment/failed`,
-        test: testMode ?? true // Default to test mode if setting is not found
-      });
-
-      // Update order with payment intent ID
-      await supabase
-        .from('orders')
-        .update({ payment_intent_id: paymentIntent.id })
-        .eq('order_id', orderId);
-
-      // Redirect to Ziina payment page
-      window.location.href = paymentIntent.redirect_url;
-    } catch (error) {
-      console.error('Error creating payment:', error);
-      toast({
-        title: "Error",
-        description: "Failed to process payment. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -198,13 +122,7 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
           <div className="flex-1 space-y-6">
             <ProductDetails {...details} />
             <ProductFeatures features={features} />
-            <Button 
-              size="lg" 
-              className="bg-primary hover:bg-primary/90 text-white px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-              onClick={handleBuyNow}
-            >
-              Buy Now - ${details?.price || 0}
-            </Button>
+            <ProductActions price={details.price} title={details.title} />
           </div>
         </div>
       </div>
