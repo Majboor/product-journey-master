@@ -1,8 +1,12 @@
 interface ProductFeaturesProps {
-  features: string[];
+  features?: string[];
 }
 
-export const ProductFeatures = ({ features }: ProductFeaturesProps) => {
+export const ProductFeatures = ({ features = [] }: ProductFeaturesProps) => {
+  if (!features.length) {
+    return null;
+  }
+
   return (
     <div>
       <h3 className="text-xl font-semibold mb-3">Key Features</h3>

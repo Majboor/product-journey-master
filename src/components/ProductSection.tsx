@@ -8,12 +8,12 @@ import { useAuth } from "./auth/AuthProvider";
 import { ProductDetails as ProductDetailsType } from "@/types/content";
 
 interface ProductSectionProps {
-  images: string[];
-  details: ProductDetailsType;
-  features: string[];
+  images?: string[];
+  details?: ProductDetailsType;
+  features?: string[];
 }
 
-const ProductSection = ({ images, details, features }: ProductSectionProps) => {
+const ProductSection = ({ images = [], details, features = [] }: ProductSectionProps) => {
   const [timeLeft, setTimeLeft] = useState("23:59:59");
   const [stockCount, setStockCount] = useState(5);
   const [viewerCount, setViewerCount] = useState(245);
@@ -63,6 +63,16 @@ const ProductSection = ({ images, details, features }: ProductSectionProps) => {
 
   if (loading) {
     return <div>Loading...</div>;
+  }
+
+  if (!details) {
+    return (
+      <div className="py-16 bg-accent">
+        <div className="container px-4 mx-auto text-center">
+          <p className="text-gray-600">Product details not available</p>
+        </div>
+      </div>
+    );
   }
 
   return (
