@@ -7,6 +7,7 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -21,28 +22,32 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     )
 
-    // Get category ID
-    const { data: category } = await supabaseClient
-      .from('categories')
-      .select('id')
-      .eq('slug', categorySlug)
-      .single()
+    let query = supabaseClient.from('sitemaps').select('content');
 
-    if (!category) {
-      return new Response('Category not found', {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'text/plain' }
-      })
+    if (categorySlug) {
+      // Get category ID if slug is provided
+      const { data: category } = await supabaseClient
+        .from('categories')
+        .select('id')
+        .eq('slug', categorySlug)
+        .single()
+
+      if (!category) {
+        return new Response('Category not found', {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'text/plain' }
+        })
+      }
+
+      query = query.eq('category_id', category.id);
+    } else {
+      query = query.is('category_id', null);
     }
 
     // Get sitemap content
-    const { data: sitemap } = await supabaseClient
-      .from('sitemaps')
-      .select('content')
-      .eq('category_id', category.id)
-      .single()
+    const { data: sitemap, error } = await query.single()
 
-    if (!sitemap) {
+    if (error || !sitemap) {
       return new Response('Sitemap not found', {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' }

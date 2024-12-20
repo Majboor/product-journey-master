@@ -1,49 +1,51 @@
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 const Sitemap = () => {
   const { categorySlug } = useParams();
 
-  const { data: category } = useQuery({
-    queryKey: ['category', categorySlug],
-    queryFn: async () => {
-      if (!categorySlug) return null;
-      const { data, error } = await supabase
-        .from('categories')
-        .select('id')
-        .eq('slug', categorySlug)
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!categorySlug,
-  });
+  useEffect(() => {
+    const fetchAndServeSitemap = async () => {
+      try {
+        let query = supabase.from('sitemaps').select('content');
+        
+        if (categorySlug) {
+          const { data: category } = await supabase
+            .from('categories')
+            .select('id')
+            .eq('slug', categorySlug)
+            .single();
+            
+          if (category) {
+            query = query.eq('category_id', category.id);
+          }
+        } else {
+          query = query.is('category_id', null);
+        }
 
-  const { data: sitemap } = useQuery({
-    queryKey: ['sitemap', category?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('sitemaps')
-        .select('content')
-        .eq('category_id', category?.id)
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!category?.id,
-  });
+        const { data: sitemap } = await query.single();
 
-  // Set XML content type and write the XML directly to the document
-  if (sitemap?.content) {
-    document.open('text/xml');
-    document.write(sitemap.content);
-    document.close();
-    return null;
-  }
+        if (sitemap?.content) {
+          // Create a blob with the XML content
+          const blob = new Blob([sitemap.content], { type: 'application/xml' });
+          const url = URL.createObjectURL(blob);
+          
+          // Navigate to the blob URL
+          window.location.href = url;
+          
+          // Clean up the URL object after navigation
+          setTimeout(() => URL.revokeObjectURL(url), 100);
+        }
+      } catch (error) {
+        console.error('Error fetching sitemap:', error);
+      }
+    };
 
+    fetchAndServeSitemap();
+  }, [categorySlug]);
+
+  // Return null as we're handling the navigation
   return null;
 };
 
