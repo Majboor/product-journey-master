@@ -32,6 +32,19 @@ BASE_DIR="${basePath}"
 # Create base directory if it doesn't exist
 mkdir -p "$BASE_DIR"
 
+# Function to check if sitemap exists and is valid XML
+check_sitemap() {
+    local url=$1
+    local http_code=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+    if [ "$http_code" = "200" ]; then
+        local content=$(curl -s "$url")
+        if [[ $content == *"<?xml"* ]] && [[ $content == *"urlset"* ]]; then
+            return 0
+        fi
+    fi
+    return 1
+}
+
 # Function to download sitemap for a category
 download_sitemap() {
     local category_slug=$1
@@ -40,43 +53,74 @@ download_sitemap() {
     # Create category directory
     mkdir -p "$BASE_DIR/$category_slug"
     
-    # Download sitemap
-    echo "Downloading sitemap for $category_slug..."
-    curl -s "https://$domain/sitemap.xml" > "$BASE_DIR/$category_slug/sitemap.xml"
+    # First try category-specific sitemap URL
+    local sitemap_url="https://$domain/sitemap.xml"
     
-    if [ $? -eq 0 ]; then
-        echo "Successfully downloaded sitemap for $category_slug"
-    else
-        echo "Failed to download sitemap for $category_slug"
+    echo "Attempting to download sitemap for $category_slug from $sitemap_url"
+    
+    if check_sitemap "$sitemap_url"; then
+        curl -s "$sitemap_url" > "$BASE_DIR/$category_slug/sitemap.xml"
+        if [ $? -eq 0 ]; then
+            echo "✅ Successfully downloaded sitemap for $category_slug"
+            return 0
+        fi
     fi
+    
+    echo "❌ Failed to download valid sitemap for $category_slug"
+    return 1
 }
 
-# Download sitemaps for all categories
-${categories.map(category => `
-# Get domain mapping for ${category.name}
-domain_mapping=$(curl -s "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/domain_mappings?category_id=eq.${category.id}&select=domain" \
+# Function to get domain mapping for a category
+get_domain_mapping() {
+    local category_id=$1
+    local domain_mapping=$(curl -s "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/domain_mappings?category_id=eq.$category_id&select=domain" \
+      -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM" \
+      -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM")
+    echo "$domain_mapping" | jq -r '.[0].domain'
+}
+
+# Function to get main domain
+get_main_domain() {
+    local main_domain=$(curl -s "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/domain_mappings?is_main=eq.true&select=domain" \
+      -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM" \
+      -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM")
+    echo "$main_domain" | jq -r '.[0].domain'
+}
+
+# Get all categories from database
+categories=$(curl -s "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/categories?select=id,slug,name" \
   -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM")
 
-domain=$(echo $domain_mapping | jq -r '.[0].domain')
+if [ -z "$categories" ] || [ "$categories" = "[]" ]; then
+    echo "No categories found in the database"
+    exit 1
+fi
 
-if [ -n "$domain" ]; then
-    download_sitemap "${category.slug}" "$domain"
-else
-    # If no specific domain mapping found, try to get main domain
-    main_domain=$(curl -s "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/domain_mappings?is_main=eq.true&select=domain" \
-      -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM" \
-      -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM")
-    main_domain_value=$(echo $main_domain | jq -r '.[0].domain')
+# Process each category
+echo "$categories" | jq -c '.[]' | while read -r category; do
+    id=$(echo "$category" | jq -r '.id')
+    slug=$(echo "$category" | jq -r '.slug')
+    name=$(echo "$category" | jq -r '.name')
     
-    if [ -n "$main_domain_value" ]; then
-        download_sitemap "${category.slug}" "$main_domain_value"
-    else
-        echo "No domain mapping found for ${category.name}"
+    echo "Processing category: $name"
+    
+    # Try to get category-specific domain first
+    domain=$(get_domain_mapping "$id")
+    
+    if [ -z "$domain" ]; then
+        # If no specific domain, try main domain
+        domain=$(get_main_domain)
+        if [ -z "$domain" ]; then
+            echo "⚠️ No domain mapping found for $name, skipping..."
+            continue
+        fi
     fi
-fi`).join('\n\n')}
+    
+    download_sitemap "$slug" "$domain"
+done
 
-echo "All sitemaps have been downloaded!"`;
+echo "✨ Sitemap download process completed!"`;
   };
 
   const copyBashScript = () => {
