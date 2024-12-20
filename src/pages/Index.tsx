@@ -10,10 +10,30 @@ import { useSwipeTracking } from "@/hooks/useSwipeTracking";
 import { useButtonTracking } from "@/hooks/useButtonTracking";
 import { useState, useEffect } from "react";
 import { initializeDefaultPages } from "@/utils/initializeDefaultPages";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const pageContent = defaultContent;
+  
+  const { data: pageContent = defaultContent } = useQuery({
+    queryKey: ['rootPage'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pages')
+        .select('content')
+        .eq('slug', '')
+        .single();
+      
+      if (error) {
+        console.error('Error fetching page content:', error);
+        return defaultContent;
+      }
+      
+      return data?.content || defaultContent;
+    }
+  });
+
   useSwipeTracking();
   useButtonTracking();
 
@@ -50,7 +70,7 @@ const Index = () => {
           features={pageContent.product.features}
         />
         <Features features={pageContent.features} />
-        <Reviews reviews={pageContent.reviews} />
+        <Reviews reviews={pageContent.reviews || []} />
       </main>
       <Footer 
         brandName={pageContent.brandName}
