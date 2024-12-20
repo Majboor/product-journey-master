@@ -2,12 +2,15 @@ import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface ExistingPagesProps {
   onLoadPage: (slug: string, content: any) => void;
 }
 
 export const ExistingPages = ({ onLoadPage }: ExistingPagesProps) => {
+  const navigate = useNavigate();
+  
   const { data: pages, isLoading } = useQuery({
     queryKey: ['pages'],
     queryFn: async () => {
@@ -20,6 +23,11 @@ export const ExistingPages = ({ onLoadPage }: ExistingPagesProps) => {
       return data;
     }
   });
+
+  const handleEdit = (slug: string, content: any) => {
+    onLoadPage(slug, content);
+    navigate(`/admin/api-manager?edit=${slug}`);
+  };
 
   if (isLoading) {
     return <p>Loading pages...</p>;
@@ -39,7 +47,7 @@ export const ExistingPages = ({ onLoadPage }: ExistingPagesProps) => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onLoadPage(page.slug, page.content)}
+                onClick={() => handleEdit(page.slug, page.content)}
               >
                 Edit
               </Button>
