@@ -55,6 +55,12 @@ export const CategoryUrlsTable = ({
     }
   };
 
+  const copySitemapUrl = (domain: string, categorySlug: string) => {
+    const sitemapUrl = `https://${domain}/${categorySlug}/sitemap.xml`;
+    navigator.clipboard.writeText(sitemapUrl);
+    toast.success("Sitemap URL copied to clipboard");
+  };
+
   const viewSitemap = async (categoryId: string) => {
     try {
       const { data, error } = await supabase
@@ -72,7 +78,6 @@ export const CategoryUrlsTable = ({
         return;
       }
 
-      // Create a new blob and URL each time
       const blob = new Blob([data.content], { type: 'application/xml' });
       const url = URL.createObjectURL(blob);
       
@@ -166,6 +171,14 @@ export const CategoryUrlsTable = ({
                   >
                     <Eye className="h-4 w-4" />
                     View Sitemap
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => copySitemapUrl(domain, category.slug)}
+                    className="flex items-center gap-2"
+                  >
+                    <Copy className="h-4 w-4" />
+                    Copy URL
                   </Button>
                 </div>
               </TableCell>
