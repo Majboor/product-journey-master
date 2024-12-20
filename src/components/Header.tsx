@@ -52,9 +52,10 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
 
   // Safely cast and validate the content
   const content = page?.content as unknown;
-  const isValidContent = validatePageContent(content);
-  // Fallback to default brandName if content is invalid or missing
-  const displayBrandName = isValidContent && content ? (content as PageContent).brandName : brandName;
+  const validation = validatePageContent(content);
+  
+  // Only use content.brandName if validation passes and content exists
+  const displayBrandName = validation.isValid && content ? (content as PageContent).brandName : brandName;
 
   useEffect(() => {
     // Show login dialog immediately for non-authenticated users on the main page
@@ -62,6 +63,19 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
       document.querySelector<HTMLButtonElement>('[data-trigger="login-dialog"]')?.click();
     }
   }, [session, location.pathname]);
+
+  // Show validation errors in toast if any
+  useEffect(() => {
+    if (content && !validation.isValid) {
+      validation.errors.forEach(error => {
+        toast({
+          title: "Content Validation Error",
+          description: `${error.field}: ${error.message}`,
+          variant: "destructive",
+        });
+      });
+    }
+  }, [content, toast]);
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b">
