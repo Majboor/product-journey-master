@@ -32,7 +32,10 @@ export const TestModeSection = () => {
         .from('secrets')
         .upsert({ 
           name: 'ZIINA_TEST_MODE',
-          value: value
+          value: value 
+        }, {
+          onConflict: 'name',
+          ignoreDuplicates: false
         });
 
       if (error) throw error;
