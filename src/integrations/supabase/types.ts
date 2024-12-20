@@ -111,6 +111,48 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          amount: number
+          created_at: string
+          currency_code: string
+          customer_email: string | null
+          customer_name: string | null
+          id: string
+          order_id: string
+          payment_intent_id: string | null
+          payment_status: string
+          shipping_status: string
+          shipping_updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency_code?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          id?: string
+          order_id: string
+          payment_intent_id?: string | null
+          payment_status?: string
+          shipping_status?: string
+          shipping_updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency_code?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          id?: string
+          order_id?: string
+          payment_intent_id?: string | null
+          payment_status?: string
+          shipping_status?: string
+          shipping_updated_at?: string | null
+        }
+        Relationships: []
+      }
       pages: {
         Row: {
           category_id: string | null
@@ -208,7 +250,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      update_shipping_status: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
