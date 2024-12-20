@@ -6,7 +6,7 @@ import { Trash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Database } from "@/integrations/supabase/types";
 
-type UserView = Database['public']['Tables']['users']['Row'];
+type UserView = Database['public']['Views']['users']['Row'];
 
 export const Users = () => {
   const { toast } = useToast();
