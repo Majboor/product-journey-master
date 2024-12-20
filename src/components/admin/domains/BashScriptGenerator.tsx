@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const BashScriptGenerator = () => {
   const [basePath, setBasePath] = useState("/var/www/sitemaps");
-  const APP_URL = "https://7000d7ca-2533-4634-aaa0-707176140978.lovableproject.com";
+  const APP_URL = "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM";
   
   const { data: categories } = useQuery({
@@ -34,45 +34,45 @@ BASE_DIR="${basePath}"
 # Create base directory if it doesn't exist
 mkdir -p "$BASE_DIR"
 
-# Function to check if sitemap exists and is valid XML
-check_sitemap() {
-    local url=$1
-    local http_code=$(curl -s -o /dev/null -w "%{http_code}" "$url")
-    if [ "$http_code" = "200" ]; then
-        local content=$(curl -s "$url")
-        if [[ $content == *"<?xml"* ]] && [[ $content == *"urlset"* ]]; then
-            return 0
-        fi
-    fi
-    return 1
+# Function to get sitemap content for a category
+get_sitemap_content() {
+    local category_id=$1
+    local sitemap_content=$(curl -s "${APP_URL}/sitemaps?category_id=eq.$category_id&order=last_generated.desc&limit=1" \\
+      -H "apikey: ${SUPABASE_ANON_KEY}" \\
+      -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
+    
+    echo "$sitemap_content" | jq -r '.[0].content // empty'
 }
 
-# Function to download sitemap for a category
-download_sitemap() {
+# Function to save sitemap for a category
+save_sitemap() {
     local category_slug=$1
+    local category_id=$2
     
-    # Create category directory
-    mkdir -p "$BASE_DIR/$category_slug"
+    echo "Processing category: $category_slug"
     
-    # Use the Lovable project URL directly
-    local sitemap_url="${APP_URL}/$category_slug/sitemap.xml"
+    # Get sitemap content from database
+    local content=$(get_sitemap_content "$category_id")
     
-    echo "Attempting to download sitemap for $category_slug from $sitemap_url"
-    
-    if check_sitemap "$sitemap_url"; then
-        curl -s "$sitemap_url" > "$BASE_DIR/$category_slug/sitemap.xml"
+    if [ -n "$content" ]; then
+        # Create category directory
+        mkdir -p "$BASE_DIR/$category_slug"
+        
+        # Save sitemap content to file
+        echo "$content" > "$BASE_DIR/$category_slug/sitemap.xml"
+        
         if [ $? -eq 0 ]; then
-            echo "✅ Successfully downloaded sitemap for $category_slug"
+            echo "✅ Successfully saved sitemap for $category_slug"
             return 0
         fi
     fi
     
-    echo "❌ Failed to download valid sitemap for $category_slug"
+    echo "❌ No sitemap content found for $category_slug"
     return 1
 }
 
 # Get all categories from database
-categories=$(curl -s "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/categories" \\
+categories=$(curl -s "${APP_URL}/categories" \\
   -H "apikey: ${SUPABASE_ANON_KEY}" \\
   -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
 
@@ -83,11 +83,11 @@ fi
 
 # Process each category
 echo "$categories" | jq -c '.[]' | while read -r category; do
+    id=$(echo "$category" | jq -r '.id')
     slug=$(echo "$category" | jq -r '.slug')
     name=$(echo "$category" | jq -r '.name')
     
-    echo "Processing category: $name"
-    download_sitemap "$slug"
+    save_sitemap "$slug" "$id"
 done
 
 echo "✨ Sitemap download process completed!"`;
