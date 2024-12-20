@@ -29,6 +29,7 @@ export const createPaymentIntent = async ({
     }
 
     if (!secretData?.value) {
+      console.error('Ziina API key not found in secrets table');
       throw new Error('Ziina API key not found in secrets');
     }
 
