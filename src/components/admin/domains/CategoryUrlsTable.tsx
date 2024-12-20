@@ -61,6 +61,12 @@ export const CategoryUrlsTable = ({
     toast.success("Sitemap URL copied to clipboard");
   };
 
+  const copyDownloadSitemapUrl = (domain: string, categorySlug: string) => {
+    const downloadUrl = `https://${domain}/api/download-sitemap/${categorySlug}`;
+    navigator.clipboard.writeText(downloadUrl);
+    toast.success("Download URL copied to clipboard");
+  };
+
   const viewSitemap = async (categoryId: string) => {
     try {
       const { data, error } = await supabase
@@ -81,17 +87,14 @@ export const CategoryUrlsTable = ({
       const blob = new Blob([data.content], { type: 'application/xml' });
       const url = URL.createObjectURL(blob);
       
-      // Create a temporary link element
       const link = document.createElement('a');
       link.href = url;
-      link.download = `sitemap.xml`; // Set the download filename
+      link.download = `sitemap.xml`;
       
-      // Simulate click to trigger download
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
-      // Clean up the URL object after a short delay
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (error) {
       console.error('Error viewing sitemap:', error);
@@ -179,6 +182,14 @@ export const CategoryUrlsTable = ({
                   >
                     <Copy className="h-4 w-4" />
                     Copy URL
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => copyDownloadSitemapUrl(domain, category.slug)}
+                    className="flex items-center gap-2"
+                  >
+                    <Copy className="h-4 w-4" />
+                    Copy Download URL
                   </Button>
                 </div>
               </TableCell>
