@@ -6,76 +6,63 @@ import { useEffect } from "react";
 const Sitemap = () => {
   const { categorySlug } = useParams();
 
-  const { data: pages, isLoading } = useQuery({
-    queryKey: ['sitemap-pages', categorySlug],
+  const { data: category } = useQuery({
+    queryKey: ['category', categorySlug],
     queryFn: async () => {
-      let query = supabase
-        .from('pages')
-        .select('slug, updated_at');
-      
-      if (categorySlug) {
-        query = query.eq('category_id', categorySlug);
-      }
-      
-      const { data, error } = await query;
-      if (error) throw error;
-      return data;
-    }
-  });
-
-  const { data: domainMappings } = useQuery({
-    queryKey: ['domain-mappings'],
-    queryFn: async () => {
+      if (!categorySlug) return null;
       const { data, error } = await supabase
-        .from('domain_mappings')
-        .select('*');
+        .from('categories')
+        .select('id')
+        .eq('slug', categorySlug)
+        .single();
       
       if (error) throw error;
       return data;
     },
+    enabled: !!categorySlug,
+  });
+
+  const { data: sitemap, isLoading } = useQuery({
+    queryKey: ['sitemap', category?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('sitemaps')
+        .select('content')
+        .eq('category_id', category?.id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!category?.id,
   });
 
   useEffect(() => {
-    if (!isLoading && pages) {
-      const mainDomainMapping = domainMappings?.find(dm => dm.is_main);
-      const categoryDomainMapping = categorySlug ? domainMappings?.find(dm => dm.category_id === categorySlug) : null;
-      const domain = categoryDomainMapping?.domain || mainDomainMapping?.domain || window.location.host;
+    if (!isLoading && sitemap) {
+      // Set XML content type
+      const meta = document.createElement('meta');
+      meta.httpEquiv = 'Content-Type';
+      meta.content = 'application/xml';
+      document.head.appendChild(meta);
 
-      const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${pages.map(page => `
-  <url>
-    <loc>https://${domain}/${page.slug}</loc>
-    <lastmod>${new Date(page.updated_at).toISOString().split('T')[0]}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>`).join('')}
-</urlset>`;
-
-      // Set content type and display XML
+      // Clear and set content
       document.body.innerHTML = '';
       document.body.style.margin = '0';
       const pre = document.createElement('pre');
       pre.style.margin = '0';
       pre.style.padding = '20px';
       pre.style.whiteSpace = 'pre-wrap';
-      pre.textContent = xml;
+      pre.textContent = sitemap.content;
       document.body.appendChild(pre);
-
-      // Set XML content type
-      const meta = document.createElement('meta');
-      meta.httpEquiv = 'Content-Type';
-      meta.content = 'application/xml';
-      document.head.appendChild(meta);
     }
-  }, [pages, isLoading, categorySlug, domainMappings]);
+  }, [sitemap, isLoading]);
 
   if (isLoading) {
     return null;
   }
 
-  if (!pages) {
-    return <div>No pages found</div>;
+  if (!sitemap) {
+    return <div>No sitemap found. Please generate one first.</div>;
   }
 
   return null;

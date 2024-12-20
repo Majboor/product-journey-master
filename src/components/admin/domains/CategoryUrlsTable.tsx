@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Copy, Download, ExternalLink } from "lucide-react";
+import { Copy, Download, ExternalLink, RefreshCw } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { toast } from "sonner";
 
 interface Category {
   id: string;
@@ -30,6 +31,7 @@ interface CategoryUrlsTableProps {
   onUrlSubmit: (categoryId: string, url: string) => void;
   onCopyLink: (text: string) => void;
   onDownloadSitemap: (categorySlug: string) => void;
+  onUpdateSitemap: (categoryId: string, domain: string) => Promise<void>;
 }
 
 export const CategoryUrlsTable = ({
@@ -40,6 +42,7 @@ export const CategoryUrlsTable = ({
   onUrlSubmit,
   onCopyLink,
   onDownloadSitemap,
+  onUpdateSitemap,
 }: CategoryUrlsTableProps) => {
   const openSitemap = (categorySlug: string) => {
     const mapping = domainMappings?.find(dm => dm.category_id === categorySlug);
@@ -116,6 +119,21 @@ export const CategoryUrlsTable = ({
                   >
                     <ExternalLink className="h-4 w-4" />
                     Open Sitemap
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        await onUpdateSitemap(category.id, domain);
+                        toast.success("Sitemap updated successfully");
+                      } catch (error) {
+                        toast.error("Failed to update sitemap");
+                      }
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    Update Sitemap
                   </Button>
                 </div>
               </TableCell>

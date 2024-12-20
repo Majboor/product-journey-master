@@ -316,6 +316,38 @@ export type Database = {
         }
         Relationships: []
       }
+      sitemaps: {
+        Row: {
+          category_id: string | null
+          content: string
+          created_at: string | null
+          id: string
+          last_updated: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          last_updated?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          last_updated?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sitemaps_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       swipe_events: {
         Row: {
           additional_data: Json | null

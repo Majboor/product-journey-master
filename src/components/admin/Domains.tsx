@@ -71,17 +71,54 @@ export const Domains = () => {
     toast.success("Link copied to clipboard");
   };
 
-  const downloadSitemap = async (categorySlug: string) => {
+  const generateSitemap = async (categoryId: string, domain: string) => {
     try {
       const { data: pages } = await supabase
         .from('pages')
         .select('slug, updated_at')
-        .eq('category_id', categorySlug);
+        .eq('category_id', categoryId);
+
+      if (!pages) throw new Error("No pages found");
+
+      const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${pages.map(page => `
+  <url>
+    <loc>https://${domain}/${page.slug}</loc>
+    <lastmod>${new Date(page.updated_at).toISOString().split('T')[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`).join('')}
+</urlset>`;
+
+      // Store the sitemap in the database
+      const { error: sitemapError } = await supabase
+        .from('sitemaps')
+        .upsert({
+          category_id: categoryId,
+          content: sitemap,
+          last_updated: new Date().toISOString(),
+        });
+
+      if (sitemapError) throw sitemapError;
+
+    } catch (error) {
+      console.error('Error generating sitemap:', error);
+      throw error;
+    }
+  };
+
+  const downloadSitemap = async (categoryId: string) => {
+    try {
+      const { data: pages } = await supabase
+        .from('pages')
+        .select('slug, updated_at')
+        .eq('category_id', categoryId);
 
       if (!pages) throw new Error("No pages found");
 
       const mainDomainMapping = domainMappings?.find(dm => dm.is_main);
-      const categoryDomainMapping = domainMappings?.find(dm => dm.category_id === categorySlug);
+      const categoryDomainMapping = domainMappings?.find(dm => dm.category_id === categoryId);
       const domain = categoryDomainMapping?.domain || mainDomainMapping?.domain || window.location.host;
 
       const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -127,6 +164,7 @@ ${pages.map(page => `
           onUrlSubmit={handleCategoryUrlSubmit}
           onCopyLink={copyToClipboard}
           onDownloadSitemap={downloadSitemap}
+          onUpdateSitemap={generateSitemap}
         />
       </Card>
     </div>
