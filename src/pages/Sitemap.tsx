@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
 
 const Sitemap = () => {
   const { categorySlug } = useParams();
@@ -22,7 +21,7 @@ const Sitemap = () => {
     enabled: !!categorySlug,
   });
 
-  const { data: sitemap, isLoading } = useQuery({
+  const { data: sitemap } = useQuery({
     queryKey: ['sitemap', category?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -37,34 +36,19 @@ const Sitemap = () => {
     enabled: !!category?.id,
   });
 
-  useEffect(() => {
-    if (!isLoading && sitemap) {
-      // Set XML content type
-      const meta = document.createElement('meta');
-      meta.httpEquiv = 'Content-Type';
-      meta.content = 'application/xml';
-      document.head.appendChild(meta);
-
-      // Clear and set content
-      document.body.innerHTML = '';
-      document.body.style.margin = '0';
-      const pre = document.createElement('pre');
-      pre.style.margin = '0';
-      pre.style.padding = '20px';
-      pre.style.whiteSpace = 'pre-wrap';
-      pre.textContent = sitemap.content;
-      document.body.appendChild(pre);
-    }
-  }, [sitemap, isLoading]);
-
-  if (isLoading) {
-    return null;
-  }
-
   if (!sitemap) {
-    return <div>No sitemap found. Please generate one first.</div>;
+    return <div>No sitemap found</div>;
   }
 
+  // Set XML content type
+  const xmlDoc = new DOMParser().parseFromString(sitemap.content, 'application/xml');
+  const xmlString = new XMLSerializer().serializeToString(xmlDoc);
+  const blob = new Blob([xmlString], { type: 'application/xml' });
+  const url = URL.createObjectURL(blob);
+
+  // Redirect to the blob URL
+  window.location.href = url;
+  
   return null;
 };
 
