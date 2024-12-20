@@ -3,6 +3,7 @@ import { Download } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { ApachePathDialog } from "./ApachePathDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CategoryTableActionsProps {
   categoryId: string;
@@ -21,24 +22,15 @@ export const CategoryTableActions = ({
 
   const deployToApache = async (apachePath: string) => {
     try {
-      const response = await fetch('/functions/v1/manage-apache-sitemap', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('manage-apache-sitemap', {
+        body: {
           categoryId,
           apachePath,
-        }),
+        },
       });
 
-      const data = await response.json();
+      if (error) throw error;
       
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
       toast.success("Sitemap deployed to Apache successfully");
       toast.success(`File location: ${data.path}`);
       toast.success(`Live URL: ${data.url}`);

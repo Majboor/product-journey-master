@@ -7,6 +7,7 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -14,6 +15,7 @@ serve(async (req) => {
   try {
     const { categoryId, apachePath } = await req.json()
     
+    // Initialize Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
@@ -27,6 +29,7 @@ serve(async (req) => {
       .single()
 
     if (categoryError) throw categoryError
+    if (!category) throw new Error('Category not found')
 
     // Get sitemap content
     const { data: sitemap, error: sitemapError } = await supabaseClient
@@ -38,6 +41,7 @@ serve(async (req) => {
       .single()
 
     if (sitemapError) throw sitemapError
+    if (!sitemap) throw new Error('Sitemap not found')
 
     // Create category directory
     const categoryPath = `${apachePath}/${category.slug}`
@@ -58,6 +62,7 @@ serve(async (req) => {
       }
     )
   } catch (error) {
+    console.error('Error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       {
