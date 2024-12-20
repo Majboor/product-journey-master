@@ -6,16 +6,20 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const OrderTracking = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const [searchOrderId, setSearchOrderId] = useState("");
+  const { toast } = useToast();
 
   const { data: order, isLoading, error } = useQuery({
     queryKey: ['order', orderId],
     queryFn: async () => {
-      if (!orderId) throw new Error('Order ID is required');
+      if (!orderId) {
+        throw new Error('Order ID is required');
+      }
       
       const { data, error } = await supabase
         .from('orders')
@@ -26,6 +30,13 @@ const OrderTracking = () => {
       if (error) throw error;
       if (!data) throw new Error('Order not found');
       return data;
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to load order details',
+      });
     },
   });
 
@@ -38,10 +49,10 @@ const OrderTracking = () => {
 
   const renderContent = () => {
     if (isLoading) {
-      return <div>Loading order details...</div>;
+      return <div className="flex items-center justify-center">Loading order details...</div>;
     }
 
-    if (error) {
+    if (error || !order) {
       return (
         <Alert variant="destructive">
           <AlertDescription>
@@ -62,22 +73,22 @@ const OrderTracking = () => {
         title: 'Processing',
         description: 'Your order is being processed',
         icon: Package,
-        status: order.shipping_status === 'processing' ? 'current' : 
-               order.shipping_status === 'shipped' || order.shipping_status === 'out_for_delivery' || order.shipping_status === 'delivered' ? 'completed' : 'upcoming',
+        status: order?.shipping_status === 'processing' ? 'current' : 
+               order?.shipping_status === 'shipped' || order?.shipping_status === 'out_for_delivery' || order?.shipping_status === 'delivered' ? 'completed' : 'upcoming',
       },
       {
         title: 'Shipped',
         description: 'Your order has been shipped',
         icon: Truck,
-        status: order.shipping_status === 'shipped' ? 'current' :
-               order.shipping_status === 'out_for_delivery' || order.shipping_status === 'delivered' ? 'completed' : 'upcoming',
+        status: order?.shipping_status === 'shipped' ? 'current' :
+               order?.shipping_status === 'out_for_delivery' || order?.shipping_status === 'delivered' ? 'completed' : 'upcoming',
       },
       {
         title: 'Out for Delivery',
         description: 'Your order is out for delivery',
         icon: Clock,
-        status: order.shipping_status === 'out_for_delivery' ? 'current' :
-               order.shipping_status === 'delivered' ? 'completed' : 'upcoming',
+        status: order?.shipping_status === 'out_for_delivery' ? 'current' :
+               order?.shipping_status === 'delivered' ? 'completed' : 'upcoming',
       },
     ];
 
