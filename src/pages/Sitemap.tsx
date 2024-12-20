@@ -1,10 +1,11 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 const Sitemap = () => {
   const { categorySlug } = useParams();
+  const xmlContentRef = useRef<HTMLDivElement>(null);
 
   const { data: category } = useQuery({
     queryKey: ['category', categorySlug],
@@ -38,21 +39,29 @@ const Sitemap = () => {
   });
 
   useEffect(() => {
-    if (sitemap?.content) {
-      // Set the content type header
-      const blob = new Blob([sitemap.content], { type: 'application/xml' });
-      const url = URL.createObjectURL(blob);
-      
-      // Redirect to the XML content
-      window.location.href = url;
-      
-      // Clean up the URL object after navigation
-      return () => URL.revokeObjectURL(url);
+    if (sitemap?.content && xmlContentRef.current) {
+      // Set response headers
+      const headers = new Headers({
+        'Content-Type': 'application/xml',
+        'X-Content-Type-Options': 'nosniff'
+      });
+
+      // Create response with XML content
+      const response = new Response(sitemap.content, { headers });
+
+      // Convert response to blob and create URL
+      response.blob().then(blob => {
+        const url = URL.createObjectURL(blob);
+        window.location.replace(url);
+        
+        // Clean up URL object after navigation
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+      });
     }
   }, [sitemap]);
 
-  // Return null as we're handling the redirect
-  return null;
+  // Return a hidden container while processing
+  return <div ref={xmlContentRef} style={{ display: 'none' }} />;
 };
 
 export default Sitemap;
