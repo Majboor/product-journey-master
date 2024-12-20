@@ -39,13 +39,17 @@ const Sitemap = () => {
 
   useEffect(() => {
     if (sitemap?.content) {
-      const xmlDoc = new DOMParser().parseFromString(sitemap.content, 'application/xml');
-      const xmlString = new XMLSerializer().serializeToString(xmlDoc);
+      // Clear any existing document content
+      document.documentElement.innerHTML = '';
       
-      // Create a new document with XML content type
-      document.open('text/xml');
-      document.write(xmlString);
-      document.close();
+      // Set XML content type
+      const meta = document.createElement('meta');
+      meta.httpEquiv = 'Content-Type';
+      meta.content = 'application/xml';
+      document.head.appendChild(meta);
+      
+      // Write the XML content directly
+      document.write(sitemap.content);
     }
   }, [sitemap]);
 
