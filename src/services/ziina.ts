@@ -16,20 +16,20 @@ export const createPaymentIntent = async ({
   test = false
 }: CreatePaymentIntentParams) => {
   try {
-    const { data, error } = await supabase
+    const { data: secretData, error: secretError } = await supabase
       .from('secrets')
       .select('value')
       .eq('name', 'ZIINA_API_KEY')
       .single();
 
-    if (error) throw error;
-    if (!data?.value) throw new Error('Ziina API key not found');
+    if (secretError) throw secretError;
+    if (!secretData?.value) throw new Error('Ziina API key not found');
 
     const response = await fetch('https://api-v2.ziina.com/api/payment_intent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${data.value}`,
+        'Authorization': `Bearer ${secretData.value}`,
       },
       body: JSON.stringify({
         amount: amount * 100, // Convert to fils
