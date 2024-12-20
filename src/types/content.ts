@@ -9,6 +9,8 @@ export interface Hero {
 }
 
 export interface ProductDetails {
+  title: string;
+  price: number;
   description: string;
   specifications: string[];
   buyNowLink: string;
@@ -92,6 +94,12 @@ export const validatePageContent = (content: unknown): { isValid: boolean; error
     if (!pageContent.product.details) {
       errors.push({ field: 'product.details', message: 'Product details are required' });
     } else {
+      if (!pageContent.product.details.title) {
+        errors.push({ field: 'product.details.title', message: 'Product title is required' });
+      }
+      if (typeof pageContent.product.details.price !== 'number') {
+        errors.push({ field: 'product.details.price', message: 'Product price must be a number' });
+      }
       if (!pageContent.product.details.description) {
         errors.push({ field: 'product.details.description', message: 'Product description is required' });
       }
