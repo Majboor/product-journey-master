@@ -37,10 +37,7 @@ export const TestModeSection = () => {
 
       if (error) throw error;
 
-      // Invalidate the cache first
       await queryClient.invalidateQueries({ queryKey: ['ziina-test-mode'] });
-      
-      // Then refetch to update the UI
       await queryClient.refetchQueries({ 
         queryKey: ['ziina-test-mode'],
         exact: true 
@@ -61,7 +58,7 @@ export const TestModeSection = () => {
         onValueChange={updateTestMode}
         value={testMode === undefined ? undefined : testMode ? 'true' : 'false'}
       >
-        <SelectTrigger className="w-[200px]">
+        <SelectTrigger disabled={isLoading} className="w-[200px]">
           <SelectValue placeholder="Select test mode" />
         </SelectTrigger>
         <SelectContent>
