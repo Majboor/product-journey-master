@@ -71,12 +71,15 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
       // Generate a unique order ID
       const orderId = `ORD-${Math.random().toString(36).substr(2, 9)}`;
       
+      // Convert price to integer (cents/fils)
+      const amountInCents = Math.round((details?.price || 0) * 100);
+      
       // Create the order in the database
       const { error: orderError } = await supabase
         .from('orders')
         .insert({
           order_id: orderId,
-          amount: details?.price || 0,
+          amount: amountInCents, // Store amount in cents/fils
           currency_code: 'AED',
           customer_email: session?.user?.email,
           customer_name: session?.user?.user_metadata?.full_name,
@@ -84,9 +87,9 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
 
       if (orderError) throw orderError;
 
-      // Create payment intent with Ziina
+      // Create payment intent with Ziina (amount is already in cents/fils)
       const paymentIntent = await createPaymentIntent({
-        amount: details?.price || 0,
+        amount: amountInCents,
         message: `Payment for ${details?.title || 'Product'}`,
         successUrl: `${window.location.origin}/payment/success?order_id=${orderId}`,
         cancelUrl: `${window.location.origin}/payment/failed`,
