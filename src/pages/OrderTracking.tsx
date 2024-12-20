@@ -31,12 +31,14 @@ const OrderTracking = () => {
       if (!data) throw new Error('Order not found');
       return data;
     },
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error instanceof Error ? error.message : 'Failed to load order details',
-      });
+    meta: {
+      onError: (error: Error) => {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error instanceof Error ? error.message : 'Failed to load order details',
+        });
+      },
     },
   });
 
