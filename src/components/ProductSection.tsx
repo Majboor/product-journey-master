@@ -120,7 +120,7 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
           </div>
 
           <div className="flex-1 space-y-6">
-            <ProductDetails {...details} />
+            <ProductDetails {...details} showFeatures={false} />
             <ProductFeatures features={features} />
             <ProductActions price={details.price} title={details.title} />
           </div>
