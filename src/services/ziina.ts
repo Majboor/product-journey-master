@@ -13,7 +13,7 @@ export const createPaymentIntent = async ({
   message,
   successUrl,
   cancelUrl,
-  test = false
+  test = true // Default to test mode for safety
 }: CreatePaymentIntentParams) => {
   try {
     // Get the API key using maybeSingle() instead of single()
@@ -40,7 +40,7 @@ export const createPaymentIntent = async ({
         'Authorization': `Bearer ${secretData.value}`,
       },
       body: JSON.stringify({
-        amount,  // Already in fils from ProductSection
+        amount,
         currency_code: 'AED',
         message,
         success_url: successUrl,

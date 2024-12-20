@@ -33,7 +33,7 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
         .from('secrets')
         .select('value')
         .eq('name', 'ZIINA_TEST_MODE')
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data?.value === 'true';
@@ -117,7 +117,7 @@ const ProductSection = ({ images = [], details, features = [] }: ProductSectionP
         message: `Payment for ${details.title}`,
         successUrl: `${window.location.origin}/payment/success?order_id=${orderId}`,
         cancelUrl: `${window.location.origin}/payment/failed`,
-        test: testMode // Use the test mode setting from the database
+        test: testMode ?? true // Default to test mode if setting is not found
       });
 
       // Update order with payment intent ID

@@ -39,7 +39,7 @@ export const Payments = () => {
         .from('secrets')
         .select('value')
         .eq('name', 'ZIINA_API_KEY')
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data;
@@ -53,7 +53,7 @@ export const Payments = () => {
         .from('secrets')
         .select('value')
         .eq('name', 'ZIINA_TEST_MODE')
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data?.value === 'true';
