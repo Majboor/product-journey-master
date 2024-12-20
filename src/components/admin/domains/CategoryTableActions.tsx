@@ -23,6 +23,7 @@ export const CategoryTableActions = ({
   const [isApacheDialogOpen, setIsApacheDialogOpen] = useState(false);
   const [isLocalDownloadDialogOpen, setIsLocalDownloadDialogOpen] = useState(false);
   const [localPath, setLocalPath] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const deployToApache = async () => {
     try {
@@ -46,6 +47,7 @@ export const CategoryTableActions = ({
   };
 
   const downloadLocally = async () => {
+    setIsLoading(true);
     try {
       if (!localPath) {
         toast.error("Please enter a valid file path");
@@ -60,13 +62,18 @@ export const CategoryTableActions = ({
       });
 
       if (error) throw error;
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to save sitemap');
+      }
       
       setIsLocalDownloadDialogOpen(false);
       toast.success("Sitemap saved successfully");
       toast.success(`File location: ${data.path}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving sitemap:', error);
-      toast.error("Failed to save sitemap locally");
+      toast.error(error.message || "Failed to save sitemap locally");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -112,11 +119,18 @@ export const CategoryTableActions = ({
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsLocalDownloadDialogOpen(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsLocalDownloadDialogOpen(false)}
+              disabled={isLoading}
+            >
               Cancel
             </Button>
-            <Button onClick={downloadLocally}>
-              Save
+            <Button 
+              onClick={downloadLocally}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Saving...' : 'Save'}
             </Button>
           </DialogFooter>
         </DialogContent>
