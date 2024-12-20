@@ -61,6 +61,8 @@ export const CategoryUrlsTable = ({
         .from('sitemaps')
         .select('content')
         .eq('category_id', categoryId)
+        .order('last_generated', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (error) throw error;

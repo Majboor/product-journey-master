@@ -345,7 +345,7 @@ export type Database = {
           {
             foreignKeyName: "sitemaps_category_id_fkey"
             columns: ["category_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "categories"
             referencedColumns: ["id"]
           },

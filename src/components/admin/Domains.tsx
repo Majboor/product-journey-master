@@ -101,14 +101,14 @@ ${pages.map(page => `
           category_id: categoryId,
           content: sitemap,
           last_generated: new Date().toISOString(),
-        }, {
-          onConflict: 'category_id'
         });
 
       if (sitemapError) throw sitemapError;
+      toast.success("Sitemap generated successfully");
 
     } catch (error) {
       console.error('Error generating sitemap:', error);
+      toast.error("Failed to generate sitemap");
       throw error;
     }
   };
@@ -119,7 +119,9 @@ ${pages.map(page => `
         .from('sitemaps')
         .select('content')
         .eq('category_id', categoryId)
-        .single();
+        .order('last_generated', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (error) throw error;
       
