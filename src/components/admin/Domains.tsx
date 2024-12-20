@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { MainDomainSection } from "./domains/MainDomainSection";
 import { CategoryUrlsTable } from "./domains/CategoryUrlsTable";
+import { BashScriptGenerator } from "./domains/BashScriptGenerator"; // Added import
 
 export const Domains = () => {
   const [categoryUrls, setCategoryUrls] = useState<Record<string, string>>({});
