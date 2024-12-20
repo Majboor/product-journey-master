@@ -15,6 +15,7 @@ import { Pages } from "@/components/admin/Pages";
 import { Users } from "@/components/admin/Users";
 import { ApiStatus } from "@/components/admin/ApiStatus";
 import { Payments } from "@/components/admin/Payments";
+import { Domains } from "@/components/admin/Domains";
 import Header from "@/components/Header";
 import { Outlet } from "react-router-dom";
 
@@ -116,6 +117,10 @@ export const router = createBrowserRouter([
       {
         path: "api-manager",
         element: <ApiManager />,
+      },
+      {
+        path: "domains",
+        element: <Domains />,
       },
     ],
   },
