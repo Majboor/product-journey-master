@@ -44,6 +44,12 @@ export const CategoryUrlsTable = ({
   onDownloadSitemap,
   onUpdateSitemap,
 }: CategoryUrlsTableProps) => {
+  const handleUrlSubmit = async (categoryId: string, url: string) => {
+    onUrlSubmit(categoryId, url);
+    // After saving the URL, update the sitemap with the new domain
+    await onUpdateSitemap(categoryId, url);
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -72,7 +78,7 @@ export const CategoryUrlsTable = ({
                     placeholder="Enter custom URL"
                   />
                   <Button
-                    onClick={() => onUrlSubmit(category.id, categoryUrls[category.id])}
+                    onClick={() => handleUrlSubmit(category.id, categoryUrls[category.id])}
                     disabled={!categoryUrls[category.id]}
                   >
                     Save
