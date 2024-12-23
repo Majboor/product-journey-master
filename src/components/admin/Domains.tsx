@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { MainDomainSection } from "./domains/MainDomainSection";
 import { CategoryUrlsTable } from "./domains/CategoryUrlsTable";
 import { BashScriptGenerator } from "./domains/BashScriptGenerator";
+import { updateDomainMapping } from "./domains/DomainMappingService";
+import { generateSitemap, downloadSitemap } from "./domains/SitemapService";
 
 export const Domains = () => {
   const [categoryUrls, setCategoryUrls] = useState<Record<string, string>>({});
@@ -31,62 +33,12 @@ export const Domains = () => {
         .select('*');
       
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 
-  const updateDomainMapping = useMutation({
-    mutationFn: async ({ categoryId, domain, isMain = false }: { categoryId?: string, domain: string, isMain?: boolean }) => {
-      // First check if a mapping exists
-      if (categoryId) {
-        const { data: existingMapping } = await supabase
-          .from('domain_mappings')
-          .select()
-          .eq('category_id', categoryId)
-          .single();
-
-        if (existingMapping) {
-          // Update existing mapping
-          const { error } = await supabase
-            .from('domain_mappings')
-            .update({ domain, is_main: isMain })
-            .eq('category_id', categoryId);
-
-          if (error) throw error;
-        } else {
-          // Insert new mapping
-          const { error } = await supabase
-            .from('domain_mappings')
-            .insert({ category_id: categoryId, domain, is_main: isMain });
-
-          if (error) throw error;
-        }
-      } else {
-        // Handle main domain mapping
-        const { data: existingMain } = await supabase
-          .from('domain_mappings')
-          .select()
-          .eq('is_main', true)
-          .single();
-
-        if (existingMain) {
-          // Update existing main domain
-          const { error } = await supabase
-            .from('domain_mappings')
-            .update({ domain })
-            .eq('id', existingMain.id);
-
-          if (error) throw error;
-        } else {
-          // Insert new main domain
-          const { error } = await supabase
-            .from('domain_mappings')
-            .insert({ domain, is_main: true });
-
-          if (error) throw error;
-        }
-      }
-    },
+  const updateDomainMappingMutation = useMutation({
+    mutationFn: updateDomainMapping,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['domain-mappings'] });
       toast.success("Domain mapping updated successfully");
@@ -99,12 +51,12 @@ export const Domains = () => {
 
   const handleMainDomainSubmit = (domain: string) => {
     if (!domain) return;
-    updateDomainMapping.mutate({ domain, isMain: true });
+    updateDomainMappingMutation.mutate({ domain, isMain: true });
   };
 
   const handleCategoryUrlSubmit = (categoryId: string, url: string) => {
     if (!url) return;
-    updateDomainMapping.mutate({ categoryId, domain: url });
+    updateDomainMappingMutation.mutate({ categoryId, domain: url });
   };
 
   const copyToClipboard = (text: string) => {
@@ -112,88 +64,20 @@ export const Domains = () => {
     toast.success("Link copied to clipboard");
   };
 
-  const generateSitemap = async (categoryId: string, domain: string) => {
+  const handleGenerateSitemap = async (categoryId: string, domain: string) => {
     try {
-      const { data: pages, error: pagesError } = await supabase
-        .from('pages')
-        .select('slug, updated_at')
-        .eq('category_id', categoryId);
-
-      if (pagesError) throw pagesError;
-      if (!pages || pages.length === 0) {
-        toast.error("No pages found for this category");
-        return;
-      }
-
-      const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${pages.map(page => `
-  <url>
-    <loc>https://${domain}/${page.slug}</loc>
-    <lastmod>${new Date(page.updated_at).toISOString().split('T')[0]}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>`).join('')}
-</urlset>`;
-
-      // First check if a sitemap exists
-      const { data: existingSitemap } = await supabase
-        .from('sitemaps')
-        .select()
-        .eq('category_id', categoryId)
-        .single();
-
-      if (existingSitemap) {
-        // Update existing sitemap
-        const { error: sitemapError } = await supabase
-          .from('sitemaps')
-          .update({
-            content: sitemap,
-            last_generated: new Date().toISOString(),
-          })
-          .eq('category_id', categoryId);
-
-        if (sitemapError) throw sitemapError;
-      } else {
-        // Insert new sitemap
-        const { error: sitemapError } = await supabase
-          .from('sitemaps')
-          .insert({
-            category_id: categoryId,
-            content: sitemap,
-            last_generated: new Date().toISOString(),
-          });
-
-        if (sitemapError) throw sitemapError;
-      }
-
+      await generateSitemap(categoryId, domain);
       toast.success("Sitemap generated successfully");
-
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating sitemap:', error);
-      toast.error("Failed to generate sitemap");
-      throw error;
+      toast.error(error.message || "Failed to generate sitemap");
     }
   };
 
-  const downloadSitemap = async (categoryId: string) => {
+  const handleDownloadSitemap = async (categoryId: string) => {
     try {
-      const { data: sitemap, error } = await supabase
-        .from('sitemaps')
-        .select('content')
-        .eq('category_id', categoryId)
-        .order('last_generated', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (error) throw error;
-      
-      if (!sitemap?.content) {
-        toast.error("No sitemap found. Try updating the sitemap first.");
-        return;
-      }
-
-      const blob = new Blob([sitemap.content], { type: 'application/xml' });
+      const content = await downloadSitemap(categoryId);
+      const blob = new Blob([content], { type: 'application/xml' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -202,9 +86,9 @@ ${pages.map(page => `
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error downloading sitemap:', error);
-      toast.error("Failed to download sitemap");
+      toast.error(error.message || "Failed to download sitemap");
     }
   };
 
@@ -224,8 +108,8 @@ ${pages.map(page => `
           })}
           onUrlSubmit={handleCategoryUrlSubmit}
           onCopyLink={copyToClipboard}
-          onDownloadSitemap={downloadSitemap}
-          onUpdateSitemap={generateSitemap}
+          onDownloadSitemap={handleDownloadSitemap}
+          onUpdateSitemap={handleGenerateSitemap}
         />
       </Card>
 
