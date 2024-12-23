@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM";
+
 export const BashScriptGenerator = () => {
   const [basePath, setBasePath] = useState("/var/www/sitemaps");
   
@@ -22,8 +24,8 @@ mkdir -p "$BASE_DIR"
 get_sitemap_content() {
     local category_id=$1
     local sitemap_content=$(curl -s "${window.location.origin}/api/sitemap?category_id=$category_id" \\
-      -H "apikey: ${supabase.supabaseKey}" \\
-      -H "Authorization: Bearer ${supabase.supabaseKey}")
+      -H "apikey: ${SUPABASE_ANON_KEY}" \\
+      -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
     
     echo "$sitemap_content" | jq -r '.[0].content // empty'
 }
@@ -62,8 +64,8 @@ save_sitemap() {
 # Function to process all categories
 process_categories() {
     local categories=$(curl -s "${window.location.origin}/api/categories" \\
-      -H "apikey: ${supabase.supabaseKey}" \\
-      -H "Authorization: Bearer ${supabase.supabaseKey}")
+      -H "apikey: ${SUPABASE_ANON_KEY}" \\
+      -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
 
     if [ -z "$categories" ] || [ "$categories" = "[]" ]; then
         echo "No categories found in the database"
