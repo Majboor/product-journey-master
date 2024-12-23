@@ -28,33 +28,40 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
   const { data: page, error } = useQuery({
     queryKey: ['page', finalSlug],
     queryFn: async () => {
-      if (!finalSlug) {
+      try {
+        console.log('Fetching page content for slug:', finalSlug);
+        
+        if (!finalSlug) {
+          const { data, error } = await supabase
+            .from('pages')
+            .select('content')
+            .eq('slug', '')
+            .single();
+          
+          if (error) {
+            if (error.code === 'PGRST116') {
+              console.log('No root page found, using default brand name');
+              return null;
+            }
+            throw error;
+          }
+          return data;
+        }
+        
         const { data, error } = await supabase
           .from('pages')
           .select('content')
-          .eq('slug', '')
+          .eq('slug', finalSlug)
           .maybeSingle();
         
         if (error) {
-          console.error('Error fetching root page:', error);
-          toast({
-            title: "Error",
-            description: "Failed to load page content",
-            variant: "destructive",
-          });
-          return null;
+          console.error('Error fetching page:', error);
+          throw error;
         }
+        
         return data;
-      }
-      
-      const { data, error } = await supabase
-        .from('pages')
-        .select('content')
-        .eq('slug', finalSlug)
-        .maybeSingle();
-      
-      if (error) {
-        console.error('Error fetching page:', error);
+      } catch (error: any) {
+        console.error('Error fetching page content:', error);
         toast({
           title: "Error",
           description: "Failed to load page content",
@@ -62,7 +69,6 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
         });
         return null;
       }
-      return data;
     },
     enabled: true // Always fetch, even for root page
   });
