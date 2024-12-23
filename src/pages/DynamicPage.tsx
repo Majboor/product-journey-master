@@ -12,13 +12,14 @@ import { usePageAnalytics } from "@/hooks/usePageAnalytics";
 import { useSwipeTracking } from "@/hooks/useSwipeTracking";
 import { PageContent } from "@/types/content";
 import { ColorScheme } from "@/types/colors";
+import { useEffect } from "react";
 
 const DynamicPage = () => {
   const { categorySlug, slug } = useParams();
   const finalSlug = categorySlug && slug ? `${categorySlug}/${slug}` : categorySlug || slug || '';
   
   usePageAnalytics(finalSlug);
-  useSwipeTracking(); // Add this line to enable scroll tracking
+  useSwipeTracking();
 
   const { data: page, isLoading, error } = useQuery({
     queryKey: ['page', categorySlug, slug],
@@ -44,6 +45,14 @@ const DynamicPage = () => {
       return data;
     }
   });
+
+  // Update document title when page content changes
+  useEffect(() => {
+    if (page?.content) {
+      const content = page.content as unknown as PageContent;
+      document.title = content.hero?.title || content.brandName || 'Dynamic Page';
+    }
+  }, [page]);
 
   if (isLoading) {
     return <LoadingScreen />;
