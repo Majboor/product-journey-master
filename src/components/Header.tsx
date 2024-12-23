@@ -22,7 +22,7 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
   const finalSlug = slug ? `${categorySlug}/${slug}` : '';
 
   // List of routes where we don't want to show the brand name
-  const hideLogoRoutes = ['about', 'features', 'why-us', 'reviews', 'general'];
+  const hideLogoRoutes = ['about', 'features', 'why-us', 'reviews', 'order-tracking'];
 
   // Fetch page content for the current route
   const { data: page, error } = useQuery({

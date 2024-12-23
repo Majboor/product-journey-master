@@ -19,8 +19,8 @@ export const Navigation = ({ isAuthenticated }: NavigationProps) => {
       <Link to="/reviews" className="text-gray-600 hover:text-primary transition-colors">
         Reviews
       </Link>
-      <Link to="/general" className="text-gray-600 hover:text-primary transition-colors">
-        General
+      <Link to="/order-tracking" className="text-gray-600 hover:text-primary transition-colors">
+        Order Status
       </Link>
     </nav>
   );
