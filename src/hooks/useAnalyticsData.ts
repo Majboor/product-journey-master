@@ -28,9 +28,9 @@ export const useAnalyticsData = () => {
   const { data: users } = useQuery({
     queryKey: ['users'],
     queryFn: async () => {
-      const { data: { users }, error } = await supabase.auth.admin.listUsers();
+      const { data, error } = await supabase.from('users').select('*');
       if (error) throw error;
-      return users;
+      return data;
     }
   });
 
