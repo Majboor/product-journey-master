@@ -1,7 +1,10 @@
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { samplePageData, sampleCategoryData, colorSchemeExamples } from "./sampleData";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { getPythonAuthExample, getPythonCategoryExample, getPythonPageExample } from "./pythonExamples";
+import { getAuthClientExample } from "./python-examples/authClient";
+import { getCategoryExample } from "./python-examples/categoryExample";
+import { getPageExample } from "./python-examples/pageExample";
+import { SUPABASE_ANON_KEY } from "./constants";
 
 interface ApiTabsProps {
   testResponse: string;
@@ -9,7 +12,6 @@ interface ApiTabsProps {
 
 export const ApiTabs = ({ testResponse }: ApiTabsProps) => {
   const { session } = useAuth();
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM";
   const bearerToken = session?.access_token || SUPABASE_ANON_KEY;
 
   return (
@@ -62,21 +64,21 @@ export const ApiTabs = ({ testResponse }: ApiTabsProps) => {
           <div>
             <h3 className="font-semibold mb-2">Authentication and JWT Refresh Example:</h3>
             <pre className="bg-muted p-4 rounded-lg overflow-auto">
-              {getPythonAuthExample(bearerToken)}
+              {getAuthClientExample(bearerToken)}
             </pre>
           </div>
 
           <div>
             <h3 className="font-semibold mb-2">Create Category Example:</h3>
             <pre className="bg-muted p-4 rounded-lg overflow-auto">
-              {getPythonCategoryExample(bearerToken)}
+              {getCategoryExample(bearerToken)}
             </pre>
           </div>
 
           <div>
             <h3 className="font-semibold mb-2">Create Page Example:</h3>
             <pre className="bg-muted p-4 rounded-lg overflow-auto">
-              {getPythonPageExample(bearerToken)}
+              {getPageExample(bearerToken)}
             </pre>
           </div>
         </div>
