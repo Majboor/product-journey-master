@@ -115,6 +115,26 @@ export const ApiStatus = () => {
     }
   };
 
+  const refreshToken = async () => {
+    try {
+      const { data, error } = await supabase.auth.refreshSession();
+      if (error) throw error;
+      
+      toast.success("JWT token refreshed successfully!");
+      setTestResponse(JSON.stringify({
+        message: "Token refreshed successfully",
+        newToken: data.session?.access_token,
+        expiresAt: new Date(Date.now() + 3600 * 1000).toISOString() // 1 hour from now
+      }, null, 2));
+    } catch (error: any) {
+      toast.error(error.message || "Failed to refresh token");
+      setTestResponse(JSON.stringify({
+        error: error.message,
+        details: error.details || "No additional details available"
+      }, null, 2));
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card className="p-6">
@@ -126,6 +146,12 @@ export const ApiStatus = () => {
           <div className="flex items-center gap-4">
             <Button onClick={testApi}>
               Test API Now
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={refreshToken}
+            >
+              Refresh JWT Token
             </Button>
           </div>
         </div>
