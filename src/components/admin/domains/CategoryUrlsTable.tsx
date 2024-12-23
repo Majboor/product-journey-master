@@ -45,9 +45,17 @@ export const CategoryUrlsTable = ({
   onUpdateSitemap,
 }: CategoryUrlsTableProps) => {
   const handleUrlSubmit = async (categoryId: string, url: string) => {
+    if (!url) return;
+    
+    // First save the URL
     onUrlSubmit(categoryId, url);
-    // After saving the URL, update the sitemap with the new domain
-    await onUpdateSitemap(categoryId, url);
+    
+    try {
+      // Then update the sitemap with the new domain
+      await onUpdateSitemap(categoryId, url);
+    } catch (error) {
+      console.error('Error updating sitemap:', error);
+    }
   };
 
   return (
