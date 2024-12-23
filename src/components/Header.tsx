@@ -78,7 +78,7 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
   const validation = validatePageContent(content);
   
   // Only use content.brandName if validation passes and content exists
-  const displayBrandName = validation.isValid && content ? (content as PageContent).brandName : brandName;
+  const displayBrandName = validation.isValid && content ? (content as PageContent).brandName || brandName : brandName;
 
   useEffect(() => {
     // Show login dialog immediately for non-authenticated users on the main page
