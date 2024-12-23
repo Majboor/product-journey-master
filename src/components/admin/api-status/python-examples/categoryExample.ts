@@ -1,25 +1,26 @@
+import { SUPABASE_ANON_KEY } from "../constants";
+
 export const getCategoryExample = (bearerToken: string) => `import requests
 import json
-from typing import Dict, Any
 
-def create_category(url: str, anon_key: str, access_token: str, name: str, slug: str, description: str) -> Dict[str, Any]:
-    """Create a new category with the given parameters."""
-    headers = {
-        "apikey": anon_key,
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json",
-        "Prefer": "return=representation"
-    }
-    
-    data = {
-        "name": name,
-        "slug": slug,
-        "description": description
-    }
-    
-    try:
-        response = requests.post(f"{url}/rest/v1/categories", headers=headers, json=data)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        raise Exception(f"Failed to create category: {str(e)}")`;
+url = "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1/categories"
+
+# Current configuration:
+# Anon Key: ${SUPABASE_ANON_KEY}
+# Bearer Token: ${bearerToken}
+
+headers = {
+    "apikey": "${SUPABASE_ANON_KEY}",
+    "Authorization": "Bearer ${bearerToken}",
+    "Content-Type": "application/json",
+    "Prefer": "return=representation"
+}
+
+category_data = {
+    "name": "Modern Bistro",
+    "slug": "modern-bistro",
+    "description": "A modern fine dining experience"
+}
+
+response = requests.post(url, headers=headers, json=category_data)
+print(response.json())`;

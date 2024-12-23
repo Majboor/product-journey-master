@@ -1,3 +1,5 @@
+import { SUPABASE_ANON_KEY } from "../constants";
+
 export const getAuthClientExample = (bearerToken: string) => `import requests
 import json
 from datetime import datetime, timezone
@@ -50,4 +52,25 @@ class SupabaseClient:
             self.refresh_token = auth_data.get("refresh_token")
             return auth_data
         else:
-            raise Exception(f"Token refresh failed: {response.text}")`;
+            raise Exception(f"Token refresh failed: {response.text}")
+
+# Usage example:
+client = SupabaseClient(
+    url="https://tylpifixgpoxonedjyzo.supabase.co",
+    anon_key="${SUPABASE_ANON_KEY}"  # Using the actual anon key
+)
+
+# Current bearer token for reference:
+# Bearer Token: ${bearerToken}
+
+try:
+    # Sign in
+    auth_data = client.sign_in("your-email@example.com", "your-password")
+    print("Signed in successfully with token:", auth_data.get("access_token"))
+    
+    # Refresh token example
+    refreshed_data = client.refresh_session()
+    print("Token refreshed successfully:", refreshed_data.get("access_token"))
+    
+except Exception as e:
+    print(f"Error: {str(e)}")`;
