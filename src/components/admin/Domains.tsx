@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { MainDomainSection } from "./domains/MainDomainSection";
 import { CategoryUrlsTable } from "./domains/CategoryUrlsTable";
-import { BashScriptGenerator } from "./domains/BashScriptGenerator"; // Added import
+import { BashScriptGenerator } from "./domains/BashScriptGenerator";
 
 export const Domains = () => {
   const [categoryUrls, setCategoryUrls] = useState<Record<string, string>>({});
@@ -37,15 +37,55 @@ export const Domains = () => {
 
   const updateDomainMapping = useMutation({
     mutationFn: async ({ categoryId, domain, isMain = false }: { categoryId?: string, domain: string, isMain?: boolean }) => {
-      const { error } = await supabase
-        .from('domain_mappings')
-        .upsert({
-          category_id: categoryId,
-          domain,
-          is_main: isMain,
-        });
+      // First check if a mapping exists
+      if (categoryId) {
+        const { data: existingMapping } = await supabase
+          .from('domain_mappings')
+          .select()
+          .eq('category_id', categoryId)
+          .single();
 
-      if (error) throw error;
+        if (existingMapping) {
+          // Update existing mapping
+          const { error } = await supabase
+            .from('domain_mappings')
+            .update({ domain, is_main: isMain })
+            .eq('category_id', categoryId);
+
+          if (error) throw error;
+        } else {
+          // Insert new mapping
+          const { error } = await supabase
+            .from('domain_mappings')
+            .insert({ category_id: categoryId, domain, is_main: isMain });
+
+          if (error) throw error;
+        }
+      } else {
+        // Handle main domain mapping
+        const { data: existingMain } = await supabase
+          .from('domain_mappings')
+          .select()
+          .eq('is_main', true)
+          .single();
+
+        if (existingMain) {
+          // Update existing main domain
+          const { error } = await supabase
+            .from('domain_mappings')
+            .update({ domain })
+            .eq('id', existingMain.id);
+
+          if (error) throw error;
+        } else {
+          // Insert new main domain
+          const { error } = await supabase
+            .from('domain_mappings')
+            .insert({ domain, is_main: true });
+
+          if (error) throw error;
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['domain-mappings'] });
@@ -96,15 +136,37 @@ ${pages.map(page => `
   </url>`).join('')}
 </urlset>`;
 
-      const { error: sitemapError } = await supabase
+      // First check if a sitemap exists
+      const { data: existingSitemap } = await supabase
         .from('sitemaps')
-        .upsert({
-          category_id: categoryId,
-          content: sitemap,
-          last_generated: new Date().toISOString(),
-        });
+        .select()
+        .eq('category_id', categoryId)
+        .single();
 
-      if (sitemapError) throw sitemapError;
+      if (existingSitemap) {
+        // Update existing sitemap
+        const { error: sitemapError } = await supabase
+          .from('sitemaps')
+          .update({
+            content: sitemap,
+            last_generated: new Date().toISOString(),
+          })
+          .eq('category_id', categoryId);
+
+        if (sitemapError) throw sitemapError;
+      } else {
+        // Insert new sitemap
+        const { error: sitemapError } = await supabase
+          .from('sitemaps')
+          .insert({
+            category_id: categoryId,
+            content: sitemap,
+            last_generated: new Date().toISOString(),
+          });
+
+        if (sitemapError) throw sitemapError;
+      }
+
       toast.success("Sitemap generated successfully");
 
     } catch (error) {
