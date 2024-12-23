@@ -13,9 +13,12 @@ export const samplePageData = {
     },
     "hero": {
       "title": "Experience Modern Fine Dining",
-      "description": "Where tradition meets innovation",
+      "description": "Where tradition meets innovation in the heart of the city",
       "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4",
-      "price": 150.00
+      "price": 150.00,
+      "subtitle": "Award-Winning Restaurant",
+      "buttonText": "Reserve Now",
+      "backgroundOverlay": "rgba(0, 0, 0, 0.4)"
     },
     "product": {
       "images": [
@@ -24,40 +27,58 @@ export const samplePageData = {
         "https://images.unsplash.com/photo-1482049016688-2d3e1b311543"
       ],
       "details": {
+        "title": "Fine Dining Experience",
+        "price": 150.00,
         "description": "Immerse yourself in an extraordinary culinary journey where each dish tells a story of passion and creativity",
         "specifications": [
           "Michelin-Starred Chef",
           "Seasonal Ingredients",
-          "Wine Pairing Available"
+          "Wine Pairing Available",
+          "Private Dining Rooms",
+          "Vegan Options Available"
         ],
-        "buyNowLink": "https://example.com/reserve"
+        "buyNowLink": "https://example.com/reserve",
+        "availability": "Limited Seats Available",
+        "duration": "2.5 hours",
+        "cancellationPolicy": "Free cancellation up to 24 hours before",
+        "additionalInfo": {
+          "dresscode": "Smart Casual",
+          "parking": "Valet Available",
+          "accessibility": "Wheelchair Accessible"
+        }
       },
       "features": [
         "Farm to Table",
         "Private Dining",
-        "Sommelier Service"
+        "Sommelier Service",
+        "Tasting Menu",
+        "À La Carte Options"
       ]
     },
     "features": [
       {
         "icon": "UtensilsCrossed",
         "title": "Culinary Excellence",
-        "description": "Award-winning chefs crafting unforgettable experiences"
+        "description": "Award-winning chefs crafting unforgettable experiences",
+        "details": "Our team of internationally recognized chefs brings decades of experience"
       },
       {
         "icon": "Wine",
         "title": "Curated Wine Selection",
-        "description": "Expert sommeliers to guide your wine journey"
+        "description": "Expert sommeliers to guide your wine journey",
+        "details": "Over 300 carefully selected wines from around the world"
       },
       {
         "icon": "Star",
         "title": "Michelin Starred",
-        "description": "Recognized for exceptional culinary artistry"
+        "description": "Recognized for exceptional culinary artistry",
+        "details": "Maintaining our stars for over 5 consecutive years"
       },
       {
         "icon": "Users",
         "title": "Private Events",
-        "description": "Bespoke dining experiences for special occasions"
+        "description": "Bespoke dining experiences for special occasions",
+        "details": "Customizable spaces for 10 to 100 guests"
       }
     ],
     "reviews": [
@@ -65,35 +86,74 @@ export const samplePageData = {
         "name": "James Wilson",
         "rating": 5,
         "comment": "An extraordinary culinary journey that exceeded all expectations",
-        "image": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
+        "image": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
+        "date": "2024-01-15",
+        "verified": true,
+        "location": "New York, NY",
+        "details": "The wine pairing was exceptional"
       },
       {
         "name": "Sofia Rodriguez",
         "rating": 5,
         "comment": "The wine pairing elevated the entire experience. Simply phenomenal!",
-        "image": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80"
+        "image": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
+        "date": "2024-01-10",
+        "verified": true,
+        "location": "Miami, FL",
+        "details": "Perfect for our anniversary celebration"
       }
     ],
     "footer": {
       "contact": {
         "email": "reservations@modernbistro.com",
         "phone": "1-888-BISTRO1",
-        "address": "123 Culinary Avenue, Gourmet District, GD 12345"
+        "address": "123 Culinary Avenue, Gourmet District, GD 12345",
+        "socialMedia": {
+          "instagram": "@modernbistro",
+          "facebook": "ModernBistroOfficial",
+          "twitter": "@ModernBistro"
+        },
+        "hours": {
+          "monday": "17:00 - 23:00",
+          "tuesday": "17:00 - 23:00",
+          "wednesday": "17:00 - 23:00",
+          "thursday": "17:00 - 23:00",
+          "friday": "17:00 - 00:00",
+          "saturday": "17:00 - 00:00",
+          "sunday": "17:00 - 22:00"
+        }
       },
       "links": [
         {
           "title": "Menu",
-          "url": "#menu"
+          "url": "#menu",
+          "description": "View our current seasonal menu"
         },
         {
           "title": "Reservations",
-          "url": "#reservations"
+          "url": "#reservations",
+          "description": "Book your dining experience"
         },
         {
           "title": "Private Events",
-          "url": "#events"
+          "url": "#events",
+          "description": "Plan your special occasion"
+        },
+        {
+          "title": "Gift Cards",
+          "url": "#gift-cards",
+          "description": "Give the gift of fine dining"
         }
-      ]
+      ],
+      "newsletter": {
+        "title": "Stay Updated",
+        "description": "Subscribe to our newsletter for special events and seasonal menus"
+      },
+      "policies": {
+        "privacy": "/privacy",
+        "terms": "/terms",
+        "accessibility": "/accessibility"
+      }
     }
   }
 };
