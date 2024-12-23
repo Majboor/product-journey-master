@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CategoryTableActions } from "./CategoryTableActions";
+import { useState } from "react";  // Add this import
 
 interface Category {
   id: string;
@@ -44,6 +45,8 @@ export const CategoryUrlsTable = ({
   onDownloadSitemap,
   onUpdateSitemap,
 }: CategoryUrlsTableProps) => {
+  const [localUrls, setLocalUrls] = useState<Record<string, string>>({});  // Add local state for URLs
+
   const handleUrlSubmit = async (categoryId: string, url: string) => {
     if (!url) return;
     
@@ -56,6 +59,14 @@ export const CategoryUrlsTable = ({
     } catch (error) {
       console.error('Error updating sitemap:', error);
     }
+  };
+
+  const handleLocalUrlChange = (categoryId: string, url: string) => {
+    setLocalUrls(prev => ({
+      ...prev,
+      [categoryId]: url
+    }));
+    onUrlChange(categoryId, url);  // Keep the original onUrlChange
   };
 
   return (
@@ -81,13 +92,13 @@ export const CategoryUrlsTable = ({
               <TableCell>
                 <div className="flex gap-2">
                   <Input
-                    value={categoryUrls[category.id] || mapping?.domain || ''}
-                    onChange={(e) => onUrlChange(category.id, e.target.value)}
+                    value={localUrls[category.id] || categoryUrls[category.id] || mapping?.domain || ''}
+                    onChange={(e) => handleLocalUrlChange(category.id, e.target.value)}
                     placeholder="Enter custom URL"
                   />
                   <Button
-                    onClick={() => handleUrlSubmit(category.id, categoryUrls[category.id])}
-                    disabled={!categoryUrls[category.id]}
+                    onClick={() => handleUrlSubmit(category.id, localUrls[category.id] || categoryUrls[category.id])}
+                    disabled={!localUrls[category.id] && !categoryUrls[category.id]}
                   >
                     Save
                   </Button>
