@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 
 export const useSwipeTracking = () => {
   const location = useLocation();
-  // Format page slug to match how page visits work
+  // Format page slug to match how page visits work - handle nested routes
   const pageSlug = location.pathname.substring(1) || 'index';
   const lastScrollPosition = useRef(0);
   const sessionId = localStorage.getItem('session_id') || crypto.randomUUID();
@@ -14,35 +14,64 @@ export const useSwipeTracking = () => {
     console.log('Initializing interaction tracking for page:', pageSlug);
 
     let touchStartX = 0;
+    let touchStartY = 0;
     let touchEndX = 0;
+    let touchEndY = 0;
 
     const handleTouchStart = (e: TouchEvent) => {
       touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
     };
 
     const handleTouchEnd = async (e: TouchEvent) => {
       touchEndX = e.changedTouches[0].clientX;
-      const swipeDistance = touchEndX - touchStartX;
+      touchEndY = e.changedTouches[0].clientY;
       
-      if (Math.abs(swipeDistance) > 50) {
-        const direction = swipeDistance > 0 ? 'right' : 'left';
-        
-        try {
-          console.log(`Attempting to track swipe ${direction} on page:`, pageSlug);
-          const { error } = await supabase.from('swipe_events').insert({
-            page_slug: pageSlug,
-            direction,
-            event_type: 'swipe',
-            session_id: sessionId
-          });
+      const swipeDistanceX = touchEndX - touchStartX;
+      const swipeDistanceY = touchEndY - touchStartY;
+      
+      // Determine if it's a horizontal or vertical swipe
+      if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY)) {
+        if (Math.abs(swipeDistanceX) > 50) { // Horizontal swipe
+          const direction = swipeDistanceX > 0 ? 'right' : 'left';
+          try {
+            console.log(`Tracking swipe ${direction} on page:`, pageSlug);
+            const { error } = await supabase.from('swipe_events').insert({
+              page_slug: pageSlug,
+              direction,
+              event_type: 'swipe',
+              session_id: sessionId
+            });
 
-          if (error) {
-            console.error('Error inserting swipe event:', error);
-          } else {
-            console.log(`Swipe ${direction} tracked successfully on page:`, pageSlug);
+            if (error) {
+              console.error('Error tracking swipe:', error);
+            } else {
+              console.log(`Swipe ${direction} tracked successfully`);
+            }
+          } catch (error) {
+            console.error('Error tracking swipe:', error);
           }
-        } catch (error) {
-          console.error('Error tracking swipe:', error);
+        }
+      } else {
+        if (Math.abs(swipeDistanceY) > 50) { // Vertical swipe
+          const direction = swipeDistanceY > 0 ? 'down' : 'up';
+          try {
+            console.log(`Tracking vertical swipe ${direction} on page:`, pageSlug);
+            const { error } = await supabase.from('swipe_events').insert({
+              page_slug: pageSlug,
+              direction,
+              event_type: 'swipe',
+              session_id: sessionId
+            });
+
+            if (error) {
+              console.error('Error tracking vertical swipe:', error);
+            } else {
+              console.log(`Vertical swipe ${direction} tracked successfully`);
+            }
+          } catch (error) {
+            console.error('Error tracking vertical swipe:', error);
+          }
         }
       }
     };
@@ -53,7 +82,7 @@ export const useSwipeTracking = () => {
       const scrollPercentage = (currentPosition / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
       
       try {
-        console.log(`Attempting to track scroll ${direction} on page:`, pageSlug);
+        console.log(`Tracking scroll ${direction} on page:`, pageSlug);
         const { error } = await supabase.from('swipe_events').insert({
           page_slug: pageSlug,
           direction,
@@ -68,59 +97,26 @@ export const useSwipeTracking = () => {
         });
 
         if (error) {
-          console.error('Error inserting scroll event:', error);
+          console.error('Error tracking scroll:', error);
         } else {
-          console.log(`Scroll ${direction} tracked successfully on page:`, pageSlug);
+          console.log(`Scroll ${direction} tracked successfully`);
           lastScrollPosition.current = currentPosition;
         }
       } catch (error) {
         console.error('Error tracking scroll:', error);
       }
-    }, 1000);
-
-    let lastMouseTrackTime = 0;
-    const handleMouseMove = async (e: MouseEvent) => {
-      const now = Date.now();
-      if (now - lastMouseTrackTime > 5000) { // Track every 5 seconds
-        lastMouseTrackTime = now;
-        try {
-          console.log('Attempting to track mouse movement on page:', pageSlug);
-          const { error } = await supabase.from('swipe_events').insert({
-            page_slug: pageSlug,
-            direction: e.movementX > 0 ? 'right' : 'left',
-            event_type: 'mouse_movement',
-            session_id: sessionId,
-            additional_data: {
-              x: e.clientX,
-              y: e.clientY,
-              movementX: e.movementX,
-              movementY: e.movementY
-            }
-          });
-
-          if (error) {
-            console.error('Error inserting mouse movement:', error);
-          } else {
-            console.log('Mouse movement tracked successfully on page:', pageSlug);
-          }
-        } catch (error) {
-          console.error('Error tracking mouse movement:', error);
-        }
-      }
-    };
+    }, 500); // Reduced debounce time for more responsive tracking
 
     // Add event listeners
     document.addEventListener('touchstart', handleTouchStart);
     document.addEventListener('touchend', handleTouchEnd);
     document.addEventListener('scroll', handleScroll);
-    document.addEventListener('mousemove', handleMouseMove);
 
     // Cleanup
     return () => {
       document.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('touchend', handleTouchEnd);
       document.removeEventListener('scroll', handleScroll);
-      document.removeEventListener('mousemove', handleMouseMove);
       handleScroll.cancel(); // Cancel any pending debounced calls
     };
   }, [pageSlug]); // Re-initialize tracking when page changes

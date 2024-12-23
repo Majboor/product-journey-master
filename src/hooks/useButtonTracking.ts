@@ -6,36 +6,40 @@ export const useButtonTracking = () => {
   const location = useLocation();
   // Format page slug to handle nested routes correctly, matching how page visits work
   const pageSlug = location.pathname.substring(1) || 'index';
+  const sessionId = localStorage.getItem('session_id') || crypto.randomUUID();
 
   useEffect(() => {
-    console.log('Initializing button tracking for page:', pageSlug); // Debug log
+    console.log('Initializing button tracking for page:', pageSlug);
 
     const trackButtonClick = async (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      const button = target.closest('button');
       
-      if (button) {
+      // Track any clickable elements (buttons, links, or elements with click handlers)
+      const clickableElement = target.closest('button, a, [onclick], [role="button"]');
+      
+      if (clickableElement) {
         try {
-          const buttonName = button.getAttribute('data-button-name') || 
-                            button.getAttribute('aria-label') || 
-                            button.textContent?.trim() || 
-                            'unnamed-button';
+          const elementName = clickableElement.getAttribute('data-button-name') || 
+                            clickableElement.getAttribute('aria-label') || 
+                            clickableElement.getAttribute('title') ||
+                            clickableElement.textContent?.trim() || 
+                            clickableElement.tagName.toLowerCase();
 
-          console.log(`Attempting to track button click: ${buttonName} on page:`, pageSlug);
+          console.log(`Tracking click on "${elementName}" on page:`, pageSlug);
 
           const { error } = await supabase.from('button_clicks').insert({
             page_slug: pageSlug,
-            button_name: buttonName,
-            session_id: localStorage.getItem('session_id') || crypto.randomUUID()
+            button_name: elementName,
+            session_id: sessionId
           });
           
           if (error) {
-            console.error('Error tracking button click:', error);
+            console.error('Error tracking click:', error);
           } else {
-            console.log(`Button click tracked successfully: ${buttonName} on ${pageSlug}`);
+            console.log(`Click tracked successfully: ${elementName}`);
           }
         } catch (error) {
-          console.error('Error tracking button click:', error);
+          console.error('Error tracking click:', error);
         }
       }
     };
