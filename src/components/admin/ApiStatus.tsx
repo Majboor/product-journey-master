@@ -36,7 +36,8 @@ export const ApiStatus = () => {
       // Then create the page with the new category_id
       const pageDataWithCategory = {
         ...samplePageData,
-        category_id: categoryData.id
+        category_id: categoryData.id,
+        content: samplePageData.content // Explicitly include content
       };
 
       const { data: existingPage } = await supabase
