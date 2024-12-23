@@ -1,3 +1,8 @@
+export const sampleCategoryData = {
+  "name": "Sample Data",
+  "slug": "sample-data"
+};
+
 export const samplePageData = {
   "slug": "sample-data/modern-bistro",
   "category_id": null, // Will be set dynamically
@@ -156,12 +161,6 @@ export const samplePageData = {
       }
     }
   }
-};
-
-export const sampleCategoryData = {
-  "name": "Sample Data",
-  "slug": "sample-data",
-  "description": "Sample pages for demonstration purposes"
 };
 
 export const colorSchemeExamples = {
