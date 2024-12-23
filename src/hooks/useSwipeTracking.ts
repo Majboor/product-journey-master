@@ -26,12 +26,17 @@ export const useSwipeTracking = () => {
         const direction = swipeDistance > 0 ? 'right' : 'left';
         
         try {
-          await supabase.from('swipe_events').insert({
+          const { error } = await supabase.from('swipe_events').insert({
             page_slug: pageSlug,
             direction,
             event_type: 'swipe'
           });
-          console.log(`Swipe ${direction} tracked on ${pageSlug}`);
+
+          if (error) {
+            console.error('Error inserting swipe event:', error);
+          } else {
+            console.log(`Swipe ${direction} tracked on page: ${pageSlug}`);
+          }
         } catch (error) {
           console.error('Error tracking swipe:', error);
         }
@@ -40,24 +45,29 @@ export const useSwipeTracking = () => {
 
     // Track scrolls (debounced to avoid too many events)
     const handleScroll = debounce(async () => {
-      const scrollPosition = window.scrollY;
-      const direction = scrollPosition > lastScrollPosition.current ? 'down' : 'up';
-      const scrollPercentage = (scrollPosition / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+      const currentPosition = window.scrollY;
+      const direction = currentPosition > lastScrollPosition.current ? 'down' : 'up';
+      const scrollPercentage = (currentPosition / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
       
       try {
-        await supabase.from('swipe_events').insert({
+        const { error } = await supabase.from('swipe_events').insert({
           page_slug: pageSlug,
           direction,
           event_type: 'scroll',
           scroll_position: Math.round(scrollPercentage),
           additional_data: {
-            pixelPosition: scrollPosition,
+            pixelPosition: currentPosition,
             viewportHeight: window.innerHeight,
             documentHeight: document.documentElement.scrollHeight
           }
         });
-        console.log(`Scroll ${direction} tracked on ${pageSlug}`);
-        lastScrollPosition.current = scrollPosition;
+
+        if (error) {
+          console.error('Error inserting scroll event:', error);
+        } else {
+          console.log(`Scroll ${direction} tracked on page: ${pageSlug}`);
+          lastScrollPosition.current = currentPosition;
+        }
       } catch (error) {
         console.error('Error tracking scroll:', error);
       }
@@ -70,7 +80,7 @@ export const useSwipeTracking = () => {
       if (now - lastMouseTrackTime > 5000) { // Track every 5 seconds
         lastMouseTrackTime = now;
         try {
-          await supabase.from('swipe_events').insert({
+          const { error } = await supabase.from('swipe_events').insert({
             page_slug: pageSlug,
             direction: e.movementX > 0 ? 'right' : 'left',
             event_type: 'mouse_movement',
@@ -81,7 +91,12 @@ export const useSwipeTracking = () => {
               movementY: e.movementY
             }
           });
-          console.log(`Mouse movement tracked on ${pageSlug}`);
+
+          if (error) {
+            console.error('Error inserting mouse movement:', error);
+          } else {
+            console.log(`Mouse movement tracked on page: ${pageSlug}`);
+          }
         } catch (error) {
           console.error('Error tracking mouse movement:', error);
         }
