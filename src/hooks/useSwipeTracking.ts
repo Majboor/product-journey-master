@@ -5,7 +5,8 @@ import { useLocation } from 'react-router-dom';
 
 export const useSwipeTracking = () => {
   const location = useLocation();
-  const pageSlug = location.pathname.replace('/', '') || 'index';
+  // Remove leading slash and handle empty path as 'index'
+  const pageSlug = location.pathname.replace(/^\//, '') || 'index';
   const lastScrollPosition = useRef(0);
 
   useEffect(() => {
@@ -40,12 +41,13 @@ export const useSwipeTracking = () => {
     // Track scrolls (debounced to avoid too many events)
     const handleScroll = debounce(async () => {
       const scrollPosition = window.scrollY;
+      const direction = scrollPosition > lastScrollPosition.current ? 'down' : 'up';
       const scrollPercentage = (scrollPosition / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
       
       try {
         await supabase.from('swipe_events').insert({
           page_slug: pageSlug,
-          direction: scrollPosition > lastScrollPosition.current ? 'down' : 'up',
+          direction,
           event_type: 'scroll',
           scroll_position: Math.round(scrollPercentage),
           additional_data: {
@@ -54,6 +56,7 @@ export const useSwipeTracking = () => {
             documentHeight: document.documentElement.scrollHeight
           }
         });
+        console.log(`Scroll ${direction} tracked on ${pageSlug}`);
         lastScrollPosition.current = scrollPosition;
       } catch (error) {
         console.error('Error tracking scroll:', error);
@@ -78,6 +81,7 @@ export const useSwipeTracking = () => {
               movementY: e.movementY
             }
           });
+          console.log(`Mouse movement tracked on ${pageSlug}`);
         } catch (error) {
           console.error('Error tracking mouse movement:', error);
         }
@@ -98,5 +102,5 @@ export const useSwipeTracking = () => {
       document.removeEventListener('mousemove', handleMouseMove);
       handleScroll.cancel(); // Cancel any pending debounced calls
     };
-  }, [pageSlug]);
+  }, [pageSlug]); // Re-run effect when page changes
 };
