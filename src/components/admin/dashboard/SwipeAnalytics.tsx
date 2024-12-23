@@ -14,6 +14,14 @@ interface SwipeAnalyticsProps {
 }
 
 export const SwipeAnalytics = ({ data }: SwipeAnalyticsProps) => {
+  // Filter out empty pages and format data for display
+  const formattedData = data
+    .filter(item => item.page) // Remove empty page entries
+    .map(item => ({
+      ...item,
+      page: item.page === 'index' ? '/' : `/${item.page}`, // Format page names
+    }));
+
   return (
     <Card className="col-span-2">
       <CardHeader>
@@ -24,7 +32,7 @@ export const SwipeAnalytics = ({ data }: SwipeAnalyticsProps) => {
           <div className="h-[400px] min-w-[600px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart 
-                data={data} 
+                data={formattedData} 
                 margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />

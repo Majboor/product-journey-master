@@ -19,7 +19,7 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
   const { toast } = useToast();
   const path = location.pathname.slice(1);
   const [categorySlug, slug] = path.split('/');
-  const finalSlug = slug ? `${categorySlug}/${slug}` : '';
+  const finalSlug = slug ? `${categorySlug}/${slug}` : categorySlug || '';
 
   // List of routes where we don't want to show the brand name
   const hideLogoRoutes = ['about', 'features', 'why-us', 'reviews', 'order-tracking'];
@@ -28,7 +28,24 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
   const { data: page, error } = useQuery({
     queryKey: ['page', finalSlug],
     queryFn: async () => {
-      if (!finalSlug) return null;
+      if (!finalSlug) {
+        const { data, error } = await supabase
+          .from('pages')
+          .select('content')
+          .eq('slug', '')
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error fetching root page:', error);
+          toast({
+            title: "Error",
+            description: "Failed to load page content",
+            variant: "destructive",
+          });
+          return null;
+        }
+        return data;
+      }
       
       const { data, error } = await supabase
         .from('pages')
@@ -47,7 +64,7 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
       }
       return data;
     },
-    enabled: !!finalSlug
+    enabled: true // Always fetch, even for root page
   });
 
   // Safely cast and validate the content
