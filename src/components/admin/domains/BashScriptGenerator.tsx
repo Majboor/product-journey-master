@@ -8,24 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const BashScriptGenerator = () => {
   const [basePath, setBasePath] = useState("/var/www/sitemaps");
-  const APP_URL = "https://tylpifixgpoxonedjyzo.supabase.co/rest/v1";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM";
   
-  const { data: categories } = useQuery({
-    queryKey: ['categories'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*');
-      
-      if (error) throw error;
-      return data;
-    },
-  });
-
   const generateBashScript = () => {
-    if (!categories) return "";
-    
     return `#!/bin/bash
 
 # Base directory for sitemaps
@@ -37,9 +21,9 @@ mkdir -p "$BASE_DIR"
 # Function to get sitemap content for a category
 get_sitemap_content() {
     local category_id=$1
-    local sitemap_content=$(curl -s "${APP_URL}/sitemaps?category_id=eq.$category_id&order=last_generated.desc&limit=1" \\
-      -H "apikey: ${SUPABASE_ANON_KEY}" \\
-      -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
+    local sitemap_content=$(curl -s "${window.location.origin}/api/sitemap?category_id=$category_id" \\
+      -H "apikey: ${supabase.supabaseKey}" \\
+      -H "Authorization: Bearer ${supabase.supabaseKey}")
     
     echo "$sitemap_content" | jq -r '.[0].content // empty'
 }
@@ -77,9 +61,9 @@ save_sitemap() {
 
 # Function to process all categories
 process_categories() {
-    local categories=$(curl -s "${APP_URL}/categories" \\
-      -H "apikey: ${SUPABASE_ANON_KEY}" \\
-      -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
+    local categories=$(curl -s "${window.location.origin}/api/categories" \\
+      -H "apikey: ${supabase.supabaseKey}" \\
+      -H "Authorization: Bearer ${supabase.supabaseKey}")
 
     if [ -z "$categories" ] || [ "$categories" = "[]" ]; then
         echo "No categories found in the database"
