@@ -59,6 +59,7 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
           throw error;
         }
         
+        console.log('Fetched page content:', data?.content);
         return data;
       } catch (error: any) {
         console.error('Error fetching page content:', error);
@@ -77,8 +78,12 @@ const Header = ({ brandName = "Supreme Crash Cams" }: HeaderProps) => {
   const content = page?.content as unknown;
   const validation = validatePageContent(content);
   
-  // Only use content.brandName if validation passes and content exists
-  const displayBrandName = validation.isValid && content ? (content as PageContent).brandName || brandName : brandName;
+  // Extract brandName from content if valid, otherwise use default
+  const pageContent = content as PageContent;
+  const displayBrandName = validation.isValid && pageContent?.brandName ? pageContent.brandName : brandName;
+
+  console.log('Content validation:', validation);
+  console.log('Display brand name:', displayBrandName);
 
   useEffect(() => {
     // Show login dialog immediately for non-authenticated users on the main page
