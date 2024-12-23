@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { debounce } from 'lodash';
 import { useLocation } from 'react-router-dom';
 
 export const useSwipeTracking = () => {
@@ -9,6 +8,7 @@ export const useSwipeTracking = () => {
   const lastScrollPosition = useRef(0);
   const scrollTimeout = useRef<NodeJS.Timeout>();
   const sessionId = localStorage.getItem('session_id') || crypto.randomUUID();
+  const isScrolling = useRef(false);
 
   useEffect(() => {
     console.log('Initializing scroll and swipe tracking for page:', pageSlug);
@@ -80,6 +80,9 @@ export const useSwipeTracking = () => {
     };
 
     const trackScroll = async () => {
+      if (isScrolling.current) return;
+      isScrolling.current = true;
+
       const currentPosition = window.scrollY;
       const direction = currentPosition > lastScrollPosition.current ? 'down' : 'up';
       const scrollPercentage = (currentPosition / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
@@ -89,46 +92,48 @@ export const useSwipeTracking = () => {
         clearTimeout(scrollTimeout.current);
       }
 
-      // Set new timeout
-      scrollTimeout.current = setTimeout(async () => {
-        try {
-          console.log(`Tracking scroll ${direction} on page:`, pageSlug);
-          const { error } = await supabase.from('swipe_events').insert({
-            page_slug: pageSlug,
-            direction,
-            event_type: 'scroll',
-            scroll_position: Math.round(scrollPercentage),
-            session_id: sessionId,
-            additional_data: {
-              pixelPosition: currentPosition,
-              viewportHeight: window.innerHeight,
-              documentHeight: document.documentElement.scrollHeight,
-              timestamp: new Date().toISOString()
-            }
-          });
-
-          if (error) {
-            console.error('Error tracking scroll:', error);
-          } else {
-            console.log(`Scroll ${direction} tracked successfully`);
-            lastScrollPosition.current = currentPosition;
+      try {
+        console.log(`Tracking scroll ${direction} on page:`, pageSlug, 'Position:', currentPosition);
+        const { error } = await supabase.from('swipe_events').insert({
+          page_slug: pageSlug,
+          direction,
+          event_type: 'scroll',
+          scroll_position: Math.round(scrollPercentage),
+          session_id: sessionId,
+          additional_data: {
+            pixelPosition: currentPosition,
+            viewportHeight: window.innerHeight,
+            documentHeight: document.documentElement.scrollHeight,
+            timestamp: new Date().toISOString()
           }
-        } catch (error) {
+        });
+
+        if (error) {
           console.error('Error tracking scroll:', error);
+        } else {
+          console.log(`Scroll ${direction} tracked successfully`);
+          lastScrollPosition.current = currentPosition;
         }
-      }, 150); // Reduced timeout for more responsive tracking
+      } catch (error) {
+        console.error('Error tracking scroll:', error);
+      }
+
+      // Set timeout to allow next scroll tracking
+      scrollTimeout.current = setTimeout(() => {
+        isScrolling.current = false;
+      }, 100); // Reduced timeout for more responsive tracking
     };
 
-    // Add event listeners with capture phase
-    document.addEventListener('touchstart', handleTouchStart, true);
-    document.addEventListener('touchend', handleTouchEnd, true);
-    document.addEventListener('scroll', trackScroll, true);
+    // Add event listeners with passive option for better scroll performance
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+    document.addEventListener('scroll', trackScroll, { passive: true });
 
     // Cleanup
     return () => {
-      document.removeEventListener('touchstart', handleTouchStart, true);
-      document.removeEventListener('touchend', handleTouchEnd, true);
-      document.removeEventListener('scroll', trackScroll, true);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('scroll', trackScroll);
       if (scrollTimeout.current) {
         clearTimeout(scrollTimeout.current);
       }
