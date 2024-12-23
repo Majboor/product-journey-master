@@ -58,8 +58,12 @@ export const router = createBrowserRouter([
         element: <DynamicPage />,
       },
       {
-        path: "/general",
-        element: <DynamicPage />,
+        path: "/order-tracking",
+        element: <OrderTracking />,
+      },
+      {
+        path: "/order-tracking/:orderId",
+        element: <OrderTracking />,
       },
       {
         path: "/payment/success",
@@ -68,10 +72,6 @@ export const router = createBrowserRouter([
       {
         path: "/payment/failed",
         element: <PaymentFailed />,
-      },
-      {
-        path: "/order-tracking/:orderId",
-        element: <OrderTracking />,
       },
       {
         path: "/sitemap.xml",
