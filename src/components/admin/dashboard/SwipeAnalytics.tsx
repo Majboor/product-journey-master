@@ -14,13 +14,37 @@ interface SwipeAnalyticsProps {
 }
 
 export const SwipeAnalytics = ({ data }: SwipeAnalyticsProps) => {
-  // Filter out empty pages and format data for display
-  const formattedData = data
-    .filter(item => item.page) // Remove empty page entries
-    .map(item => ({
-      ...item,
-      page: item.page === 'index' ? '/' : `/${item.page}`, // Format page names
-    }));
+  // Process and aggregate data for all pages
+  const processedData = data.reduce((acc, curr) => {
+    if (!curr.page) return acc;
+    
+    // Format the page name
+    const formattedPage = curr.page === 'index' ? '/' : `/${curr.page}`;
+    
+    // Find existing entry or create new one
+    const existingEntry = acc.find(item => item.page === formattedPage);
+    
+    if (existingEntry) {
+      // Update existing entry
+      existingEntry.left = (existingEntry.left || 0) + (curr.left || 0);
+      existingEntry.right = (existingEntry.right || 0) + (curr.right || 0);
+      existingEntry.up = (existingEntry.up || 0) + (curr.up || 0);
+      existingEntry.down = (existingEntry.down || 0) + (curr.down || 0);
+      existingEntry.mouse_movements = (existingEntry.mouse_movements || 0) + (curr.mouse_movements || 0);
+    } else {
+      // Add new entry
+      acc.push({
+        page: formattedPage,
+        left: curr.left || 0,
+        right: curr.right || 0,
+        up: curr.up || 0,
+        down: curr.down || 0,
+        mouse_movements: curr.mouse_movements || 0
+      });
+    }
+    
+    return acc;
+  }, [] as typeof data);
 
   return (
     <Card className="col-span-2">
@@ -32,7 +56,7 @@ export const SwipeAnalytics = ({ data }: SwipeAnalyticsProps) => {
           <div className="h-[400px] min-w-[600px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart 
-                data={formattedData} 
+                data={processedData} 
                 margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
