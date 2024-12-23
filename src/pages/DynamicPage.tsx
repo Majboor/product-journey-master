@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
+import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import ProductSection from "@/components/ProductSection";
 import Features from "@/components/Features";
@@ -75,6 +76,7 @@ const DynamicPage = () => {
   return (
     <ColorSchemeProvider colorScheme={colorScheme}>
       <div className="min-h-screen">
+        <Header brandName={content.brandName} />
         <Hero {...content.hero} />
         <ProductSection {...content.product} />
         <Features features={content.features} />
