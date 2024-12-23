@@ -5,17 +5,17 @@ import { useLocation } from 'react-router-dom';
 
 export const useSwipeTracking = () => {
   const location = useLocation();
-  // Format the page slug correctly by removing leading slash and handling nested routes
-  const pageSlug = location.pathname.replace(/^\//, '').replace(/\/$/, '') || 'index';
+  // Format page slug to match how page visits work
+  const pageSlug = location.pathname.substring(1) || 'index';
   const lastScrollPosition = useRef(0);
+  const sessionId = localStorage.getItem('session_id') || crypto.randomUUID();
 
   useEffect(() => {
-    console.log('Initializing tracking for page:', pageSlug); // Debug log
+    console.log('Initializing interaction tracking for page:', pageSlug);
 
     let touchStartX = 0;
     let touchEndX = 0;
 
-    // Track swipes
     const handleTouchStart = (e: TouchEvent) => {
       touchStartX = e.touches[0].clientX;
     };
@@ -28,12 +28,12 @@ export const useSwipeTracking = () => {
         const direction = swipeDistance > 0 ? 'right' : 'left';
         
         try {
-          console.log('Attempting to track swipe on page:', pageSlug); // Debug log
+          console.log(`Attempting to track swipe ${direction} on page:`, pageSlug);
           const { error } = await supabase.from('swipe_events').insert({
             page_slug: pageSlug,
             direction,
             event_type: 'swipe',
-            session_id: localStorage.getItem('session_id') || undefined
+            session_id: sessionId
           });
 
           if (error) {
@@ -47,20 +47,19 @@ export const useSwipeTracking = () => {
       }
     };
 
-    // Track scrolls (debounced to avoid too many events)
     const handleScroll = debounce(async () => {
       const currentPosition = window.scrollY;
       const direction = currentPosition > lastScrollPosition.current ? 'down' : 'up';
       const scrollPercentage = (currentPosition / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
       
       try {
-        console.log('Attempting to track scroll on page:', pageSlug); // Debug log
+        console.log(`Attempting to track scroll ${direction} on page:`, pageSlug);
         const { error } = await supabase.from('swipe_events').insert({
           page_slug: pageSlug,
           direction,
           event_type: 'scroll',
           scroll_position: Math.round(scrollPercentage),
-          session_id: localStorage.getItem('session_id') || undefined,
+          session_id: sessionId,
           additional_data: {
             pixelPosition: currentPosition,
             viewportHeight: window.innerHeight,
@@ -79,19 +78,18 @@ export const useSwipeTracking = () => {
       }
     }, 1000);
 
-    // Track mouse movements (sampling to avoid too many events)
     let lastMouseTrackTime = 0;
     const handleMouseMove = async (e: MouseEvent) => {
       const now = Date.now();
       if (now - lastMouseTrackTime > 5000) { // Track every 5 seconds
         lastMouseTrackTime = now;
         try {
-          console.log('Attempting to track mouse movement on page:', pageSlug); // Debug log
+          console.log('Attempting to track mouse movement on page:', pageSlug);
           const { error } = await supabase.from('swipe_events').insert({
             page_slug: pageSlug,
             direction: e.movementX > 0 ? 'right' : 'left',
             event_type: 'mouse_movement',
-            session_id: localStorage.getItem('session_id') || undefined,
+            session_id: sessionId,
             additional_data: {
               x: e.clientX,
               y: e.clientY,
@@ -125,5 +123,5 @@ export const useSwipeTracking = () => {
       document.removeEventListener('mousemove', handleMouseMove);
       handleScroll.cancel(); // Cancel any pending debounced calls
     };
-  }, [pageSlug]); // Re-run effect when page changes
+  }, [pageSlug]); // Re-initialize tracking when page changes
 };

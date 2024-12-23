@@ -4,9 +4,12 @@ import { useLocation } from 'react-router-dom';
 
 export const useButtonTracking = () => {
   const location = useLocation();
-  const pageSlug = location.pathname.replace('/', '') || 'index';
+  // Format page slug to handle nested routes correctly, matching how page visits work
+  const pageSlug = location.pathname.substring(1) || 'index';
 
   useEffect(() => {
+    console.log('Initializing button tracking for page:', pageSlug); // Debug log
+
     const trackButtonClick = async (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const button = target.closest('button');
@@ -18,13 +21,19 @@ export const useButtonTracking = () => {
                             button.textContent?.trim() || 
                             'unnamed-button';
 
-          await supabase.from('button_clicks').insert({
+          console.log(`Attempting to track button click: ${buttonName} on page:`, pageSlug);
+
+          const { error } = await supabase.from('button_clicks').insert({
             page_slug: pageSlug,
             button_name: buttonName,
-            session_id: crypto.randomUUID()
+            session_id: localStorage.getItem('session_id') || crypto.randomUUID()
           });
           
-          console.log(`Button click tracked: ${buttonName} on ${pageSlug}`);
+          if (error) {
+            console.error('Error tracking button click:', error);
+          } else {
+            console.log(`Button click tracked successfully: ${buttonName} on ${pageSlug}`);
+          }
         } catch (error) {
           console.error('Error tracking button click:', error);
         }
@@ -33,5 +42,5 @@ export const useButtonTracking = () => {
 
     document.addEventListener('click', trackButtonClick);
     return () => document.removeEventListener('click', trackButtonClick);
-  }, [pageSlug]);
+  }, [pageSlug]); // Re-initialize when page changes
 };
