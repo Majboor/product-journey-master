@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 
 export const useSwipeTracking = () => {
   const location = useLocation();
+  // Get the full path without leading slash for consistency
   const pageSlug = location.pathname.substring(1) || 'index';
   const lastScrollPosition = useRef(0);
   const scrollTimeout = useRef<NodeJS.Timeout>();
@@ -86,11 +87,6 @@ export const useSwipeTracking = () => {
       const currentPosition = window.scrollY;
       const direction = currentPosition > lastScrollPosition.current ? 'down' : 'up';
       const scrollPercentage = (currentPosition / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-      
-      // Clear existing timeout
-      if (scrollTimeout.current) {
-        clearTimeout(scrollTimeout.current);
-      }
 
       try {
         console.log(`Tracking scroll ${direction} on page:`, pageSlug, 'Position:', currentPosition);
@@ -104,39 +100,42 @@ export const useSwipeTracking = () => {
             pixelPosition: currentPosition,
             viewportHeight: window.innerHeight,
             documentHeight: document.documentElement.scrollHeight,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            pathname: location.pathname,
+            search: location.search,
+            hash: location.hash
           }
         });
 
         if (error) {
           console.error('Error tracking scroll:', error);
         } else {
-          console.log(`Scroll ${direction} tracked successfully`);
+          console.log(`Scroll ${direction} tracked successfully for page:`, pageSlug);
           lastScrollPosition.current = currentPosition;
         }
       } catch (error) {
         console.error('Error tracking scroll:', error);
       }
 
-      // Set timeout to allow next scroll tracking
+      // Reset scrolling flag after a short delay
       scrollTimeout.current = setTimeout(() => {
         isScrolling.current = false;
-      }, 100); // Reduced timeout for more responsive tracking
+      }, 100);
     };
 
-    // Add event listeners with passive option for better scroll performance
+    // Add event listeners with passive option for better performance
     document.addEventListener('touchstart', handleTouchStart, { passive: true });
     document.addEventListener('touchend', handleTouchEnd, { passive: true });
-    document.addEventListener('scroll', trackScroll, { passive: true });
+    window.addEventListener('scroll', trackScroll, { passive: true });
 
     // Cleanup
     return () => {
       document.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('touchend', handleTouchEnd);
-      document.removeEventListener('scroll', trackScroll);
+      window.removeEventListener('scroll', trackScroll);
       if (scrollTimeout.current) {
         clearTimeout(scrollTimeout.current);
       }
     };
-  }, [pageSlug]); // Re-initialize tracking when page changes
+  }, [pageSlug, location]); // Re-initialize when page or location changes
 };

@@ -9,14 +9,16 @@ import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
 import { ColorSchemeProvider } from "@/components/ColorSchemeProvider";
 import { usePageAnalytics } from "@/hooks/usePageAnalytics";
+import { useSwipeTracking } from "@/hooks/useSwipeTracking";
 import { PageContent } from "@/types/content";
 import { ColorScheme } from "@/types/colors";
 
 const DynamicPage = () => {
   const { categorySlug, slug } = useParams();
-  const finalSlug = `${categorySlug}/${slug}`;
+  const finalSlug = categorySlug && slug ? `${categorySlug}/${slug}` : categorySlug || slug || '';
   
   usePageAnalytics(finalSlug);
+  useSwipeTracking(); // Add this line to enable scroll tracking
 
   const { data: page, isLoading, error } = useQuery({
     queryKey: ['page', categorySlug, slug],
