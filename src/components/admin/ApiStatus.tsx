@@ -14,6 +14,11 @@ export const ApiStatus = () => {
 
   const testApi = async () => {
     try {
+      if (!session?.access_token) {
+        toast.error("Please sign in to test the API");
+        return;
+      }
+
       // First create the category
       const { data: categoryData, error: categoryError } = await supabase
         .from('categories')
