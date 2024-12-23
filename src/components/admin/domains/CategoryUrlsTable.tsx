@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CategoryTableActions } from "./CategoryTableActions";
-import { useState } from "react";  // Add this import
+import { useState, useEffect } from "react";
 
 interface Category {
   id: string;
@@ -45,10 +45,28 @@ export const CategoryUrlsTable = ({
   onDownloadSitemap,
   onUpdateSitemap,
 }: CategoryUrlsTableProps) => {
-  const [localUrls, setLocalUrls] = useState<Record<string, string>>({});  // Add local state for URLs
+  const [localUrls, setLocalUrls] = useState<Record<string, string>>({});
+
+  // Initialize localUrls with existing values
+  useEffect(() => {
+    const initialUrls: Record<string, string> = {};
+    categories?.forEach((category) => {
+      const mapping = domainMappings?.find(dm => dm.category_id === category.id);
+      if (mapping?.domain) {
+        initialUrls[category.id] = mapping.domain;
+      }
+    });
+    setLocalUrls(initialUrls);
+  }, [categories, domainMappings]);
 
   const handleUrlSubmit = async (categoryId: string, url: string) => {
     if (!url) return;
+    
+    // Update both local and parent state
+    setLocalUrls(prev => ({
+      ...prev,
+      [categoryId]: url
+    }));
     
     // First save the URL
     onUrlSubmit(categoryId, url);
@@ -66,7 +84,7 @@ export const CategoryUrlsTable = ({
       ...prev,
       [categoryId]: url
     }));
-    onUrlChange(categoryId, url);  // Keep the original onUrlChange
+    onUrlChange(categoryId, url);
   };
 
   return (
@@ -92,13 +110,13 @@ export const CategoryUrlsTable = ({
               <TableCell>
                 <div className="flex gap-2">
                   <Input
-                    value={localUrls[category.id] || categoryUrls[category.id] || mapping?.domain || ''}
+                    value={localUrls[category.id] || ''}
                     onChange={(e) => handleLocalUrlChange(category.id, e.target.value)}
                     placeholder="Enter custom URL"
                   />
                   <Button
-                    onClick={() => handleUrlSubmit(category.id, localUrls[category.id] || categoryUrls[category.id])}
-                    disabled={!localUrls[category.id] && !categoryUrls[category.id]}
+                    onClick={() => handleUrlSubmit(category.id, localUrls[category.id])}
+                    disabled={!localUrls[category.id]}
                   >
                     Save
                   </Button>
