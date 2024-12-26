@@ -6,27 +6,17 @@ import { componentTagger } from "lovable-tagger";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::", // Allows IPv6 and IPv4
-    port: 8080, // Default port
+    host: "::",
+    port: 8080,
   },
   plugins: [
     react(),
-    mode === "development" && componentTagger(), // Enable only in development
+    mode === 'development' &&
+    componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-  },
-  build: {
-    outDir: "dist", // Ensure build output goes to 'dist'
-    sourcemap: true, // Helps debug production errors
-    emptyOutDir: true, // Clears 'dist' folder before building
-  },
-  define: {
-    "process.env": process.env, // Ensures Cloudflare picks up environment variables
-  },
-  optimizeDeps: {
-    include: ["react", "react-dom"], // Ensure these are pre-bundled
   },
 }));
