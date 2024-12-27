@@ -11,18 +11,14 @@ watch_dir = "src"
 
 [env.production]
 workers_dev = false
-
-[env.development]
-workers_dev = true
-
-# Add environment variables
-[vars]
+[env.production.vars]
 SUPABASE_URL = ""
 SUPABASE_ANON_KEY = ""
 
-# Pages specific configuration
-[build.upload]
-format = "service-worker"
+[env.development]
+workers_dev = true
+[env.development.vars]
+SUPABASE_URL = ""
+SUPABASE_ANON_KEY = ""
 
-[pages_build_output_dir]
-value = "dist"
+pages_build_output_dir = "dist"
