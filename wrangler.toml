@@ -8,9 +8,6 @@ command = "bun install && bun run build"
 [site]
 bucket = "./dist"
 
-[build.upload]
-format = "service-worker"
-
 [pages]
 build_output_dir = "dist"
 
