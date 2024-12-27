@@ -14,3 +14,8 @@ workers_dev = false
 
 [env.development]
 workers_dev = true
+
+# Add environment variables
+[vars]
+SUPABASE_URL = ""
+SUPABASE_ANON_KEY = ""
