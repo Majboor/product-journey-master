@@ -1,13 +1,14 @@
 name = "product-journey-master"
-main = "src/_worker.js"
 compatibility_date = "2024-01-01"
+
+[build]
+command = "bun install && bun run build"
 
 [site]
 bucket = "./dist"
 
-[build]
-command = "bun run build"
-watch_dir = "src"
+[build.upload]
+format = "service-worker"
 
 [env.production]
 workers_dev = false
