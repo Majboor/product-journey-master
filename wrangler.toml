@@ -7,7 +7,6 @@ bucket = "./dist"
 
 [build]
 command = "bun install && bun run build"
-
 pages_build_output_dir = "dist"
 
 [env.production]
