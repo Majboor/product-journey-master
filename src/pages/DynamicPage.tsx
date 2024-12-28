@@ -86,7 +86,7 @@ const DynamicPage = () => {
       <ProductSection {...content.product} />
       <Features features={content.features} />
       <Reviews reviews={content.reviews} />
-      <Footer {...content.footer} />
+      <Footer {...content.footer} brandName={content.brandName} />
     </div>
   );
 };
