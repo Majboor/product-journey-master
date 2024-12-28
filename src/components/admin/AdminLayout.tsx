@@ -1,4 +1,4 @@
-import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
+import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
 import { Users, FileText, Database, LayoutDashboard, Link, FolderOpen, CreditCard, Globe } from "lucide-react";
 import { Link as RouterLink, Outlet } from "react-router-dom";
 
@@ -87,6 +87,7 @@ export const AdminLayout = () => {
           </SidebarContent>
         </Sidebar>
         <main className="flex-1 p-6">
+          <SidebarTrigger className="mb-4" />
           <Outlet />
         </main>
       </div>

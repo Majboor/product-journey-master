@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocation } from 'react-router-dom';
+import { toast } from '@/components/ui/use-toast';
 
 export const useButtonTracking = () => {
   const location = useLocation();
@@ -12,37 +13,35 @@ export const useButtonTracking = () => {
 
     const trackClick = async (e: MouseEvent) => {
       const target = e.target as HTMLElement;
+      const button = target.closest('button');
+      
+      if (!button) return; // Only track button clicks
       
       try {
-        // Get element details
-        const elementName = target.getAttribute('data-button-name') || 
-                          target.getAttribute('aria-label') || 
-                          target.getAttribute('title') ||
-                          target.textContent?.trim() || 
-                          target.tagName.toLowerCase();
+        // Get button details
+        const buttonName = button.getAttribute('data-button-name') || 
+                          button.getAttribute('aria-label') || 
+                          button.getAttribute('title') ||
+                          button.textContent?.trim() || 
+                          'unnamed-button';
 
-        const elementType = target.tagName.toLowerCase();
-        const elementClasses = Array.from(target.classList).join(' ');
-        
-        console.log(`Tracking click on "${elementName}" (${elementType}) on page:`, pageSlug);
+        console.log(`Tracking click on "${buttonName}" on page:`, pageSlug);
 
         const { error } = await supabase.from('button_clicks').insert({
           page_slug: pageSlug,
-          button_name: elementName,
-          session_id: sessionId,
-          additional_data: {
-            elementType,
-            elementClasses,
-            x: e.clientX,
-            y: e.clientY,
-            timestamp: new Date().toISOString()
-          }
+          button_name: buttonName,
+          session_id: sessionId
         });
         
         if (error) {
           console.error('Error tracking click:', error);
+          toast({
+            title: "Error tracking click",
+            description: error.message,
+            variant: "destructive",
+          });
         } else {
-          console.log(`Click tracked successfully: ${elementName}`);
+          console.log(`Click tracked successfully: ${buttonName}`);
         }
       } catch (error) {
         console.error('Error tracking click:', error);
