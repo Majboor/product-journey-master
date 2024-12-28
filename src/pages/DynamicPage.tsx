@@ -77,6 +77,7 @@ const DynamicPage = () => {
     );
   }
 
+  // After validation passes, we can safely assert the type
   const content = pageData.content as PageContent;
   console.log('Display brand name:', content.brandName);
 
