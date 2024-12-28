@@ -6,11 +6,12 @@ import { validatePageContent } from "@/types/content";
 import { ErrorPage } from "@/components/ErrorPage";
 import { useButtonTracking } from "@/hooks/useButtonTracking";
 import { useSwipeTracking } from "@/hooks/useSwipeTracking";
-import { Hero } from "@/components/Hero";
-import { ProductSection } from "@/components/ProductSection";
-import { Features } from "@/components/Features";
-import { Reviews } from "@/components/Reviews";
-import { Footer } from "@/components/Footer";
+import Hero from "@/components/Hero";
+import ProductSection from "@/components/ProductSection";
+import Features from "@/components/Features";
+import Reviews from "@/components/Reviews";
+import Footer from "@/components/Footer";
+import type { PageContent } from "@/types/content";
 
 const DynamicPage = () => {
   const location = useLocation();
@@ -76,13 +77,13 @@ const DynamicPage = () => {
     );
   }
 
-  const content = pageData.content;
+  const content = pageData.content as PageContent;
   console.log('Display brand name:', content.brandName);
 
   return (
     <div className="min-h-screen">
       <Hero {...content.hero} />
-      <ProductSection product={content.product} />
+      <ProductSection {...content.product} />
       <Features features={content.features} />
       <Reviews reviews={content.reviews} />
       <Footer {...content.footer} />
