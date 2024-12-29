@@ -12,7 +12,7 @@ import { useButtonTracking } from "@/hooks/useButtonTracking";
 import { initializeDefaultPages } from "@/utils/initializeDefaultPages";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PageContent, isPageContent } from "@/types/content";
+import { PageContent, isPageContent, validatePageContent } from "@/types/content";
 import { ErrorPage } from "@/components/ErrorPage";
 import { useToast } from "@/hooks/use-toast";
 
@@ -42,21 +42,31 @@ const Index = () => {
             description: "Failed to load page content",
             variant: "destructive",
           });
-          return defaultContent;
+          return null;
         }
         
-        // Use the type guard to validate the content
+        // Validate the content structure
         const content = data?.content;
-        if (content && isPageContent(content)) {
-          console.log('Valid page content found');
-          return content;
+        if (content) {
+          const validation = validatePageContent(content);
+          console.log('Content validation:', validation);
+          
+          if (!validation.isValid) {
+            console.error('Invalid page content structure:', validation.errors);
+            return null;
+          }
+          
+          if (isPageContent(content)) {
+            console.log('Valid page content found');
+            return content;
+          }
         }
         
-        console.warn('Invalid page content structure, using default content');
-        return defaultContent;
+        console.warn('Invalid or missing page content, returning null');
+        return null;
       } catch (error) {
         console.error('Error in query:', error);
-        return defaultContent;
+        return null;
       }
     },
     retry: 1
@@ -84,39 +94,38 @@ const Index = () => {
     return <LoadingScreen />;
   }
 
-  if (pageError) {
+  // Show error page if there's an error or no valid content
+  if (pageError || !pageContent) {
     return (
       <ErrorPage 
-        title="Error Loading Page"
-        description="There was an error loading the page content. Please try again later."
+        title="Page Not Found"
+        description="The page you're looking for doesn't exist or has invalid content."
       />
     );
   }
 
-  const content = pageContent || defaultContent;
-
   return (
     <div className="min-h-screen bg-white">
-      <Header brandName={content.brandName} />
+      <Header brandName={pageContent.brandName} />
       <main>
         <Hero 
-          title={content.hero.title}
-          description={content.hero.description}
-          image={content.hero.image}
-          price={content.hero.price}
+          title={pageContent.hero.title}
+          description={pageContent.hero.description}
+          image={pageContent.hero.image}
+          price={pageContent.hero.price}
         />
         <ProductSection 
-          images={content.product.images}
-          details={content.product.details}
-          features={content.product.features}
+          images={pageContent.product.images}
+          details={pageContent.product.details}
+          features={pageContent.product.features}
         />
-        <Features features={content.features} />
-        <Reviews reviews={content.reviews || []} />
+        <Features features={pageContent.features} />
+        <Reviews reviews={pageContent.reviews || []} />
       </main>
       <Footer 
-        brandName={content.brandName}
-        contact={content.footer.contact}
-        links={content.footer.links}
+        brandName={pageContent.brandName}
+        contact={pageContent.footer.contact}
+        links={pageContent.footer.links}
       />
     </div>
   );
