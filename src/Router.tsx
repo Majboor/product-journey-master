@@ -15,6 +15,7 @@ import OrderTracking from "@/pages/OrderTracking";
 import Sitemap from "@/pages/Sitemap";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Dashboard } from "@/components/admin/Dashboard";
+import { Users } from "@/components/admin/Users";
 
 export const router = createBrowserRouter([
   {
@@ -60,6 +61,10 @@ export const router = createBrowserRouter([
           {
             path: "api-manager",
             element: <ApiManager />
+          },
+          {
+            path: "users",
+            element: <Users />
           }
         ]
       },
