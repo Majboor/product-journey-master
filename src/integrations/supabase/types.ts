@@ -277,38 +277,94 @@ export type Database = {
           },
         ]
       }
+      product_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number | null
+          id: string
+          image_url: string | null
+          is_visible: boolean | null
+          name: string
+          slug: string
+          store_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_visible?: boolean | null
+          name: string
+          slug: string
+          store_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_visible?: boolean | null
+          name?: string
+          slug?: string
+          store_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_categories_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string
           created_at: string
           description: string | null
+          display_order: number | null
           id: string
           image_url: string | null
+          is_visible: boolean | null
           name: string
           page_id: string | null
           price: number
+          product_category_id: string | null
           updated_at: string
         }
         Insert: {
           category: string
           created_at?: string
           description?: string | null
+          display_order?: number | null
           id?: string
           image_url?: string | null
+          is_visible?: boolean | null
           name: string
           page_id?: string | null
           price: number
+          product_category_id?: string | null
           updated_at?: string
         }
         Update: {
           category?: string
           created_at?: string
           description?: string | null
+          display_order?: number | null
           id?: string
           image_url?: string | null
+          is_visible?: boolean | null
           name?: string
           page_id?: string | null
           price?: number
+          product_category_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -317,6 +373,13 @@ export type Database = {
             columns: ["page_id"]
             isOneToOne: false
             referencedRelation: "pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_product_category_id_fkey"
+            columns: ["product_category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
             referencedColumns: ["id"]
           },
         ]

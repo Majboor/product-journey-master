@@ -3,9 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ProductsList } from "./single-store/ProductsList";
+import { CategoryList } from "./single-store/CategoryList";
 import { StoreSettings } from "./single-store/StoreSettings";
-import { CategoryManager } from "./single-store/CategoryManager";
 import { ErrorPage } from "@/components/ErrorPage";
 import { Link } from "react-router-dom";
 import { ExternalLink } from "lucide-react";
@@ -81,23 +80,17 @@ export const SingleStore = () => {
               </Button>
             </Link>
           )}
-          <Button>Add Product</Button>
         </div>
       </div>
 
-      <Tabs defaultValue="products">
+      <Tabs defaultValue="categories">
         <TabsList>
-          <TabsTrigger value="products">Products</TabsTrigger>
           <TabsTrigger value="categories">Categories</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="products" className="mt-6">
-          <ProductsList storeId={store.id} pages={pages || []} />
-        </TabsContent>
-        
         <TabsContent value="categories" className="mt-6">
-          <CategoryManager storeId={store.id} />
+          <CategoryList storeId={store.id} />
         </TabsContent>
         
         <TabsContent value="settings" className="mt-6">
