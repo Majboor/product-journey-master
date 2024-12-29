@@ -47,19 +47,22 @@ const Index = () => {
         
         // Validate the content structure
         const content = data?.content;
-        if (content) {
-          const validation = validatePageContent(content);
-          console.log('Content validation:', validation);
-          
-          if (!validation.isValid) {
-            console.error('Invalid page content structure:', validation.errors);
-            return null;
-          }
-          
-          if (isPageContent(content)) {
-            console.log('Valid page content found');
-            return content;
-          }
+        if (!content) {
+          console.warn('No content found for root page');
+          return null;
+        }
+
+        const validation = validatePageContent(content);
+        console.log('Content validation:', validation);
+        
+        if (!validation.isValid) {
+          console.error('Invalid page content structure:', validation.errors);
+          return null;
+        }
+        
+        if (isPageContent(content)) {
+          console.log('Valid page content found');
+          return content;
         }
         
         console.warn('Invalid or missing page content, returning null');
