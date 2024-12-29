@@ -18,6 +18,7 @@ import { ApiStatus } from "@/components/admin/ApiStatus";
 import { Payments } from "@/components/admin/Payments";
 import { Domains } from "@/components/admin/Domains";
 import { Stores } from "@/components/admin/Stores";
+import { CreateStore } from "@/components/admin/stores/CreateStore";
 import Header from "@/components/Header";
 import { Outlet } from "react-router-dom";
 
@@ -103,6 +104,10 @@ export const router = createBrowserRouter([
       {
         path: "stores",
         element: <Stores />,
+      },
+      {
+        path: "stores/new",
+        element: <CreateStore />,
       },
       {
         path: "categories",
