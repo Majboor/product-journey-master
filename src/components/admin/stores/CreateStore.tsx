@@ -115,13 +115,16 @@ export const CreateStore = () => {
             }
           };
 
+      // Convert PageContent to Json type using JSON methods
+      const jsonContent: Json = JSON.parse(JSON.stringify(templateContent));
+
       const { error: pageError } = await supabase
         .from('pages')
         .insert({
           slug: data.slug,
           category_id: categoryData.id,
           template_type: data.template_type,
-          content: templateContent as Json
+          content: jsonContent
         });
 
       if (pageError) throw pageError;
