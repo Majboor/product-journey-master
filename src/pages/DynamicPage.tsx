@@ -25,21 +25,16 @@ const DynamicPage = () => {
     queryFn: async () => {
       console.log('Fetching page content for slug:', slug);
       
-      if (!slug) {
-        throw new Error('No slug provided');
-      }
-
       const { data, error } = await supabase
         .from('pages')
         .select('*')
-        .eq('slug', slug)
+        .eq('slug', slug || '')  // Use empty string for root page
         .maybeSingle();
       
       if (error) throw error;
       console.log('Fetched page content:', data);
       return data;
-    },
-    enabled: !!slug // Only run query if slug exists
+    }
   });
 
   useEffect(() => {
