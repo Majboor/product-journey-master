@@ -8,8 +8,16 @@ export const useSwipeTracking = () => {
   const pageSlug = location.pathname.substring(1) || 'index';
   const lastScrollPosition = useRef(0);
   const scrollTimeout = useRef<NodeJS.Timeout>();
-  const sessionId = localStorage.getItem('session_id') || crypto.randomUUID();
   const isScrolling = useRef(false);
+
+  // Generate a session ID if not exists and store it in localStorage
+  useEffect(() => {
+    if (!localStorage.getItem('session_id')) {
+      localStorage.setItem('session_id', crypto.randomUUID());
+    }
+  }, []);
+
+  const sessionId = localStorage.getItem('session_id');
 
   useEffect(() => {
     console.log('Initializing scroll and swipe tracking for page:', pageSlug);
@@ -39,7 +47,7 @@ export const useSwipeTracking = () => {
             const direction = swipeDistanceX > 0 ? 'right' : 'left';
             console.log(`Tracking horizontal swipe ${direction} on page:`, pageSlug);
             
-            await supabase.from('swipe_events').insert({
+            const { error } = await supabase.from('swipe_events').insert({
               page_slug: pageSlug,
               direction,
               event_type: 'swipe',
@@ -53,13 +61,17 @@ export const useSwipeTracking = () => {
                 endY: touchEndY
               }
             });
+
+            if (error) {
+              console.error('Error tracking swipe:', error);
+            }
           }
         } else {
           if (Math.abs(swipeDistanceY) > minSwipeDistance) {
             const direction = swipeDistanceY > 0 ? 'down' : 'up';
             console.log(`Tracking vertical swipe ${direction} on page:`, pageSlug);
             
-            await supabase.from('swipe_events').insert({
+            const { error } = await supabase.from('swipe_events').insert({
               page_slug: pageSlug,
               direction,
               event_type: 'swipe',
@@ -73,6 +85,10 @@ export const useSwipeTracking = () => {
                 endY: touchEndY
               }
             });
+
+            if (error) {
+              console.error('Error tracking swipe:', error);
+            }
           }
         }
       } catch (error) {
@@ -137,5 +153,5 @@ export const useSwipeTracking = () => {
         clearTimeout(scrollTimeout.current);
       }
     };
-  }, [pageSlug, location]); // Re-initialize when page or location changes
+  }, [pageSlug, location, sessionId]); // Added sessionId to dependencies
 };

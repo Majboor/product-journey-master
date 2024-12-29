@@ -31,7 +31,16 @@ const DynamicPage = () => {
         .eq('slug', slug || '')  // Use empty string for root page
         .maybeSingle();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching page:', error);
+        throw error;
+      }
+      
+      if (!data) {
+        console.log('No page found for slug:', slug);
+        return null;
+      }
+      
       console.log('Fetched page content:', data);
       return data;
     }
