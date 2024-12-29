@@ -7,6 +7,7 @@ import { CreateStore } from "@/components/admin/stores/CreateStore";
 import { SingleStore } from "@/components/admin/stores/SingleStore";
 import { Root } from "./Root";
 import Index from "@/pages/Index";
+import Login from "@/pages/Login";
 
 export const router = createBrowserRouter([
   {
@@ -17,6 +18,10 @@ export const router = createBrowserRouter([
       {
         path: "",
         element: <Index />
+      },
+      {
+        path: "login",
+        element: <Login />
       },
       {
         path: "admin",
