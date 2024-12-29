@@ -6,7 +6,6 @@ import ProductSection from "@/components/ProductSection";
 import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
 import LoadingScreen from "@/components/LoadingScreen";
-import { defaultContent } from "@/components/api-manager/defaultContent";
 import { useSwipeTracking } from "@/hooks/useSwipeTracking";
 import { useButtonTracking } from "@/hooks/useButtonTracking";
 import { initializeDefaultPages } from "@/utils/initializeDefaultPages";
@@ -45,28 +44,23 @@ const Index = () => {
           return null;
         }
         
-        // Validate the content structure
-        const content = data?.content;
-        if (!content) {
+        if (!data?.content) {
           console.warn('No content found for root page');
           return null;
         }
 
-        const validation = validatePageContent(content);
-        console.log('Content validation:', validation);
-        
+        const validation = validatePageContent(data.content);
         if (!validation.isValid) {
           console.error('Invalid page content structure:', validation.errors);
           return null;
         }
         
-        if (isPageContent(content)) {
-          console.log('Valid page content found');
-          return content;
+        if (!isPageContent(data.content)) {
+          console.warn('Invalid page content structure');
+          return null;
         }
         
-        console.warn('Invalid or missing page content, returning null');
-        return null;
+        return data.content;
       } catch (error) {
         console.error('Error in query:', error);
         return null;
@@ -79,7 +73,6 @@ const Index = () => {
     const init = async () => {
       try {
         await initializeDefaultPages();
-        // Simulate loading time for demonstration
         const timer = setTimeout(() => {
           setIsLoading(false);
         }, 1000);
@@ -97,7 +90,6 @@ const Index = () => {
     return <LoadingScreen />;
   }
 
-  // Show error page if there's an error or no valid content
   if (pageError || !pageContent) {
     return (
       <ErrorPage 
