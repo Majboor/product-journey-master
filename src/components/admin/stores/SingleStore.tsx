@@ -11,14 +11,14 @@ import { ErrorPage } from "@/components/ErrorPage";
 export const SingleStore = () => {
   const { storeSlug } = useParams();
 
-  const { data: store, isLoading } = useQuery({
+  const { data: store, isLoading, error } = useQuery({
     queryKey: ['store', storeSlug],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('categories')
         .select('*')
         .eq('slug', storeSlug)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data;
@@ -41,6 +41,13 @@ export const SingleStore = () => {
 
   if (isLoading) {
     return <div>Loading store...</div>;
+  }
+
+  if (error) {
+    return <ErrorPage 
+      title="Error Loading Store" 
+      description={error.message} 
+    />;
   }
 
   if (!store) {

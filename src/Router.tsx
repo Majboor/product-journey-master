@@ -4,6 +4,7 @@ import { Categories } from "@/components/admin/Categories";
 import { SingleCategory } from "@/components/admin/SingleCategory";
 import { Stores } from "@/components/admin/Stores";
 import { SingleStore } from "@/components/admin/stores/SingleStore";
+import { CreateStore } from "@/components/admin/stores/CreateStore";
 import { Root } from "./Root";
 import Index from "@/pages/Index";
 import Login from "@/pages/Login";
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
           {
             path: "stores",
             element: <Stores />
+          },
+          {
+            path: "stores/new",
+            element: <CreateStore />
           },
           {
             path: "stores/:storeSlug",
