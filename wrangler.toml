@@ -1,16 +1,24 @@
 name = "product-journey-master"
-main = "src/_worker.js"
 compatibility_date = "2024-01-01"
+main = "src/_worker.js"
+
+[build]
+command = "bun install && bun run build"
 
 [site]
 bucket = "./dist"
 
-[build]
-command = "bun run build"
-watch_dir = "src"
+[pages]
+build_output_dir = "dist"
 
 [env.production]
 workers_dev = false
+[env.production.vars]
+SUPABASE_URL = "https://tylpifixgpoxonedjyzo.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM"
 
 [env.development]
 workers_dev = true
+[env.development.vars]
+SUPABASE_URL = "https://tylpifixgpoxonedjyzo.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5bHBpZml4Z3BveG9uZWRqeXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MzEzODcsImV4cCI6MjA1MDIwNzM4N30.skZWTBt_a-Pj00805Vtbom78hGf3nU4z5NVRyVzuCbM"
