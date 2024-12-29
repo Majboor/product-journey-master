@@ -7,6 +7,8 @@ import { ProductsList } from "./single-store/ProductsList";
 import { StoreSettings } from "./single-store/StoreSettings";
 import { CategoryManager } from "./single-store/CategoryManager";
 import { ErrorPage } from "@/components/ErrorPage";
+import { Link } from "react-router-dom";
+import { ExternalLink } from "lucide-react";
 
 export const SingleStore = () => {
   const { storeSlug } = useParams();
@@ -57,6 +59,8 @@ export const SingleStore = () => {
     />;
   }
 
+  const mainPage = pages?.[0];
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -64,7 +68,21 @@ export const SingleStore = () => {
           <h1 className="text-3xl font-bold">{store.name}</h1>
           <p className="text-muted-foreground">{store.description}</p>
         </div>
-        <Button>Add Product</Button>
+        <div className="flex gap-4">
+          {mainPage && (
+            <Link 
+              to={`/${store.slug}`} 
+              target="_blank" 
+              className="inline-flex items-center"
+            >
+              <Button variant="outline" className="gap-2">
+                <ExternalLink className="h-4 w-4" />
+                View Store
+              </Button>
+            </Link>
+          )}
+          <Button>Add Product</Button>
+        </div>
       </div>
 
       <Tabs defaultValue="products">
