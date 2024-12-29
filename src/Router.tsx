@@ -6,6 +6,7 @@ import { Stores } from "@/components/admin/Stores";
 import { CreateStore } from "@/components/admin/stores/CreateStore";
 import { SingleStore } from "@/components/admin/stores/SingleStore";
 import { Root } from "./Root";
+import Index from "@/pages/Index";
 
 export const router = createBrowserRouter([
   {
@@ -13,6 +14,10 @@ export const router = createBrowserRouter([
     element: <Root />,
     errorElement: <ErrorPage />,
     children: [
+      {
+        path: "",
+        element: <Index />
+      },
       {
         path: "admin",
         element: <ProtectedRoute><AdminLayout /></ProtectedRoute>,
