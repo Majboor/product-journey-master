@@ -24,6 +24,8 @@ import {
 import { useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ecommerceTemplate } from "@/components/sections/EcommerceTemplate";
+import { Json } from "@/integrations/supabase/types";
+import { PageContent } from "@/types/content";
 
 interface CreateStoreForm {
   name: string;
@@ -51,11 +53,11 @@ export const CreateStore = () => {
     try {
       const { error } = await supabase
         .from('categories')
-        .insert([{
+        .insert({
           name: data.name,
           slug: data.slug,
           description: data.description,
-        }]);
+        });
 
       if (error) throw error;
 
@@ -71,7 +73,7 @@ export const CreateStore = () => {
       }
 
       // Create initial page with template based on selected type
-      const templateContent = data.template_type === 'ecommerce' 
+      const templateContent: PageContent = data.template_type === 'ecommerce' 
         ? {
             ...ecommerceTemplate,
             brandName: data.name,
@@ -115,12 +117,12 @@ export const CreateStore = () => {
 
       const { error: pageError } = await supabase
         .from('pages')
-        .insert([{
+        .insert({
           slug: data.slug,
           category_id: categoryData.id,
           template_type: data.template_type,
-          content: templateContent
-        }]);
+          content: templateContent as Json
+        });
 
       if (pageError) throw pageError;
 
