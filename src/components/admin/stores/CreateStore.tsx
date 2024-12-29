@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ecommerceTemplate } from "@/components/sections/EcommerceTemplate";
 
 interface CreateStoreForm {
   name: string;
@@ -58,18 +59,24 @@ export const CreateStore = () => {
 
       if (error) throw error;
 
-      // Create initial page for the store
-      const { error: pageError } = await supabase
-        .from('pages')
-        .insert([{
-          slug: data.slug,
-          category_id: (await supabase
-            .from('categories')
-            .select('id')
-            .eq('slug', data.slug)
-            .single()).data?.id,
-          template_type: data.template_type,
-          content: {
+      // Get the category ID for the newly created store
+      const { data: categoryData } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', data.slug)
+        .single();
+
+      if (!categoryData?.id) {
+        throw new Error('Failed to retrieve store ID');
+      }
+
+      // Create initial page with template based on selected type
+      const templateContent = data.template_type === 'ecommerce' 
+        ? {
+            ...ecommerceTemplate,
+            brandName: data.name,
+          }
+        : {
             brandName: data.name,
             hero: {
               title: "Welcome to " + data.name,
@@ -104,7 +111,15 @@ export const CreateStore = () => {
               },
               links: []
             }
-          }
+          };
+
+      const { error: pageError } = await supabase
+        .from('pages')
+        .insert([{
+          slug: data.slug,
+          category_id: categoryData.id,
+          template_type: data.template_type,
+          content: templateContent
         }]);
 
       if (pageError) throw pageError;
