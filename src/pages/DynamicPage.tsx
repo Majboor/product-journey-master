@@ -14,7 +14,7 @@ import Footer from "@/components/Footer";
 
 const DynamicPage = () => {
   const location = useLocation();
-  const slug = location.pathname.substring(1) || '';
+  const slug = location.pathname.substring(1);
 
   // Initialize tracking
   useButtonTracking();
@@ -24,6 +24,11 @@ const DynamicPage = () => {
     queryKey: ['page-content', slug],
     queryFn: async () => {
       console.log('Fetching page content for slug:', slug);
+      
+      if (!slug) {
+        throw new Error('No slug provided');
+      }
+
       const { data, error } = await supabase
         .from('pages')
         .select('*')
@@ -33,7 +38,8 @@ const DynamicPage = () => {
       if (error) throw error;
       console.log('Fetched page content:', data);
       return data;
-    }
+    },
+    enabled: !!slug // Only run query if slug exists
   });
 
   useEffect(() => {
