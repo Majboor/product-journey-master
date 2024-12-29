@@ -17,6 +17,7 @@ import { Users } from "@/components/admin/Users";
 import { ApiStatus } from "@/components/admin/ApiStatus";
 import { Payments } from "@/components/admin/Payments";
 import { Domains } from "@/components/admin/Domains";
+import { Stores } from "@/components/admin/Stores";
 import Header from "@/components/Header";
 import { Outlet } from "react-router-dom";
 
@@ -98,6 +99,10 @@ export const router = createBrowserRouter([
       {
         path: "",
         element: <Dashboard />,
+      },
+      {
+        path: "stores",
+        element: <Stores />,
       },
       {
         path: "categories",
