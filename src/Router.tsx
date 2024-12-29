@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import { ApiManager } from "@/pages/ApiManager";
+import ApiManager from "@/pages/ApiManager";
 import { Categories } from "@/components/admin/Categories";
 import { SingleCategory } from "@/components/admin/SingleCategory";
 import { Stores } from "@/components/admin/Stores";
@@ -8,10 +8,10 @@ import { Root } from "./Root";
 import Index from "@/pages/Index";
 import Login from "@/pages/Login";
 import DynamicPage from "@/pages/DynamicPage";
-import { PaymentSuccess } from "@/pages/PaymentSuccess";
-import { PaymentFailed } from "@/pages/PaymentFailed";
-import { OrderTracking } from "@/pages/OrderTracking";
-import { Sitemap } from "@/pages/Sitemap";
+import PaymentSuccess from "@/pages/PaymentSuccess";
+import PaymentFailed from "@/pages/PaymentFailed";
+import OrderTracking from "@/pages/OrderTracking";
+import Sitemap from "@/pages/Sitemap";
 
 export const router = createBrowserRouter([
   {
