@@ -1,32 +1,23 @@
 import { useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
+import { useLocation } from 'react-router-dom';
 
 export const useSwipeTracking = () => {
-  const { toast } = useToast();
   const location = useLocation();
+  // Get the full path without leading slash for consistency
   const pageSlug = location.pathname.substring(1) || 'index';
   const lastScrollPosition = useRef(0);
   const scrollTimeout = useRef<NodeJS.Timeout>();
+  const sessionId = localStorage.getItem('session_id') || crypto.randomUUID();
   const isScrolling = useRef(false);
-  const sessionIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!sessionIdRef.current) {
-      sessionIdRef.current = localStorage.getItem('session_id') || crypto.randomUUID();
-      localStorage.setItem('session_id', sessionIdRef.current);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!sessionIdRef.current) return;
-
     console.log('Initializing scroll and swipe tracking for page:', pageSlug);
-    
+
     let touchStartX = 0;
     let touchStartY = 0;
-    const minSwipeDistance = 50;
+    let touchEndX = 0;
+    let touchEndY = 0;
 
     const handleTouchStart = (e: TouchEvent) => {
       touchStartX = e.touches[0].clientX;
@@ -34,136 +25,117 @@ export const useSwipeTracking = () => {
     };
 
     const handleTouchEnd = async (e: TouchEvent) => {
-      if (!sessionIdRef.current) return;
-
-      const touchEndX = e.changedTouches[0].clientX;
-      const touchEndY = e.changedTouches[0].clientY;
+      touchEndX = e.changedTouches[0].clientX;
+      touchEndY = e.changedTouches[0].clientY;
       
       const swipeDistanceX = touchEndX - touchStartX;
       const swipeDistanceY = touchEndY - touchStartY;
       
-      if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY)) {
-        if (Math.abs(swipeDistanceX) > minSwipeDistance) {
-          const direction = swipeDistanceX > 0 ? 'right' : 'left';
-          console.log(`Tracking horizontal swipe ${direction} on page:`, pageSlug);
-          
-          const { error } = await supabase
-            .from('swipe_events')
-            .insert({
+      const minSwipeDistance = 50;
+      
+      try {
+        if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY)) {
+          if (Math.abs(swipeDistanceX) > minSwipeDistance) {
+            const direction = swipeDistanceX > 0 ? 'right' : 'left';
+            console.log(`Tracking horizontal swipe ${direction} on page:`, pageSlug);
+            
+            await supabase.from('swipe_events').insert({
               page_slug: pageSlug,
               direction,
               event_type: 'swipe',
-              session_id: sessionIdRef.current,
+              session_id: sessionId,
               additional_data: {
-                distance: Math.abs(swipeDistanceX),
+                distanceX: swipeDistanceX,
+                distanceY: swipeDistanceY,
                 startX: touchStartX,
                 startY: touchStartY,
                 endX: touchEndX,
                 endY: touchEndY
               }
             });
-
-          if (error) {
-            console.error('Error tracking swipe:', error);
-            toast({
-              variant: "destructive",
-              title: "Error tracking swipe event",
-              description: error.message
-            });
           }
-        }
-      } else {
-        if (Math.abs(swipeDistanceY) > minSwipeDistance) {
-          const direction = swipeDistanceY > 0 ? 'down' : 'up';
-          console.log(`Tracking vertical swipe ${direction} on page:`, pageSlug);
-          
-          const { error } = await supabase
-            .from('swipe_events')
-            .insert({
+        } else {
+          if (Math.abs(swipeDistanceY) > minSwipeDistance) {
+            const direction = swipeDistanceY > 0 ? 'down' : 'up';
+            console.log(`Tracking vertical swipe ${direction} on page:`, pageSlug);
+            
+            await supabase.from('swipe_events').insert({
               page_slug: pageSlug,
               direction,
               event_type: 'swipe',
-              session_id: sessionIdRef.current,
+              session_id: sessionId,
               additional_data: {
-                distance: Math.abs(swipeDistanceY),
+                distanceX: swipeDistanceX,
+                distanceY: swipeDistanceY,
                 startX: touchStartX,
                 startY: touchStartY,
                 endX: touchEndX,
                 endY: touchEndY
               }
             });
-
-          if (error) {
-            console.error('Error tracking swipe:', error);
-            toast({
-              variant: "destructive",
-              title: "Error tracking swipe event",
-              description: error.message
-            });
           }
         }
+      } catch (error) {
+        console.error('Error tracking swipe:', error);
       }
     };
 
-    const handleScroll = () => {
-      if (!sessionIdRef.current) return;
-
-      const currentPosition = window.scrollY;
+    const trackScroll = async () => {
+      if (isScrolling.current) return;
       isScrolling.current = true;
 
-      if (scrollTimeout.current) {
-        clearTimeout(scrollTimeout.current);
-      }
+      const currentPosition = window.scrollY;
+      const direction = currentPosition > lastScrollPosition.current ? 'down' : 'up';
+      const scrollPercentage = (currentPosition / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
 
-      scrollTimeout.current = setTimeout(async () => {
-        if (!isScrolling.current || !sessionIdRef.current) return;
-
-        const direction = currentPosition > lastScrollPosition.current ? 'down' : 'up';
-        const distance = Math.abs(currentPosition - lastScrollPosition.current);
-
-        if (distance > 50) {
-          console.log(`Tracking scroll ${direction} on page:`, pageSlug);
-          
-          const { error } = await supabase
-            .from('swipe_events')
-            .insert({
-              page_slug: pageSlug,
-              direction,
-              event_type: 'scroll',
-              session_id: sessionIdRef.current,
-              scroll_position: currentPosition,
-              additional_data: {
-                distance,
-                previousPosition: lastScrollPosition.current
-              }
-            });
-
-          if (error) {
-            console.error('Error tracking scroll:', error);
-            toast({
-              variant: "destructive",
-              title: "Error tracking scroll event",
-              description: error.message
-            });
+      try {
+        console.log(`Tracking scroll ${direction} on page:`, pageSlug, 'Position:', currentPosition);
+        const { error } = await supabase.from('swipe_events').insert({
+          page_slug: pageSlug,
+          direction,
+          event_type: 'scroll',
+          scroll_position: Math.round(scrollPercentage),
+          session_id: sessionId,
+          additional_data: {
+            pixelPosition: currentPosition,
+            viewportHeight: window.innerHeight,
+            documentHeight: document.documentElement.scrollHeight,
+            timestamp: new Date().toISOString(),
+            pathname: location.pathname,
+            search: location.search,
+            hash: location.hash
           }
-        }
+        });
 
-        lastScrollPosition.current = currentPosition;
+        if (error) {
+          console.error('Error tracking scroll:', error);
+        } else {
+          console.log(`Scroll ${direction} tracked successfully for page:`, pageSlug);
+          lastScrollPosition.current = currentPosition;
+        }
+      } catch (error) {
+        console.error('Error tracking scroll:', error);
+      }
+
+      // Reset scrolling flag after a short delay
+      scrollTimeout.current = setTimeout(() => {
         isScrolling.current = false;
-      }, 150);
+      }, 100);
     };
 
-    window.addEventListener('touchstart', handleTouchStart);
-    window.addEventListener('touchend', handleTouchEnd);
-    window.addEventListener('scroll', handleScroll);
+    // Add event listeners with passive option for better performance
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+    window.addEventListener('scroll', trackScroll, { passive: true });
 
+    // Cleanup
     return () => {
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchend', handleTouchEnd);
-      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('scroll', trackScroll);
       if (scrollTimeout.current) {
         clearTimeout(scrollTimeout.current);
       }
     };
-  }, [pageSlug, toast]);
+  }, [pageSlug, location]); // Re-initialize when page or location changes
 };

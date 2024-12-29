@@ -1,103 +1,136 @@
 import { createBrowserRouter } from "react-router-dom";
-import ApiManager from "@/pages/ApiManager";
-import { Categories } from "@/components/admin/Categories";
-import { SingleCategory } from "@/components/admin/SingleCategory";
-import { Stores } from "@/components/admin/Stores";
-import { SingleStore } from "@/components/admin/stores/SingleStore";
-import { CreateStore } from "@/components/admin/stores/CreateStore";
-import { Root } from "./Root";
 import Index from "@/pages/Index";
 import Login from "@/pages/Login";
 import DynamicPage from "@/pages/DynamicPage";
+import ApiManager from "@/pages/ApiManager";
 import PaymentSuccess from "@/pages/PaymentSuccess";
 import PaymentFailed from "@/pages/PaymentFailed";
 import OrderTracking from "@/pages/OrderTracking";
 import Sitemap from "@/pages/Sitemap";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Dashboard } from "@/components/admin/Dashboard";
-import { Users } from "@/components/admin/Users";
+import { Categories } from "@/components/admin/Categories";
+import { SingleCategory } from "@/components/admin/SingleCategory";
 import { Pages } from "@/components/admin/Pages";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { Users } from "@/components/admin/Users";
+import { ApiStatus } from "@/components/admin/ApiStatus";
+import { Payments } from "@/components/admin/Payments";
+import { Domains } from "@/components/admin/Domains";
+import Header from "@/components/Header";
+import { Outlet } from "react-router-dom";
+
+const MainLayout = () => {
+  return (
+    <>
+      <Header />
+      <Outlet />
+    </>
+  );
+};
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Root />,
+    element: <MainLayout />,
+    children: [
+      {
+        path: "/",
+        element: <Index />,
+      },
+      {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        path: "/about",
+        element: <DynamicPage />,
+      },
+      {
+        path: "/features",
+        element: <DynamicPage />,
+      },
+      {
+        path: "/why-us",
+        element: <DynamicPage />,
+      },
+      {
+        path: "/reviews",
+        element: <DynamicPage />,
+      },
+      {
+        path: "/order-tracking",
+        element: <OrderTracking />,
+      },
+      {
+        path: "/order-tracking/:orderId",
+        element: <OrderTracking />,
+      },
+      {
+        path: "/payment/success",
+        element: <PaymentSuccess />,
+      },
+      {
+        path: "/payment/failed",
+        element: <PaymentFailed />,
+      },
+      {
+        path: "/sitemap.xml",
+        element: <Sitemap />,
+      },
+      {
+        path: "/:categorySlug/sitemap.xml",
+        element: <Sitemap />,
+      },
+      {
+        path: "/:categorySlug/:slug",
+        element: <DynamicPage />,
+      },
+    ]
+  },
+  {
+    path: "/admin",
+    element: (
+      <ProtectedRoute>
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: "",
-        element: <Index />
+        element: <Dashboard />,
       },
       {
-        path: "login",
-        element: <Login />
+        path: "categories",
+        element: <Categories />,
       },
       {
-        path: "admin",
-        element: (
-          <ProtectedRoute>
-            <AdminLayout />
-          </ProtectedRoute>
-        ),
-        children: [
-          {
-            path: "",
-            element: <Dashboard />
-          },
-          {
-            path: "pages",
-            element: <Pages />
-          },
-          {
-            path: "categories",
-            element: <Categories />
-          },
-          {
-            path: "categories/:categorySlug",
-            element: <SingleCategory />
-          },
-          {
-            path: "stores",
-            element: <Stores />
-          },
-          {
-            path: "stores/new",
-            element: <CreateStore />
-          },
-          {
-            path: "stores/:storeSlug",
-            element: <SingleStore />
-          },
-          {
-            path: "api-manager",
-            element: <ApiManager />
-          },
-          {
-            path: "users",
-            element: <Users />
-          }
-        ]
+        path: "categories/:slug",
+        element: <SingleCategory />,
       },
       {
-        path: "payment/success",
-        element: <PaymentSuccess />
+        path: "pages",
+        element: <Pages />,
       },
       {
-        path: "payment/failed",
-        element: <PaymentFailed />
+        path: "users",
+        element: <Users />,
       },
       {
-        path: "order/:orderId",
-        element: <OrderTracking />
+        path: "payments",
+        element: <Payments />,
       },
       {
-        path: "sitemap.xml",
-        element: <Sitemap />
+        path: "api-status",
+        element: <ApiStatus />,
       },
       {
-        path: "*",
-        element: <DynamicPage />
-      }
-    ]
-  }
+        path: "api-manager",
+        element: <ApiManager />,
+      },
+      {
+        path: "domains",
+        element: <Domains />,
+      },
+    ],
+  },
 ]);

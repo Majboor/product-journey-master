@@ -6,7 +6,6 @@ import { validatePageContent } from "@/types/content";
 import { defaultContent } from "./defaultContent";
 import { ContentFormFields } from "./ContentFormFields";
 import { Json } from "@/integrations/supabase/types";
-import { useNavigate } from "react-router-dom";
 
 interface ContentEditorProps {
   initialData?: {
@@ -17,7 +16,6 @@ interface ContentEditorProps {
 }
 
 export const ContentEditor = ({ initialData }: ContentEditorProps) => {
-  const navigate = useNavigate();
   const [slug, setSlug] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [content, setContent] = useState(JSON.stringify(defaultContent, null, 2));
@@ -97,9 +95,6 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
           title: "Success",
           description: "Root page has been updated successfully",
         });
-        
-        // Redirect to the page
-        navigate('/');
       } else if (initialData) {
         const { error } = await supabase
           .from('pages')
@@ -115,9 +110,6 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
           title: "Success",
           description: "Page has been updated successfully",
         });
-        
-        // Redirect to the page
-        navigate(`/${slug}`);
       } else {
         const { data: existingPage } = await supabase
           .from('pages')
@@ -131,7 +123,6 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
             description: "A page with this slug already exists. Please use a different slug.",
             variant: "destructive",
           });
-          setLoading(false);
           return;
         }
 
@@ -150,8 +141,7 @@ export const ContentEditor = ({ initialData }: ContentEditorProps) => {
           description: "New page has been created successfully",
         });
 
-        // Redirect to the new page
-        navigate(`/${slug}`);
+        handleReset();
       }
     } catch (error: any) {
       console.error('Error saving page:', error);

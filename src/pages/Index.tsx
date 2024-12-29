@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
@@ -6,81 +5,54 @@ import ProductSection from "@/components/ProductSection";
 import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
 import LoadingScreen from "@/components/LoadingScreen";
+import { defaultContent } from "@/components/api-manager/defaultContent";
 import { useSwipeTracking } from "@/hooks/useSwipeTracking";
 import { useButtonTracking } from "@/hooks/useButtonTracking";
+import { useState, useEffect } from "react";
 import { initializeDefaultPages } from "@/utils/initializeDefaultPages";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PageContent, isPageContent, validatePageContent } from "@/types/content";
-import { ErrorPage } from "@/components/ErrorPage";
-import { useToast } from "@/hooks/use-toast";
+import { PageContent, isPageContent } from "@/types/content";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
   
-  // Initialize tracking hooks
-  useSwipeTracking();
-  useButtonTracking();
-  
-  const { data: pageContent, error: pageError } = useQuery({
+  const { data: pageContent = defaultContent } = useQuery({
     queryKey: ['rootPage'],
     queryFn: async () => {
-      try {
-        console.log('Fetching root page content');
-        const { data, error } = await supabase
-          .from('pages')
-          .select('content')
-          .eq('slug', '')
-          .maybeSingle();
-        
-        if (error) {
-          console.error('Error fetching page content:', error);
-          toast({
-            title: "Error",
-            description: "Failed to load page content",
-            variant: "destructive",
-          });
-          return null;
-        }
-        
-        if (!data?.content) {
-          console.warn('No content found for root page');
-          return null;
-        }
-
-        const validation = validatePageContent(data.content);
-        if (!validation.isValid) {
-          console.error('Invalid page content structure:', validation.errors);
-          return null;
-        }
-        
-        if (!isPageContent(data.content)) {
-          console.warn('Invalid page content structure');
-          return null;
-        }
-        
-        return data.content;
-      } catch (error) {
-        console.error('Error in query:', error);
-        return null;
+      const { data, error } = await supabase
+        .from('pages')
+        .select('content')
+        .eq('slug', '')
+        .single();
+      
+      if (error) {
+        console.error('Error fetching page content:', error);
+        return defaultContent;
       }
-    },
-    retry: 1
+      
+      // Use the type guard to validate the content
+      const content = data?.content;
+      if (content && isPageContent(content)) {
+        return content;
+      }
+      
+      console.warn('Invalid page content structure, using default content');
+      return defaultContent;
+    }
   });
+
+  useSwipeTracking();
+  useButtonTracking();
 
   useEffect(() => {
     const init = async () => {
-      try {
-        await initializeDefaultPages();
-        const timer = setTimeout(() => {
-          setIsLoading(false);
-        }, 1000);
-        return () => clearTimeout(timer);
-      } catch (error) {
-        console.error('Error initializing pages:', error);
+      await initializeDefaultPages();
+      // Simulate loading time for demonstration
+      const timer = setTimeout(() => {
         setIsLoading(false);
-      }
+      }, 1000);
+      return () => clearTimeout(timer);
     };
 
     init();
@@ -88,15 +60,6 @@ const Index = () => {
 
   if (isLoading) {
     return <LoadingScreen />;
-  }
-
-  if (pageError || !pageContent) {
-    return (
-      <ErrorPage 
-        title="Page Not Found"
-        description="The page you're looking for doesn't exist or has invalid content."
-      />
-    );
   }
 
   return (

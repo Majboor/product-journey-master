@@ -1,101 +1,89 @@
+import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
-import { validatePageContent, isPageContent, PageContent } from "@/types/content";
-import { ErrorPage } from "@/components/ErrorPage";
-import { useButtonTracking } from "@/hooks/useButtonTracking";
-import { useSwipeTracking } from "@/hooks/useSwipeTracking";
+import LoadingScreen from "@/components/LoadingScreen";
+import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import ProductSection from "@/components/ProductSection";
 import Features from "@/components/Features";
 import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
+import { ColorSchemeProvider } from "@/components/ColorSchemeProvider";
+import { usePageAnalytics } from "@/hooks/usePageAnalytics";
+import { useSwipeTracking } from "@/hooks/useSwipeTracking";
+import { PageContent } from "@/types/content";
+import { ColorScheme } from "@/types/colors";
+import { useEffect } from "react";
 
 const DynamicPage = () => {
-  const location = useLocation();
-  const slug = location.pathname.substring(1);
-
-  // Initialize tracking
-  useButtonTracking();
+  const { categorySlug, slug } = useParams();
+  const finalSlug = categorySlug && slug ? `${categorySlug}/${slug}` : categorySlug || slug || '';
+  
+  usePageAnalytics(finalSlug);
   useSwipeTracking();
 
-  const { data: pageData, isLoading, error } = useQuery({
-    queryKey: ['page-content', slug],
+  const { data: page, isLoading, error } = useQuery({
+    queryKey: ['page', categorySlug, slug],
     queryFn: async () => {
-      console.log('Fetching page content for slug:', slug);
+      console.log('Fetching page with slug:', finalSlug);
       
       const { data, error } = await supabase
         .from('pages')
-        .select('*')
-        .eq('slug', slug || '')  // Use empty string for root page
+        .select('*, categories(*)')
+        .eq('slug', finalSlug)
         .maybeSingle();
-      
+
       if (error) {
         console.error('Error fetching page:', error);
         throw error;
       }
-      
+
       if (!data) {
-        console.log('No page found for slug:', slug);
-        return null;
+        throw new Error('Page not found');
       }
-      
-      console.log('Fetched page content:', data);
+
+      console.log('Fetched page:', data);
       return data;
     }
   });
 
+  // Update document title when page content changes
   useEffect(() => {
-    if (pageData?.content) {
-      const validation = validatePageContent(pageData.content);
-      console.log('Content validation:', validation);
+    if (page?.content) {
+      const content = page.content as unknown as PageContent;
+      document.title = content.hero?.title || content.brandName || 'Dynamic Page';
     }
-  }, [pageData]);
+  }, [page]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoadingScreen />;
   }
 
-  if (error) {
+  if (error || !page) {
     return (
-      <ErrorPage 
-        title="Error Loading Page"
-        description="There was an error loading the page content. Please try again later."
-      />
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Page Not Found</h1>
+          <p className="text-gray-600">The page you're looking for doesn't exist or has been moved.</p>
+        </div>
+      </div>
     );
   }
 
-  if (!pageData) {
-    return (
-      <ErrorPage 
-        title="Page Not Found"
-        description="The requested page could not be found."
-      />
-    );
-  }
-
-  if (!isPageContent(pageData.content)) {
-    return (
-      <ErrorPage 
-        title="Invalid Page Content"
-        description="The page content structure is invalid."
-        errors={validatePageContent(pageData.content).errors}
-      />
-    );
-  }
-
-  const content: PageContent = pageData.content;
-  console.log('Display brand name:', content.brandName);
+  const content = page.content as unknown as PageContent;
+  const colorScheme = page.color_scheme as unknown as ColorScheme;
 
   return (
-    <div className="min-h-screen">
-      <Hero {...content.hero} />
-      <ProductSection {...content.product} />
-      <Features features={content.features} />
-      <Reviews reviews={content.reviews} />
-      <Footer {...content.footer} brandName={content.brandName} />
-    </div>
+    <ColorSchemeProvider colorScheme={colorScheme}>
+      <div className="min-h-screen">
+        <Header brandName={content.brandName} />
+        <Hero {...content.hero} />
+        <ProductSection {...content.product} />
+        <Features features={content.features} />
+        <Reviews reviews={content.reviews} />
+        <Footer {...content.footer} brandName={content.brandName} />
+      </div>
+    </ColorSchemeProvider>
   );
 };
 
