@@ -1,13 +1,13 @@
 import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
-import ErrorPage from "@/components/ErrorPage";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import AdminLayout from "@/components/admin/AdminLayout";
-import Stores from "@/components/admin/Stores";
-import CreateStore from "@/components/admin/stores/CreateStore";
-import SingleStore from "@/components/admin/stores/SingleStore";
+import { ErrorPage } from "@/components/ErrorPage";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { AdminLayout } from "@/components/admin/AdminLayout";
+import { Stores } from "@/components/admin/Stores";
+import { CreateStore } from "@/components/admin/stores/CreateStore";
+import { SingleStore } from "@/components/admin/stores/SingleStore";
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
@@ -34,5 +34,3 @@ const router = createBrowserRouter([
     ]
   }
 ]);
-
-export default router;
