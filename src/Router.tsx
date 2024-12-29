@@ -16,6 +16,7 @@ import Sitemap from "@/pages/Sitemap";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Dashboard } from "@/components/admin/Dashboard";
 import { Users } from "@/components/admin/Users";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
@@ -32,7 +33,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "admin",
-        element: <AdminLayout />,
+        element: (
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        ),
         children: [
           {
             path: "",
