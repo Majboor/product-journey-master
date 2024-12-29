@@ -13,18 +13,20 @@ import { initializeDefaultPages } from "@/utils/initializeDefaultPages";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageContent, isPageContent } from "@/types/content";
+import { ErrorPage } from "@/components/ErrorPage";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   
-  // Initialize tracking hooks first, before any conditional logic
+  // Initialize tracking hooks
   useSwipeTracking();
   useButtonTracking();
   
-  const { data: pageContent = defaultContent } = useQuery({
+  const { data: pageContent, error: pageError } = useQuery({
     queryKey: ['rootPage'],
     queryFn: async () => {
       try {
+        console.log('Fetching root page content');
         const { data, error } = await supabase
           .from('pages')
           .select('content')
@@ -39,6 +41,7 @@ const Index = () => {
         // Use the type guard to validate the content
         const content = data?.content;
         if (content && isPageContent(content)) {
+          console.log('Valid page content found');
           return content;
         }
         
@@ -48,7 +51,8 @@ const Index = () => {
         console.error('Error in query:', error);
         return defaultContent;
       }
-    }
+    },
+    retry: 1
   });
 
   useEffect(() => {
@@ -73,28 +77,39 @@ const Index = () => {
     return <LoadingScreen />;
   }
 
+  if (pageError) {
+    return (
+      <ErrorPage 
+        title="Error Loading Page"
+        description="There was an error loading the page content. Please try again later."
+      />
+    );
+  }
+
+  const content = pageContent || defaultContent;
+
   return (
     <div className="min-h-screen bg-white">
-      <Header brandName={pageContent.brandName} />
+      <Header brandName={content.brandName} />
       <main>
         <Hero 
-          title={pageContent.hero.title}
-          description={pageContent.hero.description}
-          image={pageContent.hero.image}
-          price={pageContent.hero.price}
+          title={content.hero.title}
+          description={content.hero.description}
+          image={content.hero.image}
+          price={content.hero.price}
         />
         <ProductSection 
-          images={pageContent.product.images}
-          details={pageContent.product.details}
-          features={pageContent.product.features}
+          images={content.product.images}
+          details={content.product.details}
+          features={content.product.features}
         />
-        <Features features={pageContent.features} />
-        <Reviews reviews={pageContent.reviews || []} />
+        <Features features={content.features} />
+        <Reviews reviews={content.reviews || []} />
       </main>
       <Footer 
-        brandName={pageContent.brandName}
-        contact={pageContent.footer.contact}
-        links={pageContent.footer.links}
+        brandName={content.brandName}
+        contact={content.footer.contact}
+        links={content.footer.links}
       />
     </div>
   );
