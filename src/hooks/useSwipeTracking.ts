@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 
 export const useSwipeTracking = () => {
+  const { toast } = useToast();
   const location = useLocation();
   const pageSlug = location.pathname.substring(1) || 'index';
   const lastScrollPosition = useRef(0);
@@ -10,7 +12,6 @@ export const useSwipeTracking = () => {
   const isScrolling = useRef(false);
   const sessionIdRef = useRef<string | null>(null);
 
-  // Initialize session ID once at component mount
   useEffect(() => {
     if (!sessionIdRef.current) {
       sessionIdRef.current = localStorage.getItem('session_id') || crypto.randomUUID();
@@ -19,7 +20,7 @@ export const useSwipeTracking = () => {
   }, []);
 
   useEffect(() => {
-    if (!sessionIdRef.current) return; // Don't track if session isn't initialized
+    if (!sessionIdRef.current) return;
 
     console.log('Initializing scroll and swipe tracking for page:', pageSlug);
     
@@ -35,20 +36,20 @@ export const useSwipeTracking = () => {
     const handleTouchEnd = async (e: TouchEvent) => {
       if (!sessionIdRef.current) return;
 
-      try {
-        const touchEndX = e.changedTouches[0].clientX;
-        const touchEndY = e.changedTouches[0].clientY;
-        
-        const swipeDistanceX = touchEndX - touchStartX;
-        const swipeDistanceY = touchEndY - touchStartY;
-        
-        // Determine if the swipe was primarily horizontal or vertical
-        if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY)) {
-          if (Math.abs(swipeDistanceX) > minSwipeDistance) {
-            const direction = swipeDistanceX > 0 ? 'right' : 'left';
-            console.log(`Tracking horizontal swipe ${direction} on page:`, pageSlug);
-            
-            const { error } = await supabase.from('swipe_events').insert({
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+      
+      const swipeDistanceX = touchEndX - touchStartX;
+      const swipeDistanceY = touchEndY - touchStartY;
+      
+      if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY)) {
+        if (Math.abs(swipeDistanceX) > minSwipeDistance) {
+          const direction = swipeDistanceX > 0 ? 'right' : 'left';
+          console.log(`Tracking horizontal swipe ${direction} on page:`, pageSlug);
+          
+          const { error } = await supabase
+            .from('swipe_events')
+            .insert({
               page_slug: pageSlug,
               direction,
               event_type: 'swipe',
@@ -62,16 +63,23 @@ export const useSwipeTracking = () => {
               }
             });
 
-            if (error) {
-              console.error('Error tracking swipe:', error);
-            }
+          if (error) {
+            console.error('Error tracking swipe:', error);
+            toast({
+              variant: "destructive",
+              title: "Error tracking swipe event",
+              description: error.message
+            });
           }
-        } else {
-          if (Math.abs(swipeDistanceY) > minSwipeDistance) {
-            const direction = swipeDistanceY > 0 ? 'down' : 'up';
-            console.log(`Tracking vertical swipe ${direction} on page:`, pageSlug);
-            
-            const { error } = await supabase.from('swipe_events').insert({
+        }
+      } else {
+        if (Math.abs(swipeDistanceY) > minSwipeDistance) {
+          const direction = swipeDistanceY > 0 ? 'down' : 'up';
+          console.log(`Tracking vertical swipe ${direction} on page:`, pageSlug);
+          
+          const { error } = await supabase
+            .from('swipe_events')
+            .insert({
               page_slug: pageSlug,
               direction,
               event_type: 'swipe',
@@ -85,13 +93,15 @@ export const useSwipeTracking = () => {
               }
             });
 
-            if (error) {
-              console.error('Error tracking swipe:', error);
-            }
+          if (error) {
+            console.error('Error tracking swipe:', error);
+            toast({
+              variant: "destructive",
+              title: "Error tracking swipe event",
+              description: error.message
+            });
           }
         }
-      } catch (error) {
-        console.error('Error tracking swipe event:', error);
       }
     };
 
@@ -101,23 +111,22 @@ export const useSwipeTracking = () => {
       const currentPosition = window.scrollY;
       isScrolling.current = true;
 
-      // Clear the timeout if it exists
       if (scrollTimeout.current) {
         clearTimeout(scrollTimeout.current);
       }
 
-      // Set a timeout to track the scroll event after scrolling stops
       scrollTimeout.current = setTimeout(async () => {
         if (!isScrolling.current || !sessionIdRef.current) return;
 
         const direction = currentPosition > lastScrollPosition.current ? 'down' : 'up';
         const distance = Math.abs(currentPosition - lastScrollPosition.current);
 
-        if (distance > 50) { // Only track significant scrolls
+        if (distance > 50) {
           console.log(`Tracking scroll ${direction} on page:`, pageSlug);
           
-          try {
-            const { error } = await supabase.from('swipe_events').insert({
+          const { error } = await supabase
+            .from('swipe_events')
+            .insert({
               page_slug: pageSlug,
               direction,
               event_type: 'scroll',
@@ -129,17 +138,19 @@ export const useSwipeTracking = () => {
               }
             });
 
-            if (error) {
-              console.error('Error tracking scroll:', error);
-            }
-          } catch (error) {
-            console.error('Error tracking scroll event:', error);
+          if (error) {
+            console.error('Error tracking scroll:', error);
+            toast({
+              variant: "destructive",
+              title: "Error tracking scroll event",
+              description: error.message
+            });
           }
         }
 
         lastScrollPosition.current = currentPosition;
         isScrolling.current = false;
-      }, 150); // Wait for scrolling to stop
+      }, 150);
     };
 
     window.addEventListener('touchstart', handleTouchStart);
@@ -154,5 +165,5 @@ export const useSwipeTracking = () => {
         clearTimeout(scrollTimeout.current);
       }
     };
-  }, [pageSlug, location]); // Removed sessionId from dependencies as we use ref now
+  }, [pageSlug, toast]);
 };
