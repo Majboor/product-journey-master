@@ -86,8 +86,9 @@ export const AdminLayout = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent 
                     className="w-56" 
-                    align="start" 
-                    side="right"
+                    side="bottom" 
+                    align="start"
+                    sideOffset={0}
                   >
                     {managementItems.map((item) => (
                       <DropdownMenuItem key={item.title} asChild>
