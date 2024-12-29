@@ -17,42 +17,53 @@ import { PageContent, isPageContent } from "@/types/content";
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   
+  // Initialize tracking hooks first, before any conditional logic
+  useSwipeTracking();
+  useButtonTracking();
+  
   const { data: pageContent = defaultContent } = useQuery({
     queryKey: ['rootPage'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('pages')
-        .select('content')
-        .eq('slug', '')
-        .single();
-      
-      if (error) {
-        console.error('Error fetching page content:', error);
+      try {
+        const { data, error } = await supabase
+          .from('pages')
+          .select('content')
+          .eq('slug', '')
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error fetching page content:', error);
+          return defaultContent;
+        }
+        
+        // Use the type guard to validate the content
+        const content = data?.content;
+        if (content && isPageContent(content)) {
+          return content;
+        }
+        
+        console.warn('Invalid page content structure, using default content');
+        return defaultContent;
+      } catch (error) {
+        console.error('Error in query:', error);
         return defaultContent;
       }
-      
-      // Use the type guard to validate the content
-      const content = data?.content;
-      if (content && isPageContent(content)) {
-        return content;
-      }
-      
-      console.warn('Invalid page content structure, using default content');
-      return defaultContent;
     }
   });
 
-  useSwipeTracking();
-  useButtonTracking();
-
   useEffect(() => {
     const init = async () => {
-      await initializeDefaultPages();
-      // Simulate loading time for demonstration
-      const timer = setTimeout(() => {
+      try {
+        await initializeDefaultPages();
+        // Simulate loading time for demonstration
+        const timer = setTimeout(() => {
+          setIsLoading(false);
+        }, 1000);
+        return () => clearTimeout(timer);
+      } catch (error) {
+        console.error('Error initializing pages:', error);
         setIsLoading(false);
-      }, 1000);
-      return () => clearTimeout(timer);
+      }
     };
 
     init();

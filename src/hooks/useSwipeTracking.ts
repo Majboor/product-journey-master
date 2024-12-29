@@ -1,31 +1,31 @@
 import { useEffect, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useLocation } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useSwipeTracking = () => {
   const location = useLocation();
-  // Get the full path without leading slash for consistency
   const pageSlug = location.pathname.substring(1) || 'index';
   const lastScrollPosition = useRef(0);
   const scrollTimeout = useRef<NodeJS.Timeout>();
   const isScrolling = useRef(false);
+  const sessionIdRef = useRef<string | null>(null);
 
-  // Generate a session ID if not exists and store it in localStorage
+  // Initialize session ID once at component mount
   useEffect(() => {
-    if (!localStorage.getItem('session_id')) {
-      localStorage.setItem('session_id', crypto.randomUUID());
+    if (!sessionIdRef.current) {
+      sessionIdRef.current = localStorage.getItem('session_id') || crypto.randomUUID();
+      localStorage.setItem('session_id', sessionIdRef.current);
     }
   }, []);
 
-  const sessionId = localStorage.getItem('session_id');
-
   useEffect(() => {
-    console.log('Initializing scroll and swipe tracking for page:', pageSlug);
+    if (!sessionIdRef.current) return; // Don't track if session isn't initialized
 
+    console.log('Initializing scroll and swipe tracking for page:', pageSlug);
+    
     let touchStartX = 0;
     let touchStartY = 0;
-    let touchEndX = 0;
-    let touchEndY = 0;
+    const minSwipeDistance = 50;
 
     const handleTouchStart = (e: TouchEvent) => {
       touchStartX = e.touches[0].clientX;
@@ -33,15 +33,16 @@ export const useSwipeTracking = () => {
     };
 
     const handleTouchEnd = async (e: TouchEvent) => {
-      touchEndX = e.changedTouches[0].clientX;
-      touchEndY = e.changedTouches[0].clientY;
-      
-      const swipeDistanceX = touchEndX - touchStartX;
-      const swipeDistanceY = touchEndY - touchStartY;
-      
-      const minSwipeDistance = 50;
-      
+      if (!sessionIdRef.current) return;
+
       try {
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        
+        const swipeDistanceX = touchEndX - touchStartX;
+        const swipeDistanceY = touchEndY - touchStartY;
+        
+        // Determine if the swipe was primarily horizontal or vertical
         if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY)) {
           if (Math.abs(swipeDistanceX) > minSwipeDistance) {
             const direction = swipeDistanceX > 0 ? 'right' : 'left';
@@ -51,10 +52,9 @@ export const useSwipeTracking = () => {
               page_slug: pageSlug,
               direction,
               event_type: 'swipe',
-              session_id: sessionId,
+              session_id: sessionIdRef.current,
               additional_data: {
-                distanceX: swipeDistanceX,
-                distanceY: swipeDistanceY,
+                distance: Math.abs(swipeDistanceX),
                 startX: touchStartX,
                 startY: touchStartY,
                 endX: touchEndX,
@@ -75,10 +75,9 @@ export const useSwipeTracking = () => {
               page_slug: pageSlug,
               direction,
               event_type: 'swipe',
-              session_id: sessionId,
+              session_id: sessionIdRef.current,
               additional_data: {
-                distanceX: swipeDistanceX,
-                distanceY: swipeDistanceY,
+                distance: Math.abs(swipeDistanceY),
                 startX: touchStartX,
                 startY: touchStartY,
                 endX: touchEndX,
@@ -92,66 +91,68 @@ export const useSwipeTracking = () => {
           }
         }
       } catch (error) {
-        console.error('Error tracking swipe:', error);
+        console.error('Error tracking swipe event:', error);
       }
     };
 
-    const trackScroll = async () => {
-      if (isScrolling.current) return;
-      isScrolling.current = true;
+    const handleScroll = () => {
+      if (!sessionIdRef.current) return;
 
       const currentPosition = window.scrollY;
-      const direction = currentPosition > lastScrollPosition.current ? 'down' : 'up';
-      const scrollPercentage = (currentPosition / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+      isScrolling.current = true;
 
-      try {
-        console.log(`Tracking scroll ${direction} on page:`, pageSlug, 'Position:', currentPosition);
-        const { error } = await supabase.from('swipe_events').insert({
-          page_slug: pageSlug,
-          direction,
-          event_type: 'scroll',
-          scroll_position: Math.round(scrollPercentage),
-          session_id: sessionId,
-          additional_data: {
-            pixelPosition: currentPosition,
-            viewportHeight: window.innerHeight,
-            documentHeight: document.documentElement.scrollHeight,
-            timestamp: new Date().toISOString(),
-            pathname: location.pathname,
-            search: location.search,
-            hash: location.hash
-          }
-        });
-
-        if (error) {
-          console.error('Error tracking scroll:', error);
-        } else {
-          console.log(`Scroll ${direction} tracked successfully for page:`, pageSlug);
-          lastScrollPosition.current = currentPosition;
-        }
-      } catch (error) {
-        console.error('Error tracking scroll:', error);
+      // Clear the timeout if it exists
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
       }
 
-      // Reset scrolling flag after a short delay
-      scrollTimeout.current = setTimeout(() => {
+      // Set a timeout to track the scroll event after scrolling stops
+      scrollTimeout.current = setTimeout(async () => {
+        if (!isScrolling.current || !sessionIdRef.current) return;
+
+        const direction = currentPosition > lastScrollPosition.current ? 'down' : 'up';
+        const distance = Math.abs(currentPosition - lastScrollPosition.current);
+
+        if (distance > 50) { // Only track significant scrolls
+          console.log(`Tracking scroll ${direction} on page:`, pageSlug);
+          
+          try {
+            const { error } = await supabase.from('swipe_events').insert({
+              page_slug: pageSlug,
+              direction,
+              event_type: 'scroll',
+              session_id: sessionIdRef.current,
+              scroll_position: currentPosition,
+              additional_data: {
+                distance,
+                previousPosition: lastScrollPosition.current
+              }
+            });
+
+            if (error) {
+              console.error('Error tracking scroll:', error);
+            }
+          } catch (error) {
+            console.error('Error tracking scroll event:', error);
+          }
+        }
+
+        lastScrollPosition.current = currentPosition;
         isScrolling.current = false;
-      }, 100);
+      }, 150); // Wait for scrolling to stop
     };
 
-    // Add event listeners with passive option for better performance
-    document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchend', handleTouchEnd, { passive: true });
-    window.addEventListener('scroll', trackScroll, { passive: true });
+    window.addEventListener('touchstart', handleTouchStart);
+    window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('scroll', handleScroll);
 
-    // Cleanup
     return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchend', handleTouchEnd);
-      window.removeEventListener('scroll', trackScroll);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('scroll', handleScroll);
       if (scrollTimeout.current) {
         clearTimeout(scrollTimeout.current);
       }
     };
-  }, [pageSlug, location, sessionId]); // Added sessionId to dependencies
+  }, [pageSlug, location]); // Removed sessionId from dependencies as we use ref now
 };
