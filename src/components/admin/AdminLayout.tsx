@@ -1,5 +1,5 @@
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
-import { Users, FileText, Database, LayoutDashboard, Link, FolderOpen, CreditCard, Globe, ChevronDown, ChevronRight } from "lucide-react";
+import { Users, FileText, Database, LayoutDashboard, Link, Store, CreditCard, Globe, ChevronDown, ChevronRight } from "lucide-react";
 import { Link as RouterLink, Outlet } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,9 +66,9 @@ export const AdminLayout = () => {
               
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <RouterLink to="/admin/categories">
-                    <FolderOpen />
-                    <span>Categories</span>
+                  <RouterLink to="/admin/stores">
+                    <Store />
+                    <span>Stores</span>
                   </RouterLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -86,9 +86,9 @@ export const AdminLayout = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent 
                     className="w-56" 
-                    side="bottom" 
+                    side="right"
                     align="start"
-                    sideOffset={0}
+                    alignOffset={-40}
                   >
                     {managementItems.map((item) => (
                       <DropdownMenuItem key={item.title} asChild>
