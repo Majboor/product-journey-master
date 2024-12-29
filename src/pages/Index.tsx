@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
@@ -8,15 +9,16 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { defaultContent } from "@/components/api-manager/defaultContent";
 import { useSwipeTracking } from "@/hooks/useSwipeTracking";
 import { useButtonTracking } from "@/hooks/useButtonTracking";
-import { useState, useEffect } from "react";
 import { initializeDefaultPages } from "@/utils/initializeDefaultPages";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageContent, isPageContent } from "@/types/content";
 import { ErrorPage } from "@/components/ErrorPage";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
   
   // Initialize tracking hooks
   useSwipeTracking();
@@ -35,6 +37,11 @@ const Index = () => {
         
         if (error) {
           console.error('Error fetching page content:', error);
+          toast({
+            title: "Error",
+            description: "Failed to load page content",
+            variant: "destructive",
+          });
           return defaultContent;
         }
         
