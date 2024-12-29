@@ -12,6 +12,8 @@ import PaymentSuccess from "@/pages/PaymentSuccess";
 import PaymentFailed from "@/pages/PaymentFailed";
 import OrderTracking from "@/pages/OrderTracking";
 import Sitemap from "@/pages/Sitemap";
+import { AdminLayout } from "@/components/admin/AdminLayout";
+import { Dashboard } from "@/components/admin/Dashboard";
 
 export const router = createBrowserRouter([
   {
@@ -28,7 +30,12 @@ export const router = createBrowserRouter([
       },
       {
         path: "admin",
+        element: <AdminLayout />,
         children: [
+          {
+            path: "",
+            element: <Dashboard />
+          },
           {
             path: "categories",
             element: <Categories />
