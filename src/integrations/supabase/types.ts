@@ -41,6 +41,7 @@ export type Database = {
       }
       button_clicks: {
         Row: {
+          additional_data: Json | null
           button_name: string
           created_at: string
           id: string
@@ -48,6 +49,7 @@ export type Database = {
           session_id: string | null
         }
         Insert: {
+          additional_data?: Json | null
           button_name: string
           created_at?: string
           id?: string
@@ -55,6 +57,7 @@ export type Database = {
           session_id?: string | null
         }
         Update: {
+          additional_data?: Json | null
           button_name?: string
           created_at?: string
           id?: string
