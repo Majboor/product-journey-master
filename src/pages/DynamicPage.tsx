@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
-import { validatePageContent } from "@/types/content";
+import { validatePageContent, isPageContent, PageContent } from "@/types/content";
 import { ErrorPage } from "@/components/ErrorPage";
 import { useButtonTracking } from "@/hooks/useButtonTracking";
 import { useSwipeTracking } from "@/hooks/useSwipeTracking";
@@ -11,7 +11,6 @@ import ProductSection from "@/components/ProductSection";
 import Features from "@/components/Features";
 import Reviews from "@/components/Reviews";
 import Footer from "@/components/Footer";
-import type { PageContent } from "@/types/content";
 
 const DynamicPage = () => {
   const location = useLocation();
@@ -66,19 +65,17 @@ const DynamicPage = () => {
     );
   }
 
-  const validation = validatePageContent(pageData.content);
-  if (!validation.isValid) {
+  if (!isPageContent(pageData.content)) {
     return (
       <ErrorPage 
         title="Invalid Page Content"
-        description="The page content is invalid or incomplete."
-        errors={validation.errors}
+        description="The page content structure is invalid."
+        errors={validatePageContent(pageData.content).errors}
       />
     );
   }
 
-  // After validation passes, we can safely assert the type
-  const content = pageData.content as PageContent;
+  const content: PageContent = pageData.content;
   console.log('Display brand name:', content.brandName);
 
   return (
